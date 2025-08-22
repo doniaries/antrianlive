@@ -26,6 +26,6 @@ class Counter extends Model
      */
     public function services(): BelongsToMany
     {
-        return $this->belongsToMany(Service::class);
+        return $this->belongsToMany(Service::class, 'counter_layanans');
     }
 }

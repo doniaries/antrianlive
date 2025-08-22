@@ -108,22 +108,22 @@
                             <div class="space-y-4">
                                 @foreach($services as $service)
                                     @if(isset($waitingQueues[$service->id]) && $waitingQueues[$service->id]->isNotEmpty())
-                                        <div>
-                                            <h3 class="font-semibold text-gray-900 mb-2">{{ $service->name }}</h3>
-                                            <div class="flex flex-wrap gap-2">
-                                                @foreach($waitingQueues[$service->id]->take(5) as $queue)
-                                                    <div class="px-3 py-2 bg-blue-100 text-blue-800 rounded text-sm font-medium">
-                                                        {{ $queue->formatted_number }}
-                                                    </div>
-                                                @endforeach
-                                                @if($waitingQueues[$service->id]->count() > 5)
-                                                    <div class="px-3 py-2 bg-gray-100 text-gray-600 rounded text-sm">
-                                                        +{{ $waitingQueues[$service->id]->count() - 5 }} lagi
-                                                    </div>
-                                                @endif
-                                            </div>
+                                    <div>
+                                        <h3 class="font-semibold text-gray-900 mb-2">{{ $service->name }}</h3>
+                                        <div class="flex flex-wrap gap-2">
+                                            @foreach($waitingQueues[$service->id]->take(5) as $queue)
+                                                <div class="px-3 py-2 bg-blue-100 text-blue-800 rounded text-sm font-medium">
+                                                    {{ $queue->formatted_number }}
+                                                </div>
+                                            @endforeach
+                                            @if($waitingQueues[$service->id]->count() > 5)
+                                                <div class="px-3 py-2 bg-gray-100 text-gray-600 rounded text-sm">
+                                                    +{{ $waitingQueues[$service->id]->count() - 5 }} lagi
+                                                </div>
+                                            @endif
                                         </div>
-                                    @endif
+                                    </div>
+                                @endif
                                 @endforeach
                             </div>
                         @endif
@@ -142,7 +142,7 @@
                             <div class="mb-4 p-3 border border-gray-200 rounded-lg">
                                 <h3 class="font-semibold text-gray-900 mb-2">{{ $service->name }}</h3>
                                 <div class="text-sm text-gray-600 mb-2">
-                                    Menunggu: {{ $waitingQueues[$service->id]->count() ?? 0 }}
+                                    Menunggu: {{ isset($waitingQueues[$service->id]) ? $waitingQueues[$service->id]->count() : 0 }}
                                 </div>
                                 
                                 @php

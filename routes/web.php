@@ -7,6 +7,7 @@ use App\Livewire\QueueDashboard;
 use App\Livewire\ServiceManager;
 use App\Livewire\CounterManager;
 use App\Livewire\AntrianManager;
+use App\Livewire\ProfilManager;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -16,16 +17,16 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard utama antrian
     Route::get('/dashboard', QueueDashboard::class)->name('dashboard');
-    
+
     // Manajemen Layanan
     Route::get('/services', ServiceManager::class)->name('services.index');
-    
+
     // Manajemen Loket
     Route::get('/counters', CounterManager::class)->name('counters.index');
-    
+
     // Manajemen Antrian
     Route::get('/antrians', AntrianManager::class)->name('antrians.index');
-    
+
     // Settings (existing)
     Route::redirect('settings', 'settings/profile');
     Route::get('settings/profile', Profile::class)->name('settings.profile');
@@ -33,7 +34,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
 });
 
+Route::get('/profil', App\Livewire\ProfilManager::class)->name('profil.index');
+
+
 // Public display untuk customer (opsional)
 Route::get('/display', QueueDashboard::class)->name('queue.display');
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
