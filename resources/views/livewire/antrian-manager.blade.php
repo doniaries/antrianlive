@@ -14,36 +14,36 @@
 
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <flux:card class="p-4">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                 <div class="text-center">
                     <div class="text-2xl font-bold text-blue-600">{{ $this->waitingCount }}</div>
                     <div class="text-sm text-gray-600">Menunggu</div>
                 </div>
-            </flux:card>
-            <flux:card class="p-4">
+            </div>
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                 <div class="text-center">
                     <div class="text-2xl font-bold text-yellow-600">{{ $this->calledCount }}</div>
                     <div class="text-sm text-gray-600">Dipanggil</div>
                 </div>
-            </flux:card>
-            <flux:card class="p-4">
+            </div>
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                 <div class="text-center">
                     <div class="text-2xl font-bold text-green-600">{{ $this->finishedCount }}</div>
                     <div class="text-sm text-gray-600">Selesai</div>
                 </div>
-            </flux:card>
-            <flux:card class="p-4">
+            </div>
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                 <div class="text-center">
                     <flux:button wire:click="openModal" variant="primary" class="w-full">
                         <flux:icon.plus class="mr-2" />
                         Tambah Antrian
                     </flux:button>
                 </div>
-            </flux:card>
+            </div>
         </div>
 
         <!-- Filters -->
-        <flux:card class="p-4">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                     <flux:label>Tanggal</flux:label>
@@ -79,11 +79,11 @@
                     </flux:button>
                 </div>
             </div>
-        </flux:card>
+        </div>
 
         <!-- Antrians Table -->
-        <flux:card>
-            <div class="overflow-hidden bg-white shadow-sm rounded-lg border border-gray-200">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="overflow-hidden">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
@@ -191,7 +191,7 @@
             <div class="mt-4">
                 {{ $antrians->links() }}
             </div>
-        </flux:card>
+        </div>
 
         <!-- Modal -->
         <flux:modal wire:model="showModal" class="w-full max-w-lg">
