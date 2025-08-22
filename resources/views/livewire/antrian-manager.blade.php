@@ -34,7 +34,7 @@
             </div>
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                 <div class="text-center">
-                    <flux:button wire:click="openModal" variant="primary" class="w-full">
+                    <flux:button wire:click="openModal" variant="primary" class="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white dark:text-white">
                         <flux:icon.plus class="mr-2" />
                         Tambah Antrian
                     </flux:button>

@@ -15,7 +15,7 @@
         <!-- Actions -->
         <div class="flex justify-between items-center">
             <flux:heading size="lg">Daftar Loket</flux:heading>
-            <flux:button wire:click="openModal" variant="primary">
+            <flux:button wire:click="openModal" variant="primary" class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white dark:text-white">
                 <flux:icon.plus class="mr-2" />
                 Tambah Loket
             </flux:button>
