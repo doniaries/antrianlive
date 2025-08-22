@@ -1,7 +1,7 @@
 <div>
     <flux:header>
         <flux:heading size="xl">Manajemen Loket</flux:heading>
-        <flux:subheading>Kelola loket pelayanan dan layanan yang ditangani</flux:subheading>
+
     </flux:header>
 
     <flux:main class="space-y-6">
@@ -15,7 +15,8 @@
         <!-- Actions -->
         <div class="flex justify-between items-center">
             <flux:heading size="lg">Daftar Loket</flux:heading>
-            <flux:button wire:click="openModal" variant="primary" class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white dark:text-white">
+            <flux:button wire:click="openModal" variant="primary"
+                class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white dark:text-white">
                 <flux:icon.plus class="mr-2" />
                 Tambah Loket
             </flux:button>
@@ -26,19 +27,25 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Loket</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deskripsi</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Layanan</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dibuat</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama
+                            Loket</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Deskripsi</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Layanan</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Dibuat</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi
+                        </th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    @foreach($counters as $counter)
+                    @foreach ($counters as $counter)
                         <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $counter->name }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                {{ $counter->name }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                @if($counter->description)
+                                @if ($counter->description)
                                     {{ Str::limit($counter->description, 50) }}
                                 @else
                                     <span class="text-gray-500">-</span>
@@ -46,29 +53,25 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex flex-wrap gap-1">
-                                    @foreach($counter->services as $service)
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                                    @foreach ($counter->services as $service)
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
                                             {{ $service->code }}
                                         </span>
                                     @endforeach
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $counter->created_at->format('d/m/Y H:i') }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ $counter->created_at->format('d/m/Y H:i') }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <div class="flex space-x-2">
-                                    <button 
-                                        wire:click="edit({{ $counter->id }})" 
-                                        class="text-gray-400 hover:text-gray-600 p-1"
-                                        title="Edit"
-                                    >
+                                    <button wire:click="edit({{ $counter->id }})"
+                                        class="text-gray-400 hover:text-gray-600 p-1" title="Edit">
                                         <flux:icon.pencil class="w-4 h-4" />
                                     </button>
-                                    <button 
-                                        wire:click="delete({{ $counter->id }})" 
-                                        class="text-red-400 hover:text-red-600 p-1"
-                                        title="Hapus"
-                                        onclick="return confirm('Apakah Anda yakin ingin menghapus loket ini? Semua layanan yang terkait akan dilepas.')"
-                                    >
+                                    <button wire:click="delete({{ $counter->id }})"
+                                        class="text-red-400 hover:text-red-600 p-1" title="Hapus"
+                                        onclick="return confirm('Apakah Anda yakin ingin menghapus loket ini? Semua layanan yang terkait akan dilepas.')">
                                         <flux:icon.trash class="w-4 h-4" />
                                     </button>
                                 </div>
@@ -93,29 +96,17 @@
                     </flux:heading>
                 </div>
 
-                <flux:input 
-                    wire:model="name" 
-                    label="Nama Loket" 
-                    placeholder="Contoh: Loket 1"
-                    required
-                />
+                <flux:input wire:model="name" label="Nama Loket" placeholder="Contoh: Loket 1" required />
 
-                <flux:textarea 
-                    wire:model="description" 
-                    label="Deskripsi" 
-                    placeholder="Deskripsi loket (opsional)"
-                    rows="3"
-                />
+                <flux:textarea wire:model="description" label="Deskripsi" placeholder="Deskripsi loket (opsional)"
+                    rows="3" />
 
                 <div>
                     <flux:label>Layanan yang Ditangani</flux:label>
                     <div class="mt-2 space-y-2">
-                        @foreach($services as $service)
-                            <flux:checkbox 
-                                wire:model="selectedServices" 
-                                value="{{ $service->id }}"
-                                label="{{ $service->name }} ({{ $service->code }})"
-                            />
+                        @foreach ($services as $service)
+                            <flux:checkbox wire:model="selectedServices" value="{{ $service->id }}"
+                                label="{{ $service->name }} ({{ $service->code }})" />
                         @endforeach
                     </div>
                     <flux:subheading class="mt-1">

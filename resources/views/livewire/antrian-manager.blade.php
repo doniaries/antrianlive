@@ -1,7 +1,7 @@
 <div>
     <flux:header>
         <flux:heading size="xl">Manajemen Antrian</flux:heading>
-        <flux:subheading>Sistem pengelolaan antrian pelayanan</flux:subheading>
+
     </flux:header>
 
     <flux:main class="space-y-6">
@@ -34,7 +34,8 @@
             </div>
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                 <div class="text-center">
-                    <flux:button wire:click="openModal" variant="primary" class="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white dark:text-white">
+                    <flux:button wire:click="openModal" variant="primary"
+                        class="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white dark:text-white">
                         <flux:icon.plus class="mr-2" />
                         Tambah Antrian
                     </flux:button>
@@ -47,17 +48,13 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                     <flux:label>Tanggal</flux:label>
-                    <flux:input 
-                        type="date" 
-                        wire:model.live="filterDate" 
-                        class="mt-1"
-                    />
+                    <flux:input type="date" wire:model.live="filterDate" class="mt-1" />
                 </div>
                 <div>
                     <flux:label>Layanan</flux:label>
                     <flux:select wire:model.live="filterService" class="mt-1">
                         <option value="">Semua Layanan</option>
-                        @foreach($services as $service)
+                        @foreach ($services as $service)
                             <option value="{{ $service->id }}">{{ $service->name }}</option>
                         @endforeach
                     </flux:select>
@@ -87,42 +84,55 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nomor Antrian</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Layanan</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Loket</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Waktu</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Nomor Antrian</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Layanan</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Loket</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Waktu</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         @forelse($antrians as $antrian)
                             <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-lg text-gray-900">{{ $antrian->formatted_number }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-lg text-gray-900">
+                                    {{ $antrian->formatted_number }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div>
-                                        <div class="font-medium text-sm text-gray-900">{{ $antrian->service->name }}</div>
+                                        <div class="font-medium text-sm text-gray-900">{{ $antrian->service->name }}
+                                        </div>
                                         <div class="text-sm text-gray-600">{{ $antrian->service->code }}</div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    @if($antrian->counter)
+                                    @if ($antrian->counter)
                                         {{ $antrian->counter->name }}
                                     @else
                                         <span class="text-gray-500">-</span>
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{
-                                        $antrian->status === 'waiting' ? 'bg-blue-100 text-blue-800' :
-                                        ($antrian->status === 'called' ? 'bg-yellow-100 text-yellow-800' :
-                                        ($antrian->status === 'finished' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'))
-                                    }}">
-                                        {{
-                                            $antrian->status === 'waiting' ? 'Menunggu' :
-                                            ($antrian->status === 'called' ? 'Dipanggil' :
-                                            ($antrian->status === 'finished' ? 'Selesai' : 'Dilewati'))
-                                        }}
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $antrian->status === 'waiting'
+                                            ? 'bg-blue-100 text-blue-800'
+                                            : ($antrian->status === 'called'
+                                                ? 'bg-yellow-100 text-yellow-800'
+                                                : ($antrian->status === 'finished'
+                                                    ? 'bg-green-100 text-green-800'
+                                                    : 'bg-gray-100 text-gray-800')) }}">
+                                        {{ $antrian->status === 'waiting'
+                                            ? 'Menunggu'
+                                            : ($antrian->status === 'called'
+                                                ? 'Dipanggil'
+                                                : ($antrian->status === 'finished'
+                                                    ? 'Selesai'
+                                                    : 'Dilewati')) }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -133,43 +143,29 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex space-x-1">
-                                        @if($antrian->status === 'waiting')
-                                            <button 
-                                                wire:click="callNext({{ $antrian->service_id }}, {{ $antrian->counter_id ?? 1 }})" 
-                                                class="text-gray-400 hover:text-gray-600 p-1"
-                                                title="Panggil"
-                                            >
+                                        @if ($antrian->status === 'waiting')
+                                            <button
+                                                wire:click="callNext({{ $antrian->service_id }}, {{ $antrian->counter_id ?? 1 }})"
+                                                class="text-gray-400 hover:text-gray-600 p-1" title="Panggil">
                                                 <flux:icon.megaphone class="w-4 h-4" />
                                             </button>
                                         @elseif($antrian->status === 'called')
-                                            <button 
-                                                wire:click="finish({{ $antrian->id }})" 
-                                                class="text-green-400 hover:text-green-600 p-1"
-                                                title="Selesai"
-                                            >
+                                            <button wire:click="finish({{ $antrian->id }})"
+                                                class="text-green-400 hover:text-green-600 p-1" title="Selesai">
                                                 <flux:icon.check class="w-4 h-4" />
                                             </button>
-                                            <button 
-                                                wire:click="skip({{ $antrian->id }})" 
-                                                class="text-orange-400 hover:text-orange-600 p-1"
-                                                title="Lewati"
-                                            >
+                                            <button wire:click="skip({{ $antrian->id }})"
+                                                class="text-orange-400 hover:text-orange-600 p-1" title="Lewati">
                                                 <flux:icon.arrow-right class="w-4 h-4" />
                                             </button>
                                         @endif
-                                        <button 
-                                            wire:click="edit({{ $antrian->id }})" 
-                                            class="text-gray-400 hover:text-gray-600 p-1"
-                                            title="Edit"
-                                        >
+                                        <button wire:click="edit({{ $antrian->id }})"
+                                            class="text-gray-400 hover:text-gray-600 p-1" title="Edit">
                                             <flux:icon.pencil class="w-4 h-4" />
                                         </button>
-                                        <button 
-                                            wire:click="delete({{ $antrian->id }})" 
-                                            class="text-red-400 hover:text-red-600 p-1"
-                                            title="Hapus"
-                                            onclick="return confirm('Apakah Anda yakin ingin menghapus antrian ini?')"
-                                        >
+                                        <button wire:click="delete({{ $antrian->id }})"
+                                            class="text-red-400 hover:text-red-600 p-1" title="Hapus"
+                                            onclick="return confirm('Apakah Anda yakin ingin menghapus antrian ini?')">
                                             <flux:icon.trash class="w-4 h-4" />
                                         </button>
                                     </div>
@@ -206,7 +202,7 @@
                     <flux:label>Layanan</flux:label>
                     <flux:select wire:model="selectedService" required class="mt-1">
                         <option value="">Pilih Layanan</option>
-                        @foreach($services as $service)
+                        @foreach ($services as $service)
                             <option value="{{ $service->id }}">{{ $service->name }} ({{ $service->code }})</option>
                         @endforeach
                     </flux:select>
@@ -216,13 +212,13 @@
                     <flux:label>Loket (Opsional)</flux:label>
                     <flux:select wire:model="selectedCounter" class="mt-1">
                         <option value="">Pilih Loket</option>
-                        @foreach($counters as $counter)
+                        @foreach ($counters as $counter)
                             <option value="{{ $counter->id }}">{{ $counter->name }}</option>
                         @endforeach
                     </flux:select>
                 </div>
 
-                @if($isEditMode)
+                @if ($isEditMode)
                     <div>
                         <flux:label>Status</flux:label>
                         <flux:select wire:model="status" required class="mt-1">
