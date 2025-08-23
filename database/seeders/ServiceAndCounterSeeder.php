@@ -16,7 +16,7 @@ class ServiceAndCounterSeeder extends Seeder
     {
         // Disable foreign key checks
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        
+
         // Clear existing data
         DB::table('counter_layanans')->truncate();
         DB::table('counters')->truncate();
@@ -24,11 +24,11 @@ class ServiceAndCounterSeeder extends Seeder
 
         // Create Services
         $services = [
-            ['name' => 'Poli Umum', 'code' => 'A', 'is_active' => true],
-            ['name' => 'Poli Gigi', 'code' => 'B', 'is_active' => true],
-            ['name' => 'Poli Anak', 'code' => 'C', 'is_active' => true],
-            ['name' => 'Pendaftaran', 'code' => 'D', 'is_active' => true],
-            ['name' => 'Pembayaran', 'code' => 'E', 'is_active' => true],
+            ['name' => 'Poli Umum', 'code' => 'PU', 'is_active' => true],
+            ['name' => 'Poli Gigi', 'code' => 'PG', 'is_active' => true],
+            ['name' => 'Poli Anak', 'code' => 'PA', 'is_active' => true],
+            ['name' => 'Pendaftaran', 'code' => 'PD', 'is_active' => true],
+            ['name' => 'Pembayaran', 'code' => 'PB', 'is_active' => true],
         ];
 
         foreach ($services as $service) {
@@ -57,7 +57,7 @@ class ServiceAndCounterSeeder extends Seeder
         foreach ($counters as $counterData) {
             $services = Service::whereIn('code', $counterData['services'])->pluck('id');
             unset($counterData['services']);
-            
+
             $counter = Counter::create($counterData);
             $counter->services()->attach($services);
         }
