@@ -9,7 +9,17 @@
                 </div>
                 <div class="text-right">
                     <div class="text-sm text-gray-600 dark:text-gray-400">{{ now()->format('d/m/Y') }}</div>
-                    <div class="text-lg font-bold text-gray-900 dark:text-white">{{ now()->format('H:i:s') }}</div>
+                    <div class="text-lg font-bold text-gray-900 dark:text-white" x-data="{ time: '' }" x-init="() => {
+                        const updateTime = () => {
+                            const now = new Date();
+                            const hours = String(now.getHours()).padStart(2, '0');
+                            const minutes = String(now.getMinutes()).padStart(2, '0');
+                            const seconds = String(now.getSeconds()).padStart(2, '0');
+                            time = `${hours}:${minutes}:${seconds}`;
+                        };
+                        updateTime();
+                        setInterval(updateTime, 1000);
+                    }" x-text="time"></div>
                 </div>
             </div>
         </div>
@@ -80,8 +90,8 @@
                                         </div>
                                         <div class="text-right">
                                             <div class="text-sm text-gray-600 dark:text-yellow-300/80">{{ $queue->called_at->format('H:i:s') }}</div>
-                                            <button 
-                                                wire:click="finishQueue({{ $queue->id }})" 
+                                            <button
+                                                wire:click="finishQueue({{ $queue->id }})"
                                                 class="mt-1 px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm rounded transition-colors duration-200"
                                             >
                                                 Selesai
@@ -144,7 +154,7 @@
                                 <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
                                     Menunggu: {{ isset($waitingQueues[$service->id]) ? $waitingQueues[$service->id]->count() : 0 }}
                                 </div>
-                                
+
                                 @php
                                     $nextQueue = $this->getNextQueue($service->id);
                                 @endphp
@@ -159,8 +169,8 @@
                                 <div class="space-y-2">
                                     @foreach($counters as $counter)
                                         @if($counter->services->contains($service))
-                                            <button 
-                                                wire:click="callNext({{ $service->id }}, {{ $counter->id }})" 
+                                            <button
+                                                wire:click="callNext({{ $service->id }}, {{ $counter->id }})"
                                                 class="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                                 @if(!$nextQueue) disabled @endif
                                             >
@@ -180,8 +190,8 @@
                         <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Aksi Cepat</h2>
                     </div>
                     <div class="p-4 space-y-2">
-                        <button 
-                            wire:click="$refresh" 
+                        <button
+                            wire:click="$refresh"
                             class="w-full px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm rounded transition-colors duration-200"
                             wire:loading.attr="disabled"
                             wire:loading.class="opacity-50 cursor-not-allowed"
@@ -194,8 +204,8 @@
                                 <span>Refresh Data</span>
                             </div>
                         </button>
-                        <a 
-                            href="{{ route('antrians.index') }}" 
+                        <a
+                            href="{{ route('antrians.index') }}"
                             class="w-full px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded transition-colors duration-200 text-center block"
                         >
                             Kelola Antrian
@@ -213,7 +223,7 @@
                 // Play sound notification
                 const audio = new Audio('/audio/notification.mp3');
                 audio.play().catch(e => console.log('Audio play failed:', e));
-                
+
                 // Show browser notification if supported
                 if ('Notification' in window && Notification.permission === 'granted') {
                     new Notification('Antrian Dipanggil', {

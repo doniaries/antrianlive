@@ -29,9 +29,9 @@
                 <flux:navlist.item icon="queue-list" :href="route('antrians.index')"
                     :current="request()->routeIs('antrians.index')" wire:navigate>{{ __('Antrian') }}
                 </flux:navlist.item>
-                <flux:navlist.item icon="computer-desktop" :href="route('queue.display')"
+                {{-- <flux:navlist.item icon="computer-desktop" :href="route('queue.display')"
                     :current="request()->routeIs('queue.display')" wire:navigate>{{ __('Display Antrian') }}
-                </flux:navlist.item>
+                </flux:navlist.item> --}}
             </flux:navlist.group>
 
             <flux:navlist.group :heading="__('Pengaturan')" class="grid">

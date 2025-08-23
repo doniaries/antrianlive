@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Service;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -16,6 +17,11 @@ class ServiceManager extends Component
     public $serviceId = null;
     public $isEditMode = false;
     public $showModal = false;
+    
+    protected $listeners = [
+        'showServiceModal' => 'openModal',
+        'hideServiceModal' => 'closeModal'
+    ];
 
     protected $rules = [
         'name' => 'required|string|max:255',
@@ -37,14 +43,19 @@ class ServiceManager extends Component
 
     public function openModal()
     {
+        \Illuminate\Support\Facades\Log::info('ServiceManager: openModal called');
         $this->resetInputFields();
+        $this->isEditMode = false;
         $this->showModal = true;
+        \Illuminate\Support\Facades\Log::info('ServiceManager: showModal set to true');
     }
 
     public function closeModal()
     {
+        \Illuminate\Support\Facades\Log::info('ServiceManager: closeModal called');
         $this->showModal = false;
         $this->resetInputFields();
+        \Illuminate\Support\Facades\Log::info('ServiceManager: showModal set to false');
     }
 
     public function resetInputFields()
@@ -84,6 +95,7 @@ class ServiceManager extends Component
 
     public function edit($id)
     {
+        $this->resetValidation();
         $service = Service::findOrFail($id);
         $this->serviceId = $id;
         $this->name = $service->name;

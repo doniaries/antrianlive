@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Counter;
 use App\Models\Service;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -17,6 +18,11 @@ class CounterManager extends Component
     public $counterId = null;
     public $isEditMode = false;
     public $showModal = false;
+    
+    protected $listeners = [
+        'showCounterModal' => 'openModal',
+        'hideCounterModal' => 'closeModal'
+    ];
 
     protected $rules = [
         'name' => 'required|string|max:255',
@@ -33,14 +39,19 @@ class CounterManager extends Component
 
     public function openModal()
     {
+        \Illuminate\Support\Facades\Log::info('openModal called');
         $this->resetInputFields();
+        $this->isEditMode = false;
         $this->showModal = true;
+        \Illuminate\Support\Facades\Log::info('showModal set to true');
     }
 
     public function closeModal()
     {
+        \Illuminate\Support\Facades\Log::info('closeModal called');
         $this->showModal = false;
         $this->resetInputFields();
+        \Illuminate\Support\Facades\Log::info('showModal set to false');
     }
 
     public function resetInputFields()
@@ -73,6 +84,7 @@ class CounterManager extends Component
 
     public function edit($id)
     {
+        $this->resetValidation();
         $counter = Counter::with('services')->findOrFail($id);
         $this->counterId = $id;
         $this->name = $counter->name;
