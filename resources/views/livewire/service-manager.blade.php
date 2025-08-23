@@ -1,7 +1,7 @@
 <div>
     <flux:header>
         <flux:heading size="xl">Manajemen Layanan</flux:heading>
-        <flux:subheading>Kelola layanan antrian sistem</flux:subheading>
+        {{-- <flux:subheading>Kelola layanan antrian sistem</flux:subheading> --}}
     </flux:header>
 
     <flux:main class="space-y-6">
@@ -23,58 +23,58 @@
         </div>
 
         <!-- Services Table -->
-        <div class="overflow-hidden bg-white shadow-sm rounded-lg border border-gray-200">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+        <div class="overflow-hidden bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-700">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nama
                             Layanan</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kode
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kode
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             Dibuat</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Aksi
                         </th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                     @foreach ($services as $service)
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
                                 {{ $service->name }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span
-                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 border border-blue-200 dark:border-blue-700">
                                     {{ $service->code }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span
-                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $service->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $service->is_active ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' }}">
                                     {{ $service->is_active ? 'Aktif' : 'Nonaktif' }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                 {{ $service->created_at->format('d/m/Y H:i') }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <div class="flex space-x-2">
                                     <button wire:click="toggleStatus({{ $service->id }})"
-                                        class="text-gray-400 hover:text-gray-600 p-1"
+                                        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1"
                                         title="{{ $service->is_active ? 'Nonaktifkan' : 'Aktifkan' }}">
                                         @if ($service->is_active)
-                                            <flux:icon.bolt-slash class="w-4 h-4 text-green-600" />
+                                            <flux:icon.bolt-slash class="w-4 h-4 text-green-600 dark:text-green-400" />
                                         @else
-                                            <flux:icon.bolt class="w-4 h-4 text-gray-400" />
+                                            <flux:icon.bolt class="w-4 h-4 text-gray-400 dark:text-gray-500" />
                                         @endif
                                     </button>
                                     <button wire:click="edit({{ $service->id }})"
-                                        class="text-gray-400 hover:text-gray-600 p-1" title="Edit">
+                                        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1" title="Edit">
                                         <flux:icon.pencil class="w-4 h-4" />
                                     </button>
                                     <button wire:click="delete({{ $service->id }})"
-                                        class="text-red-400 hover:text-red-600 p-1" title="Hapus"
+                                        class="text-red-400 hover:text-red-600 dark:hover:text-red-300 p-1" title="Hapus"
                                         onclick="return confirm('Apakah Anda yakin ingin menghapus layanan ini?')">
                                         <flux:icon.trash class="w-4 h-4" />
                                     </button>
