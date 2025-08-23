@@ -181,7 +181,7 @@
                 wire:loading.remove.class="opacity-0" x-cloak>
 
                 <!-- Background overlay -->
-                <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" wire:click="closeModal"></div>
+                <div class="fixed inset-0 bg-black/50" wire:click="closeModal"></div>
 
                 <!-- Modal panel -->
                 <div class="flex min-h-screen items-center justify-center p-4">
