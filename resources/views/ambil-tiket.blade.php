@@ -93,42 +93,34 @@
 <body>
     <div class="min-h-screen flex flex-col p-4">
         <div class="w-full max-w-6xl mx-auto flex-1 flex flex-col">
-            <div class="text-center py-6 floating-header">
+            <div class="text-center py-3 floating-header">
                 <h1 class="text-4xl md:text-5xl font-bold text-white mb-2">Ambil Tiket</h1>
                 <p class="text-white/80 text-base md:text-lg">Pilih layanan dan loket yang Anda inginkan</p>
             </div>
 
             <div class="flex flex-nowrap overflow-x-auto pb-4 gap-4 md:gap-6 flex-1 w-full">
                 @foreach ($services as $service)
-                    <div class="glass-card p-4 md:p-6 service-card h-full flex flex-col min-w-[300px] flex-shrink-0">
-                        <div class="flex items-center mb-4">
-                            <div
-                                class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mr-4">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    <div class="glass-card p-3 md:p-4 service-card h-full flex flex-col min-w-[220px] flex-shrink-0">
+                        <div class="flex items-center mb-2">
+                            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-2">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                                 </svg>
                             </div>
-                            <h2 class="text-2xl font-bold text-white">{{ $service->name }}</h2>
+                            <h2 class="text-lg font-bold text-white truncate" title="{{ $service->name }}">{{ $service->name }}</h2>
                         </div>
 
                         <div class="grid grid-cols-1 gap-3 mt-auto">
                             @foreach ($service->counters as $counter)
-                                <div class="counter-card rounded-xl p-4 text-center">
-                                    {{-- <div
-                                        class="w-16 h-16 bg-white/20 rounded-sm flex items-center justify-center mx-auto mb-4">
-                                        <span class="text-2xl font-bold text-white">{{ $counter->name }}</span>
-                                    </div> --}}
-                                    <p class="text-white/100 text-xl mb-4">Loket {{ $counter->name }}</p>
+                                <div class="counter-card rounded-lg p-3 text-center bg-white/5 hover:bg-white/10 transition-colors">
+                                    <p class="text-white/90 text-lg font-medium mb-3">Loket {{ $counter->name }}</p>
 
                                     <form id="ticketForm-{{ $service->id }}-{{ $counter->id }}" method="POST"
                                         action="{{ route('queue.ticket.take') }}" class="ticket-form">
                                         @csrf
                                         <input type="hidden" name="service_id" value="{{ $service->id }}">
                                         <input type="hidden" name="counter_id" value="{{ $counter->id }}">
-                                        <button type="submit"
-                                            class="btn-gradient w-full py-3 px-6 text-white font-semibold rounded-xl shadow-lg">
+                                        <button type="submit" class="btn-gradient w-full py-2 px-4 text-white text-sm font-semibold rounded-lg shadow-md transition-all hover:shadow-lg">
                                             Ambil Tiket
                                         </button>
                                     </form>
