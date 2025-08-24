@@ -17,6 +17,9 @@
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow-y: auto;
         }
         .glass-card {
             background: rgba(255, 255, 255, 0.1);
@@ -68,17 +71,17 @@
     </style>
 </head>
 <body>
-    <div class="min-h-screen flex items-center justify-center p-4">
-        <div class="w-full max-w-6xl">
-            <div class="text-center mb-12 floating-header">
-                <h1 class="text-5xl font-bold text-white mb-4">Ambil Tiket</h1>
-                <p class="text-white/80 text-lg">Pilih layanan dan loket yang Anda inginkan</p>
+    <div class="min-h-screen flex flex-col p-4">
+        <div class="w-full max-w-6xl mx-auto flex-1 flex flex-col">
+            <div class="text-center py-6 floating-header">
+                <h1 class="text-4xl md:text-5xl font-bold text-white mb-2">Ambil Tiket</h1>
+                <p class="text-white/80 text-base md:text-lg">Pilih layanan dan loket yang Anda inginkan</p>
             </div>
             
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="flex flex-nowrap overflow-x-auto pb-4 gap-4 md:gap-6 flex-1 w-full">
                 @foreach($services as $service)
-                    <div class="glass-card p-8 service-card">
-                        <div class="flex items-center mb-6">
+                    <div class="glass-card p-4 md:p-6 service-card h-full flex flex-col min-w-[300px] flex-shrink-0">
+                        <div class="flex items-center mb-4">
                             <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mr-4">
                                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
@@ -87,9 +90,9 @@
                             <h2 class="text-2xl font-bold text-white">{{ $service->name }}</h2>
                         </div>
                         
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 gap-3 mt-auto">
                             @foreach($service->counters as $counter)
-                                <div class="counter-card rounded-xl p-6 text-center">
+                                <div class="counter-card rounded-xl p-4 text-center">
                                     <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
                                         <span class="text-2xl font-bold text-white">{{ $counter->name }}</span>
                                     </div>
@@ -110,8 +113,8 @@
                 @endforeach
             </div>
             
-            <div class="text-center mt-12">
-                <p class="text-white/60 text-sm">Sistem Antrian Modern • Desain Responsif • Cepat & Mudah</p>
+            <div class="text-center py-4 mt-4">
+                <p class="text-white/60 text-xs md:text-sm">Sistem Antrian Modern • Desain Responsif • Cepat & Mudah</p>
             </div>
         </div>
     </div>
@@ -145,26 +148,32 @@
                             const audio = new Audio('{{ asset("sounds/bell.mp3") }}');
                             audio.play().catch(e => console.log('Audio play failed:', e));
                             
-                            // Show success message
-                            Swal.fire({
-                                title: 'Tiket Berhasil Diambil!',
-                                html: `
-                                    <div class="text-center">
-                                        <div class="text-6xl mb-4">🎫</div>
-                                        <p class="text-xl font-bold mb-2">Nomor Antrian Anda:</p>
-                                        <div class="text-5xl font-bold text-blue-600 mb-4">${data.ticket_number}</div>
-                                        <p class="text-gray-600">Silahkan menunggu panggilan di loket ${data.counter_name}</p>
-                                    </div>
-                                `,
+                            // Show success toast notification
+                            const Toast = Swal.mixin({
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 5000,
+                                timerProgressBar: true,
+                                didOpen: (toast) => {
+                                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                                }
+                            });
+                            
+                            Toast.fire({
                                 icon: 'success',
-                                confirmButtonText: 'OK',
-                                confirmButtonColor: '#667eea',
-                                backdrop: `
-                                    rgba(0,0,123,0.4)
-                                    url("{{ asset('images/nyan-cat.gif') }}")
-                                    left top
-                                    no-repeat
-                                `
+                                title: `Tiket ${data.ticket_number}`,
+                                text: `Loket ${data.counter_name} • ${data.waiting_time}`,
+                                showConfirmButton: false,
+                                width: '350px',
+                                padding: '1rem',
+                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                color: 'white',
+                                customClass: {
+                                    title: 'text-white text-lg font-bold',
+                                    htmlContainer: 'text-white/90 text-sm'
+                                }
                             });
                         } else {
                             Swal.fire({
