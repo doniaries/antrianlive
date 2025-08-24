@@ -38,11 +38,20 @@ Route::get('/profil', App\Livewire\ProfilManager::class)->name('profil.index');
 
 
 // Public display untuk customer (opsional)
-Route::get('/display', QueueDashboard::class)->name('queue.display');
+Route::get('/display', function () {
+    return view('display');
+})->name('display');
 
 // Halaman pengambilan tiket antrian
+use App\Models\Service;
+
 Route::get('/ambil-tiket', function () {
-    return view('ambil-tiket');
+    $services = Service::with('counters')
+        ->where('is_active', true)
+        ->orderBy('name')
+        ->get();
+        
+    return view('ambil-tiket', compact('services'));
 })->name('ambil.tiket');
 Route::post('/ticket/take', [\App\Http\Controllers\QueueTicketController::class, 'takeTicket'])->name('queue.ticket.take');
 Route::get('/ticket/success/{antrian}', [\App\Http\Controllers\QueueTicketController::class, 'success'])->name('queue.ticket.success');

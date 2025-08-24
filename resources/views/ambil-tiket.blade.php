@@ -8,6 +8,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Ambil Tiket</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -94,7 +95,7 @@
                                     </div>
                                     <p class="text-white/80 text-sm mb-4">Loket {{ $counter->name }}</p>
                                     
-                                    <form method="GET" action="{{ route('ambil.tiket') }}">
+                                    <form id="ticketForm-{{ $service->id }}-{{ $counter->id }}" method="POST" action="{{ route('queue.ticket.take') }}" class="ticket-form">
                                         @csrf
                                         <input type="hidden" name="service_id" value="{{ $service->id }}">
                                         <input type="hidden" name="counter_id" value="{{ $counter->id }}">
@@ -114,5 +115,80 @@
             </div>
         </div>
     </div>
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        // Handle form submission with AJAX
+        document.addEventListener('DOMContentLoaded', function() {
+            const forms = document.querySelectorAll('.ticket-form');
+            
+            forms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(form);
+                    
+                    fetch(form.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Play notification sound
+                            const audio = new Audio('{{ asset("sounds/bell.mp3") }}');
+                            audio.play().catch(e => console.log('Audio play failed:', e));
+                            
+                            // Show success message
+                            Swal.fire({
+                                title: 'Tiket Berhasil Diambil!',
+                                html: `
+                                    <div class="text-center">
+                                        <div class="text-6xl mb-4">🎫</div>
+                                        <p class="text-xl font-bold mb-2">Nomor Antrian Anda:</p>
+                                        <div class="text-5xl font-bold text-blue-600 mb-4">${data.ticket_number}</div>
+                                        <p class="text-gray-600">Silahkan menunggu panggilan di loket ${data.counter_name}</p>
+                                    </div>
+                                `,
+                                icon: 'success',
+                                confirmButtonText: 'OK',
+                                confirmButtonColor: '#667eea',
+                                backdrop: `
+                                    rgba(0,0,123,0.4)
+                                    url("{{ asset('images/nyan-cat.gif') }}")
+                                    left top
+                                    no-repeat
+                                `
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Gagal',
+                                text: data.message || 'Terjadi kesalahan. Silahkan coba lagi.',
+                                icon: 'error',
+                                confirmButtonText: 'OK',
+                                confirmButtonColor: '#667eea'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Terjadi kesalahan. Silahkan coba lagi.',
+                            icon: 'error',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#667eea'
+                        });
+                    });
+                });
+            });
+        });
+    </script>
 </body>
 </html>

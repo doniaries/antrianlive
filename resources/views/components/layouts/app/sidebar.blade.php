@@ -32,9 +32,15 @@
                 <flux:navlist.item icon="queue-list" :href="route('antrians.index')"
                     :current="request()->routeIs('antrians.index')" wire:navigate>{{ __('Antrian') }}
                 </flux:navlist.item>
-                {{-- <flux:navlist.item icon="computer-desktop" :href="route('queue.display')"
-                    :current="request()->routeIs('queue.display')" wire:navigate>{{ __('Display Antrian') }}
-                </flux:navlist.item> --}}
+                <li class="hs-accordion" id="account-accordion">
+                  <a href="{{ route('display') }}" class="hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-900 dark:text-slate-200 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600" @if(request()->routeIs('display')) aria-current="page" @endif>
+                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect width="20" height="14" x="2" y="7" rx="2" ry="2"/>
+                      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                    </svg>
+                    Display Antrian
+                  </a>
+                </li>
             </flux:navlist.group>
 
             <flux:navlist.group :heading="__('Pengaturan')" class="grid">

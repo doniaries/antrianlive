@@ -46,6 +46,12 @@ class QueueTicketController extends Controller
 
             // Check if the counter is valid for this service
             if (!$service->counters->contains($counter->id)) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Loket tidak valid untuk layanan ini.'
+                    ], 400);
+                }
                 return back()->with('error', 'Loket tidak valid untuk layanan ini.');
             }
 
@@ -69,11 +75,47 @@ class QueueTicketController extends Controller
                 'finished_at' => null,
             ]);
 
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'ticket_number' => $formattedNumber,
+                    'service_name' => $service->name,
+                    'counter_name' => $counter->name,
+                    'waiting_time' => 'Estimasi waktu tunggu: ' . $this->calculateWaitingTime($service->id) . ' menit'
+                ]);
+            }
+
             return redirect()->route('queue.ticket.success', $antrian->id);
 
         } catch (\Exception $e) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal membuat tiket: ' . $e->getMessage()
+                ], 500);
+            }
             return back()->with('error', 'Gagal membuat tiket: ' . $e->getMessage());
         }
+    }
+    
+    /**
+     * Calculate estimated waiting time for a service
+     */
+    private function calculateWaitingTime($serviceId)
+    {
+        // Get average processing time per ticket (in minutes)
+        $avgProcessingTime = 5; // Default 5 minutes per ticket
+        
+        // Count waiting tickets before this one
+        $waitingCount = Antrian::where('service_id', $serviceId)
+            ->where('status', 'waiting')
+            ->whereDate('created_at', today())
+            ->count();
+            
+        // Calculate estimated waiting time
+        $waitingTime = $waitingCount * $avgProcessingTime;
+        
+        return max(1, $waitingTime); // At least 1 minute
     }
 
     public function success(Antrian $antrian)
