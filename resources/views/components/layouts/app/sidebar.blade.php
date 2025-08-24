@@ -17,8 +17,9 @@
             <flux:navlist.group :heading="__('Platform')" class="grid">
                 <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')"
                     wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
-                <flux:navlist.item icon="ticket" :href="route('queue.ticket')" 
-                    :current="request()->routeIs('queue.ticket')" wire:navigate>{{ __('Ambil Antrian') }}</flux:navlist.item>
+                <flux:navlist.item icon="ticket" :href="route('ambil.tiket')"
+                    :current="request()->routeIs('ambil.tiket')" wire:navigate>{{ __('Ambil Tiket') }}
+                </flux:navlist.item>
             </flux:navlist.group>
 
             <flux:navlist.group :heading="__('Manajemen Antrian')" class="grid">
@@ -176,3 +177,14 @@
 </body>
 
 </html>
+
+<li>
+    <a href="{{ route('ambil.tiket') }}"
+        class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-md">
+        <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" stroke-width="2"
+            viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-6a2 2 0 012-2h2a2 2 0 012 2v6m-6 0h6" />
+        </svg>
+        Ambil Tiket
+    </a>
+</li>
