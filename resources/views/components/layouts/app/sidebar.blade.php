@@ -17,8 +17,11 @@
             <flux:navlist.group :heading="__('Platform')" class="grid">
                 <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')"
                     wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
-                <flux:navlist.item icon="ticket" :href="route('ambil.tiket')"
-                    :current="request()->routeIs('ambil.tiket')" wire:navigate>{{ __('Ambil Tiket') }}
+                <flux:navlist.item icon="ticket" :href="route('ambil.tiket')" target="_blank"
+                    :current="request()->routeIs('ambil.tiket')">{{ __('Ambil Tiket') }}
+                </flux:navlist.item>
+                <flux:navlist.item icon="ticket" :href="route('display')" target="_blank"
+                    :current="request()->routeIs('display')">{{ __('Display Antrian') }}
                 </flux:navlist.item>
             </flux:navlist.group>
 
@@ -32,15 +35,19 @@
                 <flux:navlist.item icon="queue-list" :href="route('antrians.index')"
                     :current="request()->routeIs('antrians.index')" wire:navigate>{{ __('Antrian') }}
                 </flux:navlist.item>
-                <li class="hs-accordion" id="account-accordion">
-                  <a href="{{ route('display') }}" class="hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-900 dark:text-slate-200 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600" @if(request()->routeIs('display')) aria-current="page" @endif>
-                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <rect width="20" height="14" x="2" y="7" rx="2" ry="2"/>
-                      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-                    </svg>
-                    Display Antrian
-                  </a>
-                </li>
+                {{-- <li class="hs-accordion" id="account-accordion">
+                    <a href="{{ route('display') }}"
+                        class="hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-slate-700 rounded-lg hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-900 dark:text-slate-200 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+                        @if (request()->routeIs('display')) aria-current="page" @endif>
+                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="20" height="14" x="2" y="7" rx="2" ry="2" />
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                        </svg>
+                        Display Antrian
+                    </a>
+                </li> --}}
             </flux:navlist.group>
 
             <flux:navlist.group :heading="__('Pengaturan')" class="grid">
@@ -183,14 +190,3 @@
 </body>
 
 </html>
-
-<li>
-    <a href="{{ route('ambil.tiket') }}"
-        class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200 rounded-md">
-        <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" stroke-width="2"
-            viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-6a2 2 0 012-2h2a2 2 0 012 2v6m-6 0h6" />
-        </svg>
-        Ambil Tiket
-    </a>
-</li>
