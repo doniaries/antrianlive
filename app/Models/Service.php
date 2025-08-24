@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Service extends Model
 {
@@ -18,6 +19,7 @@ class Service extends Model
     protected $fillable = [
         'name',
         'code',
+        'description',
         'is_active',
     ];
 
@@ -36,6 +38,17 @@ class Service extends Model
      */
     public function counters(): BelongsToMany
     {
-        return $this->belongsToMany(Counter::class, 'counter_layanans');
+        return $this->belongsToMany(Counter::class, 'counter_layanans')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get all of the antrians for the Service
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function antrians(): HasMany
+    {
+        return $this->hasMany(Antrian::class);
     }
 }

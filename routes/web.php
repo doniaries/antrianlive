@@ -40,4 +40,9 @@ Route::get('/profil', App\Livewire\ProfilManager::class)->name('profil.index');
 // Public display untuk customer (opsional)
 Route::get('/display', QueueDashboard::class)->name('queue.display');
 
+// Halaman pengambilan tiket antrian
+Route::get('/ticket', [\App\Http\Controllers\QueueTicketController::class, 'index'])->name('queue.ticket');
+Route::post('/ticket/take', [\App\Http\Controllers\QueueTicketController::class, 'takeTicket'])->name('queue.ticket.take');
+Route::get('/ticket/success/{antrian}', [\App\Http\Controllers\QueueTicketController::class, 'success'])->name('queue.ticket.success');
+
 require __DIR__ . '/auth.php';

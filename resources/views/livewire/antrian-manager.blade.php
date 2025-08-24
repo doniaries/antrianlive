@@ -1,9 +1,34 @@
 <div>
-    <!-- Header -->
-    {{-- <div class="bg-white dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 px-4 py-4 sm:px-6">
-        <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Manajemen Antrian</h1>
-        <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">Sistem pengelolaan antrian pelayanan</p>
-    </div> --}}
+    <!-- Audio Elements -->
+    <audio id="callSound" src="{{ asset('sounds/bell.mp3') }}" preload="auto"></audio>
+    
+    <!-- Current Call Display -->
+    <div id="currentCall" class="fixed bottom-4 right-4 bg-white dark:bg-zinc-800 rounded-xl shadow-xl p-4 w-80 z-50 hidden">
+        <div class="flex justify-between items-center mb-2">
+            <h3 class="font-bold text-lg text-zinc-900 dark:text-white">Antrian Saat Ini</h3>
+            <button onclick="closeCurrentCall()" class="text-zinc-400 hover:text-zinc-600 dark:hover:text-white">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        <div id="currentCallContent" class="text-center">
+            <div class="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2" id="currentNumber">A-001</div>
+            <div class="text-sm text-zinc-600 dark:text-zinc-300" id="currentService">Layanan</div>
+            <div class="text-sm text-zinc-500 dark:text-zinc-400" id="currentCounter">Loket 1</div>
+            <div class="mt-4 flex justify-center space-x-2">
+                <button onclick="playCallSound()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                    <svg class="w-5 h-5 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15.536a5 5 0 001.414 1.414"></path>
+                    </svg>
+                    Panggil Ulang
+                </button>
+                <button onclick="closeCurrentCall()" class="px-4 py-2 bg-gray-200 text-gray-700 dark:bg-zinc-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-zinc-600 transition-colors">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Header -->
     <div class="bg-white dark:bg-gray-800 shadow-sm rounded-xl p-6 mb-6">
@@ -145,7 +170,7 @@
                         @forelse($antrians as $antrian)
                             <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
                                 <td
-                                    class="px-6 py-4 whitespace-nowrap text-sm font-bold text-lg text-zinc-900 dark:text-zinc-100">
+                                    class="px-6 py-4 whitespace-nowrap font-bold text-lg text-zinc-900 dark:text-zinc-100">
                                     {{ $antrian->formatted_number }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -179,32 +204,43 @@
                                     <div class="flex space-x-1">
                                         @if ($antrian->status === 'waiting')
                                             <button
-                                                wire:click="callNext({{ $antrian->service_id }}, {{ $antrian->counter_id ?? 1 }})"
-                                                class="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 p-1"
+                                                wire:click="callNext({{ $antrian->id }}, {{ $antrian->service_id }}, {{ $antrian->counter_id ?? 1 }})"
+                                                onclick="callNumber('{{ $antrian->formatted_number }}', '{{ $antrian->service->name }}', '{{ $antrian->counter->name ?? 'Umum' }}')"
+                                                class="text-blue-500 hover:text-blue-700 dark:hover:text-blue-400 p-1"
                                                 title="Panggil">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                         stroke-width="2"
-                                                        d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z">
+                                                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z">
                                                     </path>
                                                 </svg>
                                             </button>
                                         @elseif($antrian->status === 'called')
+                                            <button 
+                                                onclick="showCurrentCall('{{ $antrian->formatted_number }}', '{{ $antrian->service->name }}', '{{ $antrian->counter->name ?? 'Umum' }}')"
+                                                class="text-yellow-500 hover:text-yellow-700 dark:hover:text-yellow-400 p-1 mr-1"
+                                                title="Panggil Ulang">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                                </svg>
+                                            </button>
+                                            <button wire:click="skip({{ $antrian->id }})"
+                                                class="text-orange-500 hover:text-orange-700 dark:hover:text-orange-400 p-1 mr-1"
+                                                title="Lewati">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+                                                </svg>
+                                            </button>
                                             <button wire:click="finish({{ $antrian->id }})"
-                                                class="text-green-400 hover:text-green-600 dark:hover:text-green-300 p-1"
+                                                class="text-green-500 hover:text-green-700 dark:hover:text-green-400 p-1"
                                                 title="Selesai">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                         stroke-width="2" d="M5 13l4 4L19 7"></path>
                                                 </svg>
                                             </button>
-                                            <button wire:click="skip({{ $antrian->id }})"
-                                                class="text-orange-400 hover:text-orange-600 dark:hover:text-orange-300 p-1"
-                                                title="Lewati">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                         stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
                                                 </svg>
@@ -345,5 +381,68 @@
                 </div>
             </div>
         @endif
-    </main>
-</div>
+    </div>
+
+@push('scripts')
+<script>
+    // Inisialisasi audio element
+    const callSound = document.getElementById('callSound');
+    
+    // Fungsi untuk memainkan suara panggilan
+    function playCallSound() {
+        callSound.currentTime = 0; // Reset audio ke awal
+        callSound.play().catch(e => console.error('Error playing sound:', e));
+    }
+    
+    // Fungsi untuk menampilkan notifikasi panggilan
+    function showCurrentCall(number, service, counter) {
+        document.getElementById('currentNumber').textContent = number;
+        document.getElementById('currentService').textContent = service;
+        document.getElementById('currentCounter').textContent = counter;
+        document.getElementById('currentCall').classList.remove('hidden');
+        playCallSound();
+        
+        // Baca nomor dengan Web Speech API
+        speakNumber(number, service, counter);
+    }
+    
+    // Fungsi untuk menutup notifikasi panggilan
+    function closeCurrentCall() {
+        document.getElementById('currentCall').classList.add('hidden');
+    }
+    
+    // Fungsi untuk memanggil nomor antrian
+    function callNumber(number, service, counter) {
+        showCurrentCall(number, service, counter);
+    }
+    
+    // Fungsi untuk membaca nomor antrian dengan Web Speech API
+    function speakNumber(number, service, counter) {
+        if ('speechSynthesis' in window) {
+            const speech = new SpeechSynthesisUtterance();
+            speech.text = `Nomor antrian ${number.split('-').join(' ')} silakan menuju ${counter}`;
+            speech.lang = 'id-ID';
+            speech.rate = 0.9;
+            
+            // Coba gunakan suara yang tersedia
+            const voices = window.speechSynthesis.getVoices();
+            const idVoice = voices.find(voice => voice.lang === 'id-ID') || voices[0];
+            if (idVoice) speech.voice = idVoice;
+            
+            window.speechSynthesis.speak(speech);
+        }
+    }
+    
+    // Event listener untuk Livewire
+    document.addEventListener('livewire:initialized', () => {
+        @this.on('antrian-called', (event) => {
+            showCurrentCall(event.number, event.service, event.counter);
+        });
+    });
+    
+    // Inisialisasi suara saat halaman dimuat
+    window.speechSynthesis.onvoiceschanged = function() {
+        // Suara sudah dimuat
+    };
+</script>
+@endpush
