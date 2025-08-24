@@ -98,9 +98,9 @@
                 <p class="text-white/80 text-base md:text-lg">Pilih layanan dan loket yang Anda inginkan</p>
             </div>
 
-            <div class="flex flex-nowrap overflow-x-auto pb-4 gap-4 md:gap-6 flex-1 w-full">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
                 @foreach ($services as $service)
-                    <div class="glass-card p-3 md:p-4 service-card h-full flex flex-col min-w-[220px] flex-shrink-0">
+                    <div class="glass-card p-3 service-card h-full flex flex-col">
                         <div class="flex items-center mb-2">
                             <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mr-2">
                                 <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
