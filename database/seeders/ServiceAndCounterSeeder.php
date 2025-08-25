@@ -39,18 +39,23 @@ class ServiceAndCounterSeeder extends Seeder
         $counters = [
             [
                 'name' => 'Loket 1',
-                'description' => 'Loket untuk layanan umum dan pendaftaran',
-                'services' => ['A', 'D'] // Kode layanan yang dilayani
+                'description' => 'Loket untuk Pendaftaran',
+                'services' => ['A'] // Kode layanan yang dilayani
             ],
             [
                 'name' => 'Loket 2',
-                'description' => 'Loket untuk layanan gigi dan anak',
-                'services' => ['B', 'C']
+                'description' => 'Loket untuk layanan gigi',
+                'services' => ['B']
             ],
             [
                 'name' => 'Loket 3',
-                'description' => 'Loket khusus pembayaran',
-                'services' => ['E']
+                'description' => 'Loket khusus Poli Umum ',
+                'services' => ['C']
+            ],
+            [
+                'name' => 'Loket 4',
+                'description' => 'Loket khusus Poli Anak',
+                'services' => ['C']
             ],
         ];
 
