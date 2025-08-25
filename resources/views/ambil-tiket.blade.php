@@ -51,6 +51,9 @@
             text-align: center;
             margin-bottom: 1rem;
             position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .title {
@@ -61,13 +64,7 @@
             text-align: center;
         }
 
-        .app-name {
-            font-size: 2rem;
-            font-weight: 500;
-            color: var(--secondary);
-            margin: 0 0 1.5rem;
-            text-align: center;
-        }
+        /* App name styles moved to inline Tailwind classes */
 
         /* Guide card styles removed - using Tailwind classes instead */
 
@@ -103,18 +100,16 @@
             padding: 1.25rem;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-        }
-
-        .service-icon {
-            font-size: 1.5rem;
-            color: white;
+            justify-content: center;
+            text-align: center;
         }
 
         .service-title {
             font-size: 1.25rem;
             font-weight: 600;
             margin: 0;
+            text-align: center;
+            width: 100%;
         }
 
         .counters-list {
@@ -220,14 +215,19 @@
 <body>
     <div class="container">
         <header class="header">
-            <div class="flex items-center justify-center gap-3 mb-4">
+            <div class="flex flex-col items-center gap-3 mb-4">
                 @if ($profil && $profil->logo)
-                    <img src="{{ asset('storage/' . $profil->logo) }}" alt="Logo" class="h-10 w-auto">
+                    <img src="{{ asset('storage/' . $profil->logo) }}" alt="Logo" class="h-16 w-auto">
                 @endif
-                <h1 class="title">{{ $profil->nama_instansi ?? 'Ambil Tiket Antrian' }}</h1>
+                <h1 class="title text-center">{{ $profil->nama_instansi ?? 'Ambil Tiket Antrian' }}</h1>
             </div>
             @if (($profil && $profil->nama_aplikasi) || config('app.name') !== 'Laravel')
-                <h2 class="app-name">{{ $profil->nama_aplikasi ?? config('app.name') }}</h2>
+                <div class="flex justify-center mb-6">
+                    <h2
+                        class="!bg-indigo-800 !text-white px-6 py-2.5 rounded-full inline-block shadow-lg font-semibold text-lg tracking-wide text-center m-0">
+                        {{ $profil->nama_aplikasi ?? config('app.name') }}
+                    </h2>
+                </div>
             @endif
 
             <div class="flex flex-col md:flex-row items-center justify-between gap-4 max-w-4xl mx-auto mt-6 mb-6">
@@ -255,7 +255,6 @@
                 @forelse($services as $index => $service)
                     <div class="service-card fade-in" style="animation-delay: {{ $index * 0.1 }}s">
                         <div class="service-header">
-                            <i class="fas fa-ticket-alt service-icon"></i>
                             <h2 class="service-title">{{ $service->name }}</h2>
                         </div>
                         <div class="counters-list">
@@ -293,9 +292,7 @@
 
         <footer class="footer">
             <p>© {{ date('Y') }} {{ $profil->nama_instansi ?? 'Sistem Antrian' }} • All rights reserved</p>
-            <p class="text-sm mt-1">
-                <i class="fas fa-clock"></i> {{ now()->format('d F Y H:i') }}
-            </p>
+
         </footer>
     </div>
 
