@@ -125,28 +125,50 @@
         </div>
 
         <!-- Modal -->
-        @if ($showModal)
-            <div class="fixed inset-0 z-50 overflow-y-auto" wire:loading.attr="class" wire:loading.class="opacity-100"
-                wire:loading.remove.class="opacity-0" x-cloak>
+        <div x-data="{ showModal: @entangle('showModal') }" 
+             x-show="showModal" 
+             x-cloak
+             x-on:keydown.escape.window="showModal = false; $wire.closeModal()"
+             class="fixed inset-0 z-50 overflow-y-auto"
+             style="display: none;">
 
-                <!-- Background overlay -->
-                <div class="fixed inset-0 bg-black/50" wire:click="closeModal"></div>
+            <!-- Background overlay -->
+            <div class="fixed inset-0 bg-black/50 transition-opacity" 
+                 x-show="showModal"
+                 x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="ease-in duration-200"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 @click="showModal = false; $wire.closeModal()">
+            </div>
 
                 <!-- Modal panel -->
-                <div class="flex min-h-screen items-center justify-center p-4">
-                    <div
-                        class="relative w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-2xl">
+                <div class="flex min-h-screen items-center justify-center p-4"
+                     x-show="showModal"
+                     x-transition:enter="ease-out duration-300"
+                     x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                     x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                     x-transition:leave="ease-in duration-200"
+                     x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                     x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+                    <div class="relative w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-2xl">
 
                         <!-- Close button -->
-                        <button wire:click="closeModal"
-                            class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-150">
+                        <button @click="showModal = false; $wire.closeModal()"
+                            class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-150"
+                            type="button">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
                         </button>
 
-                        <form wire:submit="{{ $isEditMode ? 'update' : 'store' }}" class="p-6">
+                        <form wire:submit.prevent="{{ $isEditMode ? 'update' : 'store' }}" 
+                              x-data="{ submitting: false }"
+                              x-on:submit.stop="submitting = true; $nextTick(() => { $wire.{{ $isEditMode ? 'update' : 'store' }}().then((success) => { if(success) { showModal = false; } submitting = false; })); })" 
+                              class="p-6">
                             <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                                 {{ $isEditMode ? 'Edit Loket' : 'Tambah Loket' }}
                             </h3>
@@ -191,9 +213,9 @@
                                 </div>
                             </div>
 
-                            <div class="flex justify-end space-x-3 mt-8">
-                                <button type="button" wire:click="closeModal"
-                                    class="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl transition-colors duration-150">
+                            <div class="mt-6 flex justify-end space-x-3">
+                                <button type="button" @click="showModal = false; $wire.closeModal()"
+                                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-transparent rounded-lg hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 transition-colors duration-150">
                                     Batal
                                 </button>
                                 <button type="submit"
@@ -205,6 +227,6 @@
                     </div>
                 </div>
             </div>
-        @endif
+        </div>
     </div>
 </div>
