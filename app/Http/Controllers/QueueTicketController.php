@@ -118,10 +118,12 @@ class QueueTicketController extends Controller
         return max(1, $waitingTime); // At least 1 minute
     }
 
-    public function success(Antrian $antrian)
+    public function success($antrianId)
     {
-        if (!$antrian->exists) {
-            return redirect()->route('queue.ticket');
+        $antrian = Antrian::with(['service', 'counter'])->find($antrianId);
+        
+        if (!$antrian) {
+            return redirect()->route('ambil.tiket')->with('error', 'Tiket antrian tidak ditemukan');
         }
 
         return view('queue.success', compact('antrian'));
