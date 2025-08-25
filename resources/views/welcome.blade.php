@@ -1852,14 +1852,14 @@
                 <div class="flex items-center space-x-4">
                     @if (Route::has('login'))
                         @auth
-                            <a href="{{ url('/dashboard') }}"
+                            <a href="{{ url('/dashboard') }}" target="_blank"
                                 class="px-4 py-2 text-sm font-medium text-white hover:text-indigo-300">Dashboard</a>
                         @else
-                            <a href="{{ route('login') }}"
+                            <a href="{{ route('login') }}" target="_blank"
                                 class="px-4 py-2 text-sm font-medium text-white hover:text-indigo-300">Login</a>
                             @if (Route::has('register'))
-                                <a href="{{ route('register') }}"
-                                    class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700">Register</a>
+                                <a href="{{ route('register') }}" target="_blank"
+                                class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700">Register</a>
                             @endif
                         @endauth
                     @endif
@@ -1880,7 +1880,7 @@
                 secara real-time.
             </p>
             <div class="mt-8 flex justify-center space-x-4">
-                <a href="{{ route('display') }}" class="inline-flex items-center px-6 py-3 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <a href="{{ route('display') }}" target="_blank" class="inline-flex items-center px-6 py-3 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                     Lihat Display Antrian
                 </a>
             </div>
