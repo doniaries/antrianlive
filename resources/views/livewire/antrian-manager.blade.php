@@ -201,71 +201,46 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <div class="flex space-x-1">
+                                    <div class="flex flex-wrap gap-1">
                                         @if ($antrian->status === 'waiting')
                                             <button
                                                 wire:click="callNext({{ $antrian->id }}, {{ $antrian->service_id }}, {{ $antrian->counter_id ?? 1 }})"
-                                                onclick="callNumber('{{ $antrian->formatted_number }}', '{{ $antrian->service->name }}', '{{ $antrian->counter->name ?? 'Umum' }}')"
-                                                class="text-blue-500 hover:text-blue-700 dark:hover:text-blue-400 p-1"
+                                                class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800"
                                                 title="Panggil">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z">
-                                                    </path>
-                                                </svg>
+                                                Panggil
                                             </button>
                                         @elseif($antrian->status === 'called')
                                             <button 
-                                                onclick="showCurrentCall('{{ $antrian->formatted_number }}', '{{ $antrian->service->name }}', '{{ $antrian->counter->name ?? 'Umum' }}')"
-                                                class="text-yellow-500 hover:text-yellow-700 dark:hover:text-yellow-400 p-1 mr-1"
+                                                wire:click="$dispatch('antrian-called', { 
+                                                    number: '{{ $antrian->formatted_number }}', 
+                                                    service: '{{ $antrian->service->name }}', 
+                                                    counter: '{{ $antrian->counter->name ?? 'Umum' }}' 
+                                                })"
+                                                class="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-200 dark:hover:bg-yellow-800"
                                                 title="Panggil Ulang">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                                </svg>
+                                                Panggil Ulang
                                             </button>
                                             <button wire:click="skip({{ $antrian->id }})"
-                                                class="text-orange-500 hover:text-orange-700 dark:hover:text-orange-400 p-1 mr-1"
+                                                class="px-2 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded-full hover:bg-orange-200 dark:bg-orange-900 dark:text-orange-200 dark:hover:bg-orange-800"
                                                 title="Lewati">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
-                                                </svg>
+                                                Lewati
                                             </button>
                                             <button wire:click="finish({{ $antrian->id }})"
-                                                class="text-green-500 hover:text-green-700 dark:hover:text-green-400 p-1"
+                                                class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full hover:bg-green-200 dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-800"
                                                 title="Selesai">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                </svg>
-                                            </button>
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-                                                </svg>
+                                                Selesai
                                             </button>
                                         @endif
-                                        <button wire:click="edit({{ $antrian->id }})"
-                                            class="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 p-1"
-                                            title="Edit">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
-                                                </path>
-                                            </svg>
-                                        </button>
                                         <button wire:click="delete({{ $antrian->id }})"
-                                            class="text-red-400 hover:text-red-600 dark:hover:text-red-300 p-1"
+                                            class="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full hover:bg-red-200 dark:bg-red-900 dark:text-red-200 dark:hover:bg-red-800"
                                             title="Hapus"
                                             onclick="return confirm('Apakah Anda yakin ingin menghapus antrian ini?')">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                                </path>
-                                            </svg>
+                                            Hapus
+                                        </button>
+                                        <button wire:click="edit({{ $antrian->id }})"
+                                            class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                                            title="Edit">
+                                            Edit
                                         </button>
                                     </div>
                                 </td>
@@ -387,28 +362,92 @@
 <script>
     // Inisialisasi audio element
     const callSound = document.getElementById('callSound');
+    let speechSynthesis = window.speechSynthesis;
+    
+    // Fungsi untuk menampilkan notifikasi toast
+    function showToast(type, message) {
+        const toast = document.createElement('div');
+        toast.className = `fixed top-4 right-4 px-6 py-4 rounded-lg shadow-lg text-white ${
+            type === 'success' ? 'bg-green-500' : 
+            type === 'error' ? 'bg-red-500' :
+            type === 'warning' ? 'bg-amber-500' : 'bg-blue-500'
+        }`;
+        
+        toast.innerHTML = `
+            <div class="flex items-center">
+                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    ${type === 'success' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>' : ''}
+                    ${type === 'error' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>' : ''}
+                    ${type === 'warning' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>' : ''}
+                    ${type === 'info' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>' : ''}
+                </svg>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Hapus toast setelah 5 detik
+        setTimeout(() => {
+            toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
+            setTimeout(() => toast.remove(), 500);
+        }, 5000);
+    }
     
     // Fungsi untuk memainkan suara panggilan
     function playCallSound() {
-        callSound.currentTime = 0; // Reset audio ke awal
-        callSound.play().catch(e => console.error('Error playing sound:', e));
+        try {
+            callSound.currentTime = 0; // Reset audio ke awal
+            return callSound.play();
+        } catch (e) {
+            console.error('Error playing sound:', e);
+            return Promise.resolve();
+        }
     }
     
     // Fungsi untuk menampilkan notifikasi panggilan
     function showCurrentCall(number, service, counter) {
-        document.getElementById('currentNumber').textContent = number;
-        document.getElementById('currentService').textContent = service;
-        document.getElementById('currentCounter').textContent = counter;
-        document.getElementById('currentCall').classList.remove('hidden');
-        playCallSound();
-        
-        // Baca nomor dengan Web Speech API
-        speakNumber(number, service, counter);
+        try {
+            const currentCall = document.getElementById('currentCall');
+            if (!currentCall) return;
+
+            // Update UI
+            const numberEl = document.getElementById('currentNumber');
+            const serviceEl = document.getElementById('currentService');
+            const counterEl = document.getElementById('currentCounter');
+            
+            if (numberEl) numberEl.textContent = number;
+            if (serviceEl) serviceEl.textContent = service;
+            if (counterEl) counterEl.textContent = counter;
+            
+            // Tampilkan popup
+            currentCall.classList.remove('hidden');
+            
+            // Mainkan suara bell dan baca nomor
+            playCallSound().then(() => {
+                // Setelah bell selesai, baca nomor antrian
+                // Gunakan setTimeout untuk memastikan audio sebelumnya selesai
+                setTimeout(() => {
+                    speakNumber(number, service, counter);
+                }, 100);
+            }).catch(error => {
+                console.error('Error playing call sound:', error);
+                // Tetap lanjutkan ke speakNumber meskipun ada error
+                setTimeout(() => {
+                    speakNumber(number, service, counter);
+                }, 100);
+            });
+        } catch (error) {
+            console.error('Error in showCurrentCall:', error);
+        }
     }
     
     // Fungsi untuk menutup notifikasi panggilan
     function closeCurrentCall() {
         document.getElementById('currentCall').classList.add('hidden');
+        if (speechSynthesis) {
+            speechSynthesis.cancel();
+        }
     }
     
     // Fungsi untuk memanggil nomor antrian
@@ -418,31 +457,129 @@
     
     // Fungsi untuk membaca nomor antrian dengan Web Speech API
     function speakNumber(number, service, counter) {
-        if ('speechSynthesis' in window) {
-            const speech = new SpeechSynthesisUtterance();
-            speech.text = `Nomor antrian ${number.split('-').join(' ')} silakan menuju ${counter}`;
-            speech.lang = 'id-ID';
-            speech.rate = 0.9;
+        try {
+            if (!speechSynthesis) return;
             
-            // Coba gunakan suara yang tersedia
-            const voices = window.speechSynthesis.getVoices();
-            const idVoice = voices.find(voice => voice.lang === 'id-ID') || voices[0];
-            if (idVoice) speech.voice = idVoice;
+            // Hentikan semua ucapan yang sedang berlangsung
+            speechSynthesis.cancel();
             
-            window.speechSynthesis.speak(speech);
+            // Format nomor untuk diucapkan (contoh: A-001 menjadi "A nol nol satu")
+            const numberParts = number.split('-');
+            const prefix = numberParts[0];
+            const queueNumber = numberParts[1] || '';
+            
+            // Konversi angka ke kata-kata
+            const numberToWords = (num) => {
+                const ones = ['', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'delapan', 'sembilan'];
+                const tens = ['', 'sepuluh', 'dua puluh', 'tiga puluh', 'empat puluh', 'lima puluh', 
+                            'enam puluh', 'tujuh puluh', 'delapan puluh', 'sembilan puluh'];
+                const teens = ['sepuluh', 'sebelas', 'dua belas', 'tiga belas', 'empat belas', 'lima belas', 
+                            'enam belas', 'tujuh belas', 'delapan belas', 'sembilan belas'];
+                
+                if (num === 0) return 'nol';
+                if (num < 10) return ones[num];
+                if (num < 20) return teens[num - 10];
+                
+                const ten = Math.floor(num / 10);
+                const one = num % 10;
+                return tens[ten] + (one ? ' ' + ones[one] : '');
+            };
+            
+            // Format teks yang akan diucapkan
+            let numberText = '';
+            if (prefix) {
+                // Ucapkan huruf per huruf untuk prefix (misal: A, B, C)
+                numberText += prefix.split('').join(' ') + ' ';
+            }
+            
+            // Ucapkan nomor antrian per digit
+            const digits = queueNumber.split('');
+            const digitWords = digits.map(d => {
+                const num = parseInt(d);
+                return isNaN(num) ? d : numberToWords(num);
+            });
+            
+            numberText += digitWords.join(' ');
+            
+            const textToSpeak = `Nomor antrian ${numberText}, silakan menuju ${counter}`;
+            
+            // Buat objek ucapan
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
+            utterance.lang = 'id-ID';
+            utterance.rate = 0.9;
+            utterance.pitch = 1.0;
+            
+            // Handle voices loading
+            const speakWithVoice = () => {
+                try {
+                    const voices = speechSynthesis.getVoices();
+                    if (voices.length > 0) {
+                        const femaleVoice = voices.find(voice => 
+                            voice.lang === 'id-ID' && voice.name.includes('female')
+                        );
+                        utterance.voice = femaleVoice || voices[0];
+                    }
+                    
+                    // Tambahkan event handler untuk error
+                    utterance.onerror = (event) => {
+                        console.error('Error in speech synthesis:', event);
+                    };
+                    
+                    // Mainkan ucapan
+                    speechSynthesis.speak(utterance);
+                } catch (error) {
+                    console.error('Error in speakWithVoice:', error);
+                }
+            };
+            
+            // Pastikan voices sudah dimuat
+            if (speechSynthesis.onvoiceschanged !== undefined) {
+                speechSynthesis.onvoiceschanged = speakWithVoice;
+            }
+            
+            // Coba langsung dulu, jika voices belum siap, akan dihandle oleh onvoiceschanged
+            speakWithVoice();
+            
+        } catch (error) {
+            console.error('Error in speakNumber:', error);
         }
     }
     
     // Event listener untuk Livewire
     document.addEventListener('livewire:initialized', () => {
-        @this.on('antrian-called', (event) => {
-            showCurrentCall(event.number, event.service, event.counter);
+        // Event untuk panggilan antrian
+        Livewire.on('antrian-called', (event) => {
+            // Gunakan setTimeout untuk memastikan event loop selesai
+            setTimeout(() => {
+                showCurrentCall(event.detail.number, event.detail.service, event.detail.counter);
+            }, 100);
+        });
+        
+        // Event untuk notifikasi
+        Livewire.on('notify', (event) => {
+            // Gunakan setTimeout untuk memastikan event loop selesai
+            setTimeout(() => {
+                showToast(event.detail.type, event.detail.message);
+            }, 100);
+        });
+        
+        // Event untuk call-queue
+        Livewire.on('call-queue', (event) => {
+            // Gunakan setTimeout untuk memastikan event loop selesai
+            setTimeout(() => {
+                showCurrentCall(event.detail.number, event.detail.service, event.detail.counter);
+            }, 100);
         });
     });
     
-    // Inisialisasi suara saat halaman dimuat
-    window.speechSynthesis.onvoiceschanged = function() {
-        // Suara sudah dimuat
-    };
+    // Inisialisasi voices saat dimuat
+    if (speechSynthesis) {
+        // Beberapa browser membutuhkan event voiceschanged
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = function() {
+                console.log('Voices loaded');
+            };
+        }
+    }
 </script>
 @endpush
