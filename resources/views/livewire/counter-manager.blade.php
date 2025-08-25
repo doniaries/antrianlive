@@ -19,16 +19,14 @@
 
     <!-- Flash Messages -->
     @if (session()->has('message'))
-        <div x-data="{ show: true }" 
-             x-show="show"
-             x-init="setTimeout(() => show = false, 5000)"
-             x-transition:enter="transition ease-out duration-300"
-             x-transition:enter-start="opacity-0 transform -translate-y-2"
-             x-transition:enter-end="opacity-100 transform translate-y-0"
-             x-transition:leave="transition ease-in duration-200"
-             x-transition:leave-start="opacity-100 transform translate-y-0"
-             x-transition:leave-end="opacity-0 transform -translate-y-2"
-             class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 max-w-md w-full">
+        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 transform -translate-y-2"
+            x-transition:enter-end="opacity-100 transform translate-y-0"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 transform translate-y-0"
+            x-transition:leave-end="opacity-0 transform -translate-y-2"
+            class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 max-w-md w-full">
             <div class="bg-green-500 text-white px-6 py-4 rounded-xl shadow-lg flex items-center justify-between">
                 <div class="flex items-center">
                     <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -38,7 +36,8 @@
                 </div>
                 <button @click="show = false" class="text-white hover:text-gray-100 ml-4">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
                     </svg>
                 </button>
             </div>
@@ -96,17 +95,7 @@
                                     @endforeach
                                 </div>
                             </td>
-                            {{-- <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                <div class="flex items-center">
-                                    <svg class="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                        </path>
-                                    </svg>
-                                    {{ $counter->created_at->format('d/m/Y H:i') }}
-                                </div>
-                            </td> --}}
+
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <div class="flex space-x-2">
                                     <button wire:click="edit({{ $counter->id }})"
@@ -146,108 +135,100 @@
         </div>
 
         <!-- Modal -->
-        <div x-data="{ showModal: @entangle('showModal') }" 
-             x-show="showModal" 
-             x-cloak
-             x-on:keydown.escape.window="showModal = false; $wire.closeModal()"
-             class="fixed inset-0 z-50 overflow-y-auto"
-             style="display: none;">
+        <div x-data="{ showModal: @entangle('showModal') }" x-show="showModal" x-cloak
+            x-on:keydown.escape.window="showModal = false; $wire.closeModal()"
+            class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
 
             <!-- Background overlay -->
-            <div class="fixed inset-0 bg-black/50 transition-opacity" 
-                 x-show="showModal"
-                 x-transition:enter="ease-out duration-300"
-                 x-transition:enter-start="opacity-0"
-                 x-transition:enter-end="opacity-100"
-                 x-transition:leave="ease-in duration-200"
-                 x-transition:leave-start="opacity-100"
-                 x-transition:leave-end="opacity-0"
-                 @click="showModal = false; $wire.closeModal()">
+            <div class="fixed inset-0 bg-black/50 transition-opacity" x-show="showModal"
+                x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200"
+                x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                @click="showModal = false; $wire.closeModal()">
             </div>
 
-                <!-- Modal panel -->
-                <div class="flex min-h-screen items-center justify-center p-4"
-                     x-show="showModal"
-                     x-transition:enter="ease-out duration-300"
-                     x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                     x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-                     x-transition:leave="ease-in duration-200"
-                     x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-                     x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
-                    <div class="relative w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-2xl">
+            <!-- Modal panel -->
+            <div class="flex min-h-screen items-center justify-center p-4" x-show="showModal"
+                x-transition:enter="ease-out duration-300"
+                x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                x-transition:leave="ease-in duration-200"
+                x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+                <div
+                    class="relative w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-2xl">
 
-                        <!-- Close button -->
-                        <button @click="showModal = false; $wire.closeModal()"
-                            class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-150"
-                            type="button">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
+                    <!-- Close button -->
+                    <button @click="showModal = false; $wire.closeModal()"
+                        class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-150"
+                        type="button">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
 
-                        <form wire:submit.prevent="{{ $isEditMode ? 'update' : 'store' }}" 
-                              x-data="{ submitting: false }"
-                              x-on:submit.stop="submitting = true; $nextTick(() => { $wire.{{ $isEditMode ? 'update' : 'store' }}().then((success) => { if(success) { showModal = false; } submitting = false; })); })" 
-                              class="p-6">
-                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                                {{ $isEditMode ? 'Edit Loket' : 'Tambah Loket' }}
-                            </h3>
+                    <form wire:submit.prevent="{{ $isEditMode ? 'update' : 'store' }}" x-data="{ submitting: false }"
+                        x-on:submit.stop="submitting = true; $nextTick(() => { $wire.{{ $isEditMode ? 'update' : 'store' }}().then((success) => { if(success) { showModal = false; } submitting = false; })); })"
+                        class="p-6">
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                            {{ $isEditMode ? 'Edit Loket' : 'Tambah Loket' }}
+                        </h3>
 
-                            <div class="space-y-5">
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                        Nama Loket
-                                    </label>
-                                    <input wire:model="name" type="text" placeholder="Contoh: Loket 1"
-                                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-150"
-                                        required>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                        Deskripsi
-                                    </label>
-                                    <textarea wire:model="description" placeholder="Deskripsi loket (opsional)" rows="3"
-                                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-150"></textarea>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                        Layanan yang Ditangani
-                                    </label>
-                                    <div class="space-y-3">
-                                        @foreach ($services as $service)
-                                            <label class="flex items-center">
-                                                <input type="checkbox" wire:model="selectedServices"
-                                                    value="{{ $service->id }}"
-                                                    class="h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 transition-colors duration-150">
-                                                <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">
-                                                    {{ $service->name }} ({{ $service->code }})
-                                                </span>
-                                            </label>
-                                        @endforeach
-                                    </div>
-                                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                                        Pilih layanan yang akan ditangani oleh loket ini
-                                    </p>
-                                </div>
+                        <div class="space-y-5">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                    Nama Loket
+                                </label>
+                                <input wire:model="name" type="text" placeholder="Contoh: Loket 1"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-150"
+                                    required>
                             </div>
 
-                            <div class="mt-6 flex justify-end space-x-3">
-                                <button type="button" @click="showModal = false; $wire.closeModal()"
-                                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-transparent rounded-lg hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 transition-colors duration-150">
-                                    Batal
-                                </button>
-                                <button type="submit"
-                                    class="px-5 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
-                                    {{ $isEditMode ? 'Perbarui' : 'Simpan' }}
-                                </button>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                    Deskripsi
+                                </label>
+                                <textarea wire:model="description" placeholder="Deskripsi loket (opsional)" rows="3"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-150"></textarea>
                             </div>
-                        </form>
-                    </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                    Layanan yang Ditangani
+                                </label>
+                                <div class="space-y-3">
+                                    @foreach ($services as $service)
+                                        <label class="flex items-center">
+                                            <input type="checkbox" wire:model="selectedServices"
+                                                value="{{ $service->id }}"
+                                                class="h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 transition-colors duration-150">
+                                            <span class="ml-3 text-sm text-gray-700 dark:text-gray-300">
+                                                {{ $service->name }} ({{ $service->code }})
+                                            </span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                                <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                    Pilih layanan yang akan ditangani oleh loket ini
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 flex justify-end space-x-3">
+                            <button type="button" @click="showModal = false; $wire.closeModal()"
+                                class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-transparent rounded-lg hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 transition-colors duration-150">
+                                Batal
+                            </button>
+                            <button type="submit"
+                                class="px-5 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                                {{ $isEditMode ? 'Perbarui' : 'Simpan' }}
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
+</div>
 </div>

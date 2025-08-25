@@ -117,8 +117,20 @@ class ServiceManager extends Component
 
     public function delete($id)
     {
-        Service::find($id)->delete();
-        session()->flash('message', 'Layanan berhasil dihapus.');
+        try {
+            $service = Service::findOrFail($id);
+            
+            // Detach any relationships if needed
+            $service->counters()->detach();
+            
+            $service->delete();
+            
+            session()->flash('message', 'Layanan berhasil dihapus.');
+            return true;
+        } catch (\Exception $e) {
+            session()->flash('error', 'Gagal menghapus layanan: ' . $e->getMessage());
+            return false;
+        }
     }
 
     public function toggleStatus($id)
