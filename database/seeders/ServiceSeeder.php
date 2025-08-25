@@ -27,8 +27,6 @@ class ServiceSeeder extends Seeder
             ['name' => 'Poli Umum', 'code' => 'PU', 'is_active' => true],
             ['name' => 'Poli Gigi', 'code' => 'PG', 'is_active' => true],
             ['name' => 'Poli Anak', 'code' => 'PA', 'is_active' => true],
-            ['name' => 'Pendaftaran', 'code' => 'PD', 'is_active' => true],
-            ['name' => 'Pembayaran', 'code' => 'PB', 'is_active' => true],
         ];
 
         foreach ($services as $service) {

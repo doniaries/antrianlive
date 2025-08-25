@@ -26,31 +26,23 @@ class CounterSeeder extends Seeder
 
         // Define counters with their associated service codes
         $counters = [
+
             [
                 'name' => 'Loket 1',
-                'description' => 'Loket untuk Pendaftaran',
-                'services' => ['PD'] // Pendaftaran
-            ],
-            [
-                'name' => 'Loket 2',
                 'description' => 'Loket untuk layanan gigi',
                 'services' => ['PG'] // Poli Gigi
             ],
             [
-                'name' => 'Loket 3',
+                'name' => 'Loket 2',
                 'description' => 'Loket khusus Poli Umum',
                 'services' => ['PU'] // Poli Umum
             ],
             [
-                'name' => 'Loket 4',
+                'name' => 'Loket 3',
                 'description' => 'Loket khusus Poli Anak',
                 'services' => ['PA'] // Poli Anak
             ],
-            [
-                'name' => 'Loket 5',
-                'description' => 'Loket Pembayaran',
-                'services' => ['PB'] // Pembayaran
-            ],
+
         ];
 
         foreach ($counters as $counterData) {
