@@ -1859,7 +1859,7 @@
                                 class="px-4 py-2 text-sm font-medium text-white hover:text-indigo-300">Login</a>
                             @if (Route::has('register'))
                                 <a href="{{ route('register') }}" target="_blank"
-                                class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700">Register</a>
+                                    class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700">Register</a>
                             @endif
                         @endauth
                     @endif
@@ -1871,6 +1871,29 @@
     <!-- Hero Section -->
     <div class="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-white">
         <div class="max-w-3xl text-center">
+
+            @php
+                use App\Models\Profil;
+
+                // Check if profil table exists
+                try {
+                    $profil = Profil::first();
+                } catch (\Exception $e) {
+                    $profil = null;
+                }
+            @endphp
+
+            <div class="flex items-center justify-center mb-8">
+                @if ($profil && $profil->logo)
+                    <img src="{{ asset('storage/' . $profil->logo) }}" alt="Logo Instansi" class="h-24 w-auto">
+                @endif
+            </div>
+
+            <div class="text-center mb-4">
+                @if ($profil && $profil->nama_instansi)
+                    <h2 class="text-2xl font-bold text-gray-900">{{ $profil->nama_instansi }}</h2>
+                @endif
+            </div>
             <h1 class="text-4xl font-extrabold sm:text-5xl md:text-6xl">
                 <span class="block text-gray-900">Sistem Antrian Digital</span>
                 <span class="block text-indigo-700">{{ config('app.name') }}</span>
@@ -1880,7 +1903,8 @@
                 secara real-time.
             </p>
             <div class="mt-8 flex justify-center space-x-4">
-                <a href="{{ route('display') }}" target="_blank" class="inline-flex items-center px-6 py-3 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <a href="{{ route('display') }}" target="_blank"
+                    class="inline-flex items-center px-6 py-3 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                     Lihat Display Antrian
                 </a>
             </div>
