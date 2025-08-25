@@ -70,27 +70,37 @@ class ServiceManager extends Component
 
     public function store()
     {
-        if ($this->isEditMode) {
-            $this->rules['code'] = 'required|string|max:10|unique:services,code,' . $this->serviceId;
+        try {
+            if ($this->isEditMode) {
+                $this->rules['code'] = 'required|string|max:10|unique:services,code,' . $this->serviceId;
+            }
+
+            $this->validate();
+
+            $data = [
+                'name' => $this->name,
+                'code' => strtoupper($this->code),
+                'is_active' => $this->is_active,
+            ];
+
+            if ($this->isEditMode) {
+                Service::find($this->serviceId)->update($data);
+                $message = 'Layanan berhasil diperbarui.';
+            } else {
+                Service::create($data);
+                $message = 'Layanan berhasil ditambahkan.';
+            }
+
+            $this->showModal = false;
+            $this->resetInputFields();
+            session()->flash('message', $message);
+            
+            // Dispatch browser event to close the modal
+            $this->dispatch('modal-closed');
+            
+        } catch (\Exception $e) {
+            session()->flash('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
-
-        $this->validate();
-
-        $data = [
-            'name' => $this->name,
-            'code' => strtoupper($this->code),
-            'is_active' => $this->is_active,
-        ];
-
-        if ($this->isEditMode) {
-            Service::find($this->serviceId)->update($data);
-            session()->flash('message', 'Layanan berhasil diperbarui.');
-        } else {
-            Service::create($data);
-            session()->flash('message', 'Layanan berhasil ditambahkan.');
-        }
-
-        $this->closeModal();
     }
 
     public function edit($id)

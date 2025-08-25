@@ -7,7 +7,7 @@
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Kelola layanan-layanan yang tersedia di sistem
                     antrian</p>
             </div>
-            <button wire:click="create"
+            <button wire:click="openModal"
                 class="mt-4 sm:mt-0 inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium rounded-xl shadow-lg hover:from-blue-600 hover:to-blue-700 hover:shadow-xl transition-all duration-200 transform hover:scale-105">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -17,33 +17,7 @@
         </div>
     </div>
 
-    <!-- Search and Filter -->
-    {{-- <div class="bg-white dark:bg-gray-800 shadow-sm rounded-xl p-6 mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cari Layanan</label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                    </div>
-                    <input wire:model.live="search" type="text" placeholder="Cari berdasarkan nama atau kode..."
-                        class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                </div>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Filter Status</label>
-                <select wire:model.live="filterStatus"
-                    class="block w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <option value="">Semua Status</option>
-                    <option value="1">Aktif</option>
-                    <option value="0">Nonaktif</option>
-                </select>
-            </div>
-        </div>
-    </div> --}}
+
 
     <!-- Services Table -->
     <div
@@ -176,21 +150,40 @@
         </div>
 
         <!-- Modal -->
-        @if ($showModal)
-            <div class="fixed inset-0 z-50 overflow-y-auto" wire:loading.attr="class" wire:loading.class="opacity-100"
-                wire:loading.remove.class="opacity-0" x-cloak>
+        <div x-data="{ showModal: @entangle('showModal') }" 
+             x-show="showModal" 
+             x-cloak
+             x-on:keydown.escape.window="showModal = false; $wire.closeModal()"
+             class="fixed inset-0 z-50 overflow-y-auto"
+             style="display: none;">
 
-                <!-- Background overlay -->
-                <div class="fixed inset-0 bg-black/50" wire:click="closeModal"></div>
+            <!-- Background overlay -->
+            <div class="fixed inset-0 bg-black/50 transition-opacity" 
+                 x-show="showModal"
+                 x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="ease-in duration-200"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 @click="showModal = false; $wire.closeModal()">
+            </div>
 
                 <!-- Modal panel -->
-                <div class="flex min-h-screen items-center justify-center p-4">
-                    <div
-                        class="relative w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-2xl">
+                <div class="flex min-h-screen items-center justify-center p-4" 
+                     x-show="showModal"
+                     x-transition:enter="ease-out duration-300"
+                     x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                     x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                     x-transition:leave="ease-in duration-200"
+                     x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                     x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+                    <div class="relative w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-2xl">
 
                         <!-- Close button -->
-                        <button wire:click="closeModal"
-                            class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-150">
+                        <button @click="showModal = false; $wire.closeModal()"
+                            class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-150"
+                            type="button">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M6 18L18 6M6 6l12 12"></path>
@@ -232,7 +225,7 @@
                             </div>
 
                             <div class="flex justify-end space-x-3 mt-8">
-                                <button type="button" wire:click="closeModal"
+                                <button type="button" @click="showModal = false; $wire.closeModal()"
                                     class="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl transition-colors duration-150">
                                     Batal
                                 </button>
@@ -245,6 +238,5 @@
                     </div>
                 </div>
             </div>
-        @endif
     </div>
 </div>
