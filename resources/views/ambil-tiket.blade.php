@@ -15,7 +15,9 @@
     <title>Ambil Tiket - {{ $profil->nama_instansi ?? 'Sistem Antrian' }}</title>
     <title>{{ $profil->nama_aplikasi ?? 'Ambil Tiket Antrian' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -229,13 +231,17 @@
             @endif
 
             <div class="flex flex-col md:flex-row items-center justify-between gap-4 max-w-4xl mx-auto mt-6 mb-6">
-                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl shadow-md border border-blue-100 p-6 w-full md:w-1/2 min-h-[200px] flex items-center">
+                <div
+                    class="bg-white rounded-xl shadow-md border border-blue-100 p-6 w-full md:w-1/2 min-h-[200px] flex items-center">
                     <div class="text-center w-full">
-                        <div class="text-5xl font-['Rajdhani'] font-bold text-indigo-900 tracking-tight bg-white/80 rounded-lg py-3 px-4 shadow-inner" id="digital-clock">00:00:00</div>
-                        <div class="text-lg text-indigo-700 font-medium mt-3 bg-white/60 rounded-full py-1 px-4 inline-block" id="current-date">Senin, 1 Januari 2023</div>
+                        <div class="text-5xl font-['Rajdhani'] font-bold text-white tracking-tight bg-indigo-600 rounded-lg py-3 px-4 shadow-lg"
+                            id="digital-clock">00:00:00</div>
+                        <div class="text-lg text-white font-medium mt-3 bg-indigo-500 rounded-full py-2 px-5 inline-block shadow-md"
+                            id="current-date">Senin, 1 Januari 2023</div>
                     </div>
                 </div>
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 w-full md:w-1/2 min-h-[200px] flex items-center">
+                <div
+                    class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 w-full md:w-1/2 min-h-[200px] flex items-center">
                     <div class="text-center w-full">
                         <h2 class="text-xl font-semibold text-gray-800 mb-3">Petunjuk Penggunaan</h2>
                         <p class="text-gray-700">Pilih jenis layanan yang diinginkan untuk mengambil tiket antrian</p>
@@ -299,21 +305,23 @@
     <script>
         function updateClock() {
             const now = new Date();
-            
+
             // Format time
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const seconds = String(now.getSeconds()).padStart(2, '0');
             document.getElementById('digital-clock').textContent = `${hours}:${minutes}:${seconds}`;
-            
+
             // Format date
             const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September',
+                'Oktober', 'November', 'Desember'
+            ];
             const dayName = days[now.getDay()];
             const date = now.getDate();
             const monthName = months[now.getMonth()];
             const year = now.getFullYear();
-            document.getElementById('current-date').textContent = 
+            document.getElementById('current-date').textContent =
                 `${dayName}, ${date} ${monthName} ${year}`;
         }
 
