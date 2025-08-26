@@ -32,12 +32,7 @@ class CounterSeeder extends Seeder
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
-            [
-                'name' => 'Loket Umum',
-                'description' => 'Counter umum untuk semua layanan poliklinik',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
+
         ];
 
         DB::table('counters')->insert($counters);

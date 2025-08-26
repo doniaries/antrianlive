@@ -323,7 +323,9 @@
     </div>
 
     <!-- SweetAlert2 -->
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <script src="{{ asset('js/app.js') }}"></script>
     <script>
         function updateClock() {
@@ -567,7 +569,10 @@
                 second: '2-digit',
                 hour12: false
             };
-            document.querySelector('.time-display').textContent = now.toLocaleDateString('id-ID', options);
+            const timeDisplay = document.querySelector('.time-display');
+            if (timeDisplay) {
+                timeDisplay.textContent = now.toLocaleDateString('id-ID', options);
+            }
         }
 
         // Update time every second
