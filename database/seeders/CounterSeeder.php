@@ -15,26 +15,26 @@ class CounterSeeder extends Seeder
     {
         $counters = [
             [
-                'name' => 'Loket 1',
-                'description' => 'Loket pendaftaran dan pembayaran',
+                'name' => 'Loket Poli Umum',
+                'description' => 'Counter untuk layanan Poli Umum',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
             [
-                'name' => 'Loket 2',
-                'description' => 'Loket poliklinik dan farmasi',
+                'name' => 'Loket Poli Syaraf',
+                'description' => 'Counter untuk layanan Poli Syaraf',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
             [
-                'name' => 'Loket 3',
-                'description' => 'Loket umum untuk semua layanan',
+                'name' => 'Loket Poli Anak',
+                'description' => 'Counter untuk layanan Poli Anak',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
             [
-                'name' => 'Loket 4',
-                'description' => 'Loket cadangan',
+                'name' => 'Loket Umum',
+                'description' => 'Counter umum untuk semua layanan poliklinik',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],

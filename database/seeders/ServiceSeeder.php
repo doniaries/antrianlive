@@ -15,37 +15,23 @@ class ServiceSeeder extends Seeder
     {
         $services = [
             [
-                'name' => 'Pendaftaran',
-                'code' => 'A',
+                'name' => 'Poli Umum',
+                'code' => 'PU',
                 'is_active' => true,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
             [
-                'name' => 'Pembayaran',
-                'code' => 'B',
+                'name' => 'Poli Syaraf',
+                'code' => 'PS',
                 'is_active' => true,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
             [
-                'name' => 'Poliklinik',
-                'code' => 'C',
+                'name' => 'Poli Anak',
+                'code' => 'PA',
                 'is_active' => true,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
-            [
-                'name' => 'Farmasi',
-                'code' => 'D',
-                'is_active' => true,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
-            [
-                'name' => 'Laboratorium',
-                'code' => 'E',
-                'is_active' => false,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],

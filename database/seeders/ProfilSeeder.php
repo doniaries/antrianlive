@@ -14,10 +14,10 @@ class ProfilSeeder extends Seeder
     public function run(): void
     {
         DB::table('profils')->insert([
-            'nama_instansi' => 'Kantor Pelayanan Terpadu',
-            'alamat' => 'Jl. Pelayanan No. 123, Kota Administrasi',
+            'nama_instansi' => 'Puskesmas',
+            'alamat' => 'Jl. Puskesmas No. 123, Kota Administrasi',
             'no_telepon' => '(021) 12345678',
-            'email' => 'info@kantorpelayanan.go.id',
+            'email' => 'info@puskesmas.go.id',
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
