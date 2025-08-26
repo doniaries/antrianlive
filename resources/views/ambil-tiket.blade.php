@@ -328,34 +328,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <script src="{{ asset('js/app.js') }}"></script>
     <script>
-        function updateClock() {
-            const now = new Date();
-
-            // Format time
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            document.getElementById('digital-clock').textContent = `${hours}:${minutes}:${seconds}`;
-
-            // Format date
-            const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September',
-                'Oktober', 'November', 'Desember'
-            ];
-            const dayName = days[now.getDay()];
-            const date = now.getDate();
-            const monthName = months[now.getMonth()];
-            const year = now.getFullYear();
-            document.getElementById('current-date').textContent =
-                `${dayName}, ${date} ${monthName} ${year}`;
-        }
-
-        // Update clock immediately and then every second
-        updateClock();
-        setInterval(updateClock, 1000);
-    </script>
-
-    <script>
         // Show notification
         function showNotification() {
             const notification = document.getElementById('notification');
@@ -462,7 +434,8 @@
 
                     // Show loading state
                     submitBtn.disabled = true;
-                    submitBtn.innerHTML = '<div class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div> Memproses...';
+                    submitBtn.innerHTML =
+                        '<div class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div> Memproses...';
 
                     try {
                         const formData = new FormData(form);
@@ -492,14 +465,14 @@
                                 'displayTicketNumber');
                             const displayServiceInfo = document.getElementById(
                                 'displayServiceInfo');
-                            const notificationTicketNumber = document.getElementById(
-                                'notificationTicketNumber');
+                            const ticketNumber = document.getElementById(
+                                'ticketNumber');
                             const notificationServiceInfo = document.getElementById(
                                 'notificationServiceInfo');
 
-                            if (displayTicketNumber && notificationTicketNumber) {
+                            if (displayTicketNumber && ticketNumber) {
                                 displayTicketNumber.textContent = data.ticket_number;
-                                notificationTicketNumber.textContent = data.ticket_number;
+                                ticketNumber.textContent = data.ticket_number;
                             } else {
                                 console.error('Ticket number elements not found');
                             }
@@ -521,7 +494,8 @@
 
                         } else if (!data.ticket_number) {
                             console.error('Missing ticket number in response:', data);
-                            throw new Error('Nomor antrian tidak ditemukan dalam respons server');
+                            throw new Error(
+                                'Nomor antrian tidak ditemukan dalam respons server');
                         } else {
                             console.error('Server error:', data);
                             throw new Error(data.message || 'Terjadi kesalahan');
