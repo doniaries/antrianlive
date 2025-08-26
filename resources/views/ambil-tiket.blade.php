@@ -243,7 +243,10 @@
                 <div
                     class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 w-full md:w-1/2 min-h-[200px] flex items-center">
                     <div class="text-center w-full">
-                        <h2 class="text-xl font-semibold text-gray-800 mb-3">Petunjuk Penggunaan</h2>
+                        <div class="text-4xl font-bold text-indigo-600 mb-4" id="displayTicketNumber">A-001</div>
+                        <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                            <p class="text-sm text-blue-700" id="displayServiceInfo"></p>
+                        </div>
                         <p class="text-gray-700">Pilih jenis layanan yang diinginkan untuk mengambil tiket antrian</p>
                     </div>
                 </div>
@@ -291,9 +294,30 @@
         </main>
 
         <footer class="footer">
-            <p>© {{ date('Y') }} {{ $profil->nama_instansi ?? 'Sistem Antrian' }} • All rights reserved</p>
+            <p>  {{ date('Y') }} {{ $profil->nama_instansi ?? 'Sistem Antrian' }} • All rights reserved</p>
 
         </footer>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notification" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full mx-4 transform transition-all duration-300 scale-95 opacity-0">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check-circle text-3xl text-green-500"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Tiket Berhasil Diambil!</h3>
+                <p class="text-gray-600 mb-4">Nomor antrian Anda:</p>
+                <div class="text-4xl font-bold text-indigo-600 mb-4" id="ticketNumber">A-001</div>
+                <div class="mt-4 p-3 bg-blue-50 rounded-lg mb-4">
+                    <p class="text-sm text-blue-700" id="notificationServiceInfo"></p>
+                </div>
+                <p class="text-sm text-gray-500 mb-4">Silakan menunggu panggilan di loket yang tertera</p>
+                <button onclick="closeNotification()" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors">
+                    Tutup
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- SweetAlert2 -->
@@ -328,6 +352,51 @@
     </script>
 
     <script>
+        // Show notification
+        function showNotification() {
+            const notification = document.getElementById('notification');
+            if (!notification) return;
+            
+            notification.classList.remove('hidden');
+            notification.classList.add('flex');
+            
+            // Trigger animation
+            setTimeout(() => {
+                const content = notification.querySelector('div');
+                if (content) {
+                    content.style.transform = 'scale(1)';
+                    content.style.opacity = '1';
+                }
+            }, 10);
+            
+            // Play success sound
+            playSuccessSound();
+        }
+        
+        // Close notification
+        function closeNotification() {
+            const notification = document.getElementById('notification');
+            if (!notification) return;
+            
+            const content = notification.querySelector('div');
+            if (content) {
+                content.style.transform = 'scale(0.95)';
+                content.style.opacity = '0';
+            }
+            
+            setTimeout(() => {
+                notification.classList.add('hidden');
+                notification.classList.remove('flex');
+                
+                // Reset animation
+                if (content) {
+                    content.style.transform = 'scale(0.95)';
+                    content.style.opacity = '0';
+                }
+            }, 300);
+        }
+        
+
         // Play success sound
         function playSuccessSound() {
             const audio = new Audio('{{ asset('sounds/bell.mp3') }}');
@@ -412,31 +481,24 @@
                                 triggerConfetti()
                             ]);
 
-                            // Show success modal
-                            const {
-                                value: result
-                            } = await Swal.fire({
-                                title: 'Tiket Berhasil Diambil!',
-                                html: `
-                                    <div class="text-center py-4">
-                                        <div class="text-5xl mb-4 text-green-500">
-                                            <i class="fas fa-check-circle"></i>
-                                        </div>
-                                        <h3 class="text-xl font-bold mb-2">${data.ticket_number}</h3>
-                                        <p class="text-gray-600">Silahkan menunggu antrian Anda dipanggil</p>
-                                        <div class="mt-4 p-3 bg-blue-50 rounded-lg">
-                                            <p class="text-sm text-blue-700">
-                                                <i class="fas fa-info-circle"></i> 
-                                                ${data.service_name} - Loket ${data.counter_name}
-                                            </p>
-                                        </div>
-                                    </div>
-                                `,
-                                showConfirmButton: true,
-                                confirmButtonText: 'Tutup',
-                                confirmButtonColor: '#4f46e5',
-                                allowOutsideClick: false
-                            });
+                            // Show notification with ticket number and service info
+                            const displayTicketNumber = document.getElementById('displayTicketNumber');
+                            const displayServiceInfo = document.getElementById('displayServiceInfo');
+                            const notificationTicketNumber = document.getElementById('notificationTicketNumber');
+                            const notificationServiceInfo = document.getElementById('notificationServiceInfo');
+                            
+                            if (displayTicketNumber && notificationTicketNumber) {
+                                displayTicketNumber.textContent = data.ticket_number;
+                                notificationTicketNumber.textContent = data.ticket_number;
+                            }
+                            
+                            if (displayServiceInfo && notificationServiceInfo && data.service_name && data.counter_name) {
+                                const serviceInfo = `${data.service_name} - Loket ${data.counter_name}`;
+                                displayServiceInfo.textContent = serviceInfo;
+                                notificationServiceInfo.textContent = serviceInfo;
+                            }
+                            
+                            showNotification();
 
                             // Auto refresh after 30 seconds if still on the page
                             setTimeout(() => {
