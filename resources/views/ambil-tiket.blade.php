@@ -215,39 +215,38 @@
 <body>
     <div class="container">
         <header class="header">
-            <div class="flex flex-col items-center gap-3 mb-4">
-                @if ($profil && $profil->logo)
-                    <img src="{{ asset('storage/' . $profil->logo) }}" alt="Logo" class="h-16 w-auto">
-                @endif
-                <h1 class="title text-center">{{ $profil->nama_instansi ?? 'Ambil Tiket Antrian' }}</h1>
-            </div>
-            @if (($profil && $profil->nama_aplikasi) || config('app.name') !== 'Laravel')
-                <div class="flex justify-center mb-6">
-                    <h2
-                        class="!bg-indigo-800 !text-white px-6 py-2.5 rounded-full inline-block shadow-lg font-semibold text-lg tracking-wide text-center m-0">
-                        {{ $profil->nama_aplikasi ?? config('app.name') }}
-                    </h2>
-                </div>
-            @endif
-
-            <div class="flex flex-col md:flex-row items-center justify-between gap-4 max-w-4xl mx-auto mt-6 mb-6">
-                <div
-                    class="bg-white rounded-xl shadow-md border border-blue-100 p-6 w-full md:w-1/2 min-h-[200px] flex items-center">
-                    <div class="text-center w-full">
-                        <div class="text-5xl font-['Rajdhani'] font-bold text-white tracking-tight bg-indigo-600 rounded-lg py-3 px-4 shadow-lg"
-                            id="digital-clock">00:00:00</div>
-                        <div class="text-lg text-white font-medium mt-3 bg-indigo-500 rounded-full py-2 px-5 inline-block shadow-md"
-                            id="current-date">Senin, 1 Januari 2023</div>
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
+                <div class="flex items-center gap-4">
+                    @if ($profil && $profil->logo)
+                        <img src="{{ asset('storage/' . $profil->logo) }}" alt="Logo" class="h-16 w-auto">
+                    @endif
+                    <div>
+                        <h1 class="title text-left !text-2xl md:!text-3xl">
+                            {{ $profil->nama_instansi ?? 'Ambil Tiket Antrian' }}</h1>
+                        @if (($profil && $profil->nama_aplikasi) || config('app.name') !== 'Laravel')
+                            <h2
+                                class="bg-indigo-800 text-white px-4 py-2 rounded-full inline-block shadow-lg font-semibold text-sm md:text-base tracking-wide mt-2">
+                                {{ $profil->nama_aplikasi ?? config('app.name') }}
+                            </h2>
+                        @endif
                     </div>
                 </div>
-                <div
-                    class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 w-full md:w-1/2 min-h-[200px] flex items-center">
-                    <div class="text-center w-full">
-                        <div class="text-4xl font-bold text-indigo-600 mb-4" id="displayTicketNumber">-</div>
-                        <div class="mt-4 p-3 bg-blue-50 rounded-lg">
-                            <p class="text-sm text-blue-700" id="displayServiceInfo"></p>
-                        </div>
-                        <p class="text-gray-700">Pilih jenis layanan yang diinginkan untuk mengambil tiket antrian</p>
+
+                <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-4 min-w-[200px]">
+                    <div class="text-center">
+                        <div class="text-4xl md:text-5xl font-['Rajdhani'] font-bold text-indigo-600 tracking-tight"
+                            id="digital-clock">00:00:00</div>
+                        <div class="text-sm md:text-base text-gray-600 font-medium mt-1" id="current-date">Senin, 1
+                            Januari 2023</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 mb-8">
+                <div class="text-center">
+                    <div class="text-4xl md:text-5xl font-bold text-indigo-600 mb-3" id="displayTicketNumber">-</div>
+                    <div class="mt-3 p-3 bg-blue-50 rounded-lg">
+                        <p class="text-sm text-blue-700" id="displayServiceInfo"></p>
                     </div>
                 </div>
             </div>
