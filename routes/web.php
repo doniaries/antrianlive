@@ -50,7 +50,7 @@ Route::get('/ambil-tiket', function () {
         ->where('is_active', true)
         ->orderBy('name')
         ->get();
-        
+
     return view('ambil-tiket', compact('services'));
 })->name('ambil.tiket');
 Route::post('/ticket/take', [\App\Http\Controllers\QueueTicketController::class, 'takeTicket'])->name('queue.ticket.take');

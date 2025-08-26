@@ -205,7 +205,7 @@ class AntrianManager extends Component
                 'type' => 'success',
                 'message' => 'Antrian ' . $antrian->formatted_number . ' berhasil dipanggil!'
             ]);
-            
+
             // Dispatch the call-queue event
             $this->dispatch('call-queue', [
                 'number' => $antrian->formatted_number,
@@ -216,7 +216,6 @@ class AntrianManager extends Component
             ]);
 
             session()->flash('message', 'Antrian ' . $antrian->formatted_number . ' dipanggil di loket ' . $counter);
-            
         } catch (\Exception $e) {
             $this->dispatch('notify', [
                 'type' => 'error',
@@ -276,6 +275,6 @@ class AntrianManager extends Component
             'antrians' => $query->paginate(10),
             'services' => Service::where('is_active', true)->get(),
             'counters' => Counter::all(),
-        ]);
+        ])->layout('layouts.app');
     }
 }

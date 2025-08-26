@@ -15,9 +15,9 @@
             </button>
         </div>
         <div id="currentCallContent" class="text-center">
-            <div class="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2" id="currentNumber">A-001</div>
+            <div class="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2" id="currentNumber">-</div>
             <div class="text-sm text-zinc-600 dark:text-zinc-300" id="currentService">Layanan</div>
-            <div class="text-sm text-zinc-500 dark:text-zinc-400" id="currentCounter">Loket 1</div>
+            <div class="text-sm text-zinc-500 dark:text-zinc-400" id="currentCounter">Loket</div>
             <div class="mt-4 flex justify-center space-x-2">
                 <button onclick="playCallSound()"
                     class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
@@ -44,15 +44,11 @@
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Kelola antrian yang ada di sistem
                     antrian</p>
             </div>
-            {{-- <button wire:click="create"
-                class="mt-4 sm:mt-0 inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium rounded-xl shadow-lg hover:from-blue-600 hover:to-blue-700 hover:shadow-xl transition-all duration-200 transform hover:scale-105">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                Tambah Layanan
-            </button> --}}
         </div>
     </div>
+
+    <!-- Auto refresh indicator -->
+    <div wire:poll.3000ms class="hidden"></div>
 
 
     <main class="p-4 sm:p-6 space-y-6">
