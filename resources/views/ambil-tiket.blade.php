@@ -230,7 +230,27 @@
                 </div>
             @endif
 
-
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4 max-w-4xl mx-auto mt-6 mb-6">
+                <div
+                    class="bg-white rounded-xl shadow-md border border-blue-100 p-6 w-full md:w-1/2 min-h-[200px] flex items-center">
+                    <div class="text-center w-full">
+                        <div class="text-5xl font-['Rajdhani'] font-bold text-white tracking-tight bg-indigo-600 rounded-lg py-3 px-4 shadow-lg"
+                            id="digital-clock">00:00:00</div>
+                        <div class="text-lg text-white font-medium mt-3 bg-indigo-500 rounded-full py-2 px-5 inline-block shadow-md"
+                            id="current-date">Senin, 1 Januari 2023</div>
+                    </div>
+                </div>
+                <div
+                    class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 w-full md:w-1/2 min-h-[200px] flex items-center">
+                    <div class="text-center w-full">
+                        <div class="text-4xl font-bold text-indigo-600 mb-4" id="displayTicketNumber">A-001</div>
+                        <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                            <p class="text-sm text-blue-700" id="displayServiceInfo"></p>
+                        </div>
+                        <p class="text-gray-700">Pilih jenis layanan yang diinginkan untuk mengambil tiket antrian</p>
+                    </div>
+                </div>
+            </div>
         </header>
 
         <main>
@@ -280,8 +300,7 @@
     </div>
 
     <!-- Notification Container -->
-    <div id="notification" class="fixed inset-0 items-center justify-center bg-black bg-opacity-50 z-50 hidden"
-        style="display: none;">
+    <div id="notification" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
         <div
             class="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full mx-4 transform transition-all duration-300 scale-95 opacity-0">
             <div class="text-center">
@@ -290,7 +309,7 @@
                 </div>
                 <h3 class="text-xl font-bold text-gray-800 mb-2">Tiket Berhasil Diambil!</h3>
                 <p class="text-gray-600 mb-4">Nomor antrian Anda:</p>
-                <div class="text-4xl font-bold text-indigo-600 mb-4" id="notificationTicketNumber">A-001</div>
+                <div class="text-4xl font-bold text-indigo-600 mb-4" id="ticketNumber">A-001</div>
                 <div class="mt-4 p-3 bg-blue-50 rounded-lg mb-4">
                     <p class="text-sm text-blue-700" id="notificationServiceInfo"></p>
                 </div>
@@ -304,7 +323,7 @@
     </div>
 
     <!-- SweetAlert2 -->
-    {{-- <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script> --}}
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <script src="{{ asset('js/app.js') }}"></script>
     <script>
         function updateClock() {
@@ -340,26 +359,17 @@
             const notification = document.getElementById('notification');
             if (!notification) return;
 
-            // Make sure notification is visible
-            notification.style.display = 'flex';
+            notification.classList.remove('hidden');
             notification.classList.add('flex');
 
-            // Get the content div
-            const content = notification.querySelector('div');
-            if (!content) return;
-
-            // Reset animation state
-            content.style.transition = 'none';
-            content.style.transform = 'scale(0.95)';
-            content.style.opacity = '0';
-
-            // Force reflow to ensure reset takes effect
-            void content.offsetWidth;
-
-            // Start the animation
-            content.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
-            content.style.transform = 'scale(1)';
-            content.style.opacity = '1';
+            // Trigger animation
+            setTimeout(() => {
+                const content = notification.querySelector('div');
+                if (content) {
+                    content.style.transform = 'scale(1)';
+                    content.style.opacity = '1';
+                }
+            }, 10);
 
             // Play success sound
             playSuccessSound();
@@ -371,25 +381,21 @@
             if (!notification) return;
 
             const content = notification.querySelector('div');
-            if (!content) return;
-
-            // Start the close animation
-            content.style.transition = 'transform 0.2s ease-in, opacity 0.2s ease-in';
-            content.style.transform = 'scale(0.95)';
-            content.style.opacity = '0';
-
-            // Hide the notification after animation completes
-            setTimeout(() => {
-                notification.style.display = 'none';
-                notification.classList.remove('flex');
-
-                // Reset animation state for next time
-                content.style.transition = 'none';
+            if (content) {
                 content.style.transform = 'scale(0.95)';
                 content.style.opacity = '0';
-            }, 200);
+            }
 
-            return new Promise(resolve => setTimeout(resolve, 200));
+            setTimeout(() => {
+                notification.classList.add('hidden');
+                notification.classList.remove('flex');
+
+                // Reset animation
+                if (content) {
+                    content.style.transform = 'scale(0.95)';
+                    content.style.opacity = '0';
+                }
+            }, 300);
         }
 
 
@@ -477,7 +483,7 @@
                                 triggerConfetti()
                             ]);
 
-                            // Update display with new ticket info
+                            // Show notification with ticket number and service info
                             const displayTicketNumber = document.getElementById(
                                 'displayTicketNumber');
                             const displayServiceInfo = document.getElementById(
@@ -487,10 +493,6 @@
                             const notificationServiceInfo = document.getElementById(
                                 'notificationServiceInfo');
 
-                            // Close any existing notification first
-                            closeNotification();
-
-                            // Update the display
                             if (displayTicketNumber && notificationTicketNumber) {
                                 displayTicketNumber.textContent = data.ticket_number;
                                 notificationTicketNumber.textContent = data.ticket_number;
@@ -504,18 +506,10 @@
                                 notificationServiceInfo.textContent = serviceInfo;
                             }
 
-                            // Show the updated notification
+                            showNotification();
+
+                            // Auto refresh after 30 seconds if still on the page
                             setTimeout(() => {
-                                showNotification();
-                            }, 10);
-
-                            // Clear any existing refresh timeout
-                            if (window.refreshTimeout) {
-                                clearTimeout(window.refreshTimeout);
-                            }
-
-                            // Set up new refresh timeout
-                            window.refreshTimeout = setTimeout(() => {
                                 location.reload();
                             }, 30000);
 

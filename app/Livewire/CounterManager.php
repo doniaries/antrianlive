@@ -66,28 +66,20 @@ class CounterManager extends Component
 
     public function store()
     {
-        try {
-            $this->validate();
+        $this->validate();
 
-            $counter = Counter::create([
-                'name' => $this->name,
-                'description' => $this->description,
-            ]);
+        $counter = Counter::create([
+            'name' => $this->name,
+            'description' => $this->description,
+        ]);
 
-            // Attach services
-            if (!empty($this->selectedServices)) {
-                $counter->services()->sync($this->selectedServices);
-            }
-
-            session()->flash('message', 'Loket berhasil ditambahkan.');
-            $this->closeModal();
-            $this->resetPage();
-            
-            return true;
-        } catch (\Exception $e) {
-            session()->flash('error', 'Terjadi kesalahan saat menambahkan loket: ' . $e->getMessage());
-            return false;
+        // Attach services
+        if (!empty($this->selectedServices)) {
+            $counter->services()->sync($this->selectedServices);
         }
+
+        session()->flash('message', 'Loket berhasil ' . ($this->isEditMode ? 'diperbarui' : 'ditambahkan') . '.');
+        $this->closeModal();
     }
 
     public function edit($id)
@@ -106,25 +98,17 @@ class CounterManager extends Component
     {
         $this->validate();
 
-        try {
-            $counter = Counter::find($this->counterId);
-            $counter->update([
-                'name' => $this->name,
-                'description' => $this->description,
-            ]);
+        $counter = Counter::find($this->counterId);
+        $counter->update([
+            'name' => $this->name,
+            'description' => $this->description,
+        ]);
 
-            // Sync services
-            $counter->services()->sync($this->selectedServices);
+        // Sync services
+        $counter->services()->sync($this->selectedServices);
 
-            session()->flash('message', 'Loket berhasil diperbarui.');
-            $this->closeModal();
-            $this->resetPage();
-            
-            return true;
-        } catch (\Exception $e) {
-            session()->flash('error', 'Terjadi kesalahan saat memperbarui loket: ' . $e->getMessage());
-            return false;
-        }
+        session()->flash('message', 'Loket berhasil diperbarui.');
+        $this->closeModal();
     }
 
     public function delete($id)

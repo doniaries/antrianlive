@@ -18,7 +18,7 @@ class AntrianManager extends Component
     public $queueNumber = '';
     public $formattedNumber = '';
     public $status = 'waiting';
-
+    
     public $showModal = false;
     public $isEditMode = false;
     public $antrianId = null;
@@ -72,7 +72,7 @@ class AntrianManager extends Component
         $this->validate();
 
         $service = Service::findOrFail($this->selectedService);
-
+        
         // Generate queue number
         $today = now()->format('Y-m-d');
         $lastAntrian = Antrian::where('service_id', $this->selectedService)
@@ -112,7 +112,7 @@ class AntrianManager extends Component
         $this->validate();
 
         $antrian = Antrian::findOrFail($this->antrianId);
-
+        
         $antrian->update([
             'service_id' => $this->selectedService,
             'counter_id' => $this->selectedCounter,
@@ -135,101 +135,65 @@ class AntrianManager extends Component
         return Service::where('is_active', true)->orderBy('name')->get();
     }
 
-    public function finish($id)
-    {
-        try {
-            $antrian = Antrian::findOrFail($id);
-            $antrian->update([
-                'status' => 'finished',
-                'finished_at' => now()
-            ]);
-
-            $this->dispatch('notify', [
-                'type' => 'success',
-                'message' => 'Antrian ' . $antrian->formatted_number . ' telah selesai!'
-            ]);
-        } catch (\Exception $e) {
-            $this->dispatch('notify', [
-                'type' => 'error',
-                'message' => 'Gagal menyelesaikan antrian: ' . $e->getMessage()
-            ]);
-        }
-    }
-
-    public function skip($id)
-    {
-        try {
-            $antrian = Antrian::findOrFail($id);
-            $antrian->update([
-                'status' => 'skipped',
-                'skipped_at' => now()
-            ]);
-
-            $this->dispatch('notify', [
-                'type' => 'warning',
-                'message' => 'Antrian ' . $antrian->formatted_number . ' dilewati!'
-            ]);
-        } catch (\Exception $e) {
-            $this->dispatch('notify', [
-                'type' => 'error',
-                'message' => 'Gagal melewati antrian: ' . $e->getMessage()
-            ]);
-        }
-    }
-
-
     public function callNext($antrianId, $serviceId, $counterId = null)
     {
-        try {
-            // Update status antrian yang sedang diproses
-            $antrian = Antrian::with(['service', 'counter'])->findOrFail($antrianId);
+        // Update status antrian yang sedang diproses
+        $antrian = Antrian::findOrFail($antrianId);
+        $antrian->update([
+            'status' => 'called',
+            'counter_id' => $counterId,
+            'called_at' => now()
+        ]);
 
-            // Update antrian
-            $antrian->update([
-                'status' => 'called',
-                'counter_id' => $counterId,
-                'called_at' => now()
-            ]);
+        // Kirim event ke frontend dengan data antrian
+        $this->dispatch('antrian-called', [
+            'number' => $antrian->formatted_number,
+            'service' => $antrian->service->name,
+            'counter' => $antrian->counter ? $antrian->counter->name : 'Umum'
+        ]);
 
-            // Get counter name or use default
-            $counter = $antrian->counter ? $antrian->counter->name : 'Umum';
-
-            // Dispatch event for sound and notification
-            $this->dispatch('antrian-called', [
-                'number' => $antrian->formatted_number,
-                'service' => $antrian->service->name,
-                'counter' => $counter
-            ]);
-
-            $this->dispatch('notify', [
-                'type' => 'success',
-                'message' => 'Antrian ' . $antrian->formatted_number . ' berhasil dipanggil!'
-            ]);
-
-            // Dispatch the call-queue event
-            $this->dispatch('call-queue', [
-                'number' => $antrian->formatted_number,
-                'service' => $antrian->service->name,
-                'counter' => $counter,
-                'counterId' => $counterId,
-                'serviceCode' => $antrian->service->code
-            ]);
-
-            session()->flash('message', 'Antrian ' . $antrian->formatted_number . ' dipanggil di loket ' . $counter);
-        } catch (\Exception $e) {
-            $this->dispatch('notify', [
-                'type' => 'error',
-                'message' => 'Gagal memanggil antrian: ' . $e->getMessage()
-            ]);
-        }
+        session()->flash('message', 'Antrian ' . $antrian->formatted_number . ' dipanggil');
     }
 
+    public function recall($antrianId)
+    {
+        $antrian = Antrian::with(['service', 'counter'])->findOrFail($antrianId);
+        
+        $this->dispatch('antrian-called', [
+            'number' => $antrian->formatted_number,
+            'service' => $antrian->service->name,
+            'counter' => $antrian->counter ? $antrian->counter->name : 'Umum'
+        ]);
 
+        session()->flash('message', 'Antrian ' . $antrian->formatted_number . ' dipanggil ulang');
+    }
+
+    public function skip($antrianId)
+    {
+        $antrian = Antrian::findOrFail($antrianId);
+        $antrian->update([
+            'status' => 'skipped',
+            'finished_at' => now()
+        ]);
+
+        session()->flash('message', 'Antrian ' . $antrian->formatted_number . ' dilewati');
+    }
+
+    public function finish($antrianId)
+    {
+        $antrian = Antrian::findOrFail($antrianId);
+        $antrian->update([
+            'status' => 'finished',
+            'finished_at' => now()
+        ]);
+
+        session()->flash('message', 'Antrian ' . $antrian->formatted_number . ' selesai diproses');
+    }
 
     public function getWaitingCountProperty()
     {
         return Antrian::where('status', 'waiting')
-            ->when($this->filterDate, function ($q) {
+            ->when($this->filterDate, function($q) {
                 $q->whereDate('created_at', Carbon::parse($this->filterDate));
             })
             ->count();
@@ -238,7 +202,7 @@ class AntrianManager extends Component
     public function getCalledCountProperty()
     {
         return Antrian::where('status', 'called')
-            ->when($this->filterDate, function ($q) {
+            ->when($this->filterDate, function($q) {
                 $q->whereDate('created_at', Carbon::parse($this->filterDate));
             })
             ->count();
@@ -247,7 +211,7 @@ class AntrianManager extends Component
     public function getFinishedCountProperty()
     {
         return Antrian::whereIn('status', ['finished', 'skipped'])
-            ->when($this->filterDate, function ($q) {
+            ->when($this->filterDate, function($q) {
                 $q->whereDate('created_at', Carbon::parse($this->filterDate));
             })
             ->count();
@@ -256,13 +220,13 @@ class AntrianManager extends Component
     public function render()
     {
         $query = Antrian::with(['service', 'counter'])
-            ->when($this->filterDate, function ($q) {
+            ->when($this->filterDate, function($q) {
                 $q->whereDate('created_at', Carbon::parse($this->filterDate));
             })
-            ->when($this->filterService, function ($q) {
+            ->when($this->filterService, function($q) {
                 $q->where('service_id', $this->filterService);
             })
-            ->when($this->filterStatus, function ($q) {
+            ->when($this->filterStatus, function($q) {
                 if ($this->filterStatus === 'finished') {
                     $q->whereIn('status', ['finished', 'skipped']);
                 } else {
@@ -275,6 +239,6 @@ class AntrianManager extends Component
             'antrians' => $query->paginate(10),
             'services' => Service::where('is_active', true)->get(),
             'counters' => Counter::all(),
-        ])->layout('layouts.app');
+        ]);
     }
 }
