@@ -531,19 +531,28 @@
         // Auto update time
         function updateTime() {
             const now = new Date();
-            const options = {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
-            };
-            const timeDisplay = document.querySelector('.time-display');
-            if (timeDisplay) {
-                timeDisplay.textContent = now.toLocaleDateString('id-ID', options);
+
+            // Format time
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const digitalClock = document.getElementById('digital-clock');
+            if (digitalClock) {
+                digitalClock.textContent = `${hours}:${minutes}:${seconds}`;
+            }
+
+            // Format date
+            const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September',
+                'Oktober', 'November', 'Desember'
+            ];
+            const dayName = days[now.getDay()];
+            const date = now.getDate();
+            const monthName = months[now.getMonth()];
+            const year = now.getFullYear();
+            const currentDate = document.getElementById('current-date');
+            if (currentDate) {
+                currentDate.textContent = `${dayName}, ${date} ${monthName} ${year}`;
             }
         }
 
