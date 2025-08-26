@@ -243,7 +243,7 @@
                 <div
                     class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 w-full md:w-1/2 min-h-[200px] flex items-center">
                     <div class="text-center w-full">
-                        <div class="text-4xl font-bold text-indigo-600 mb-4" id="displayTicketNumber">A-001</div>
+                        <div class="text-4xl font-bold text-indigo-600 mb-4" id="displayTicketNumber">-</div>
                         <div class="mt-4 p-3 bg-blue-50 rounded-lg">
                             <p class="text-sm text-blue-700" id="displayServiceInfo"></p>
                         </div>
@@ -309,7 +309,7 @@
                 </div>
                 <h3 class="text-xl font-bold text-gray-800 mb-2">Tiket Berhasil Diambil!</h3>
                 <p class="text-gray-600 mb-4">Nomor antrian Anda:</p>
-                <div class="text-4xl font-bold text-indigo-600 mb-4" id="ticketNumber">A-001</div>
+                <div class="text-5xl font-bold text-indigo-600 mb-4 font-mono" id="ticketNumber">-</div>
                 <div class="mt-4 p-3 bg-blue-50 rounded-lg mb-4">
                     <p class="text-sm text-blue-700" id="notificationServiceInfo"></p>
                 </div>
@@ -460,7 +460,7 @@
 
                     // Show loading state
                     submitBtn.disabled = true;
-                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+                    submitBtn.innerHTML = '<div class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div> Memproses...';
 
                     try {
                         const formData = new FormData(form);
@@ -475,8 +475,10 @@
                         });
 
                         const data = await response.json();
+                        console.log('Ticket response:', data); // Debug log
 
-                        if (data.success) {
+                        if (data.success && data.ticket_number) {
+                            console.log('Ticket response:', data);
                             // Play sound and show success message
                             await Promise.all([
                                 playSuccessSound(),
@@ -496,12 +498,14 @@
                             if (displayTicketNumber && notificationTicketNumber) {
                                 displayTicketNumber.textContent = data.ticket_number;
                                 notificationTicketNumber.textContent = data.ticket_number;
+                            } else {
+                                console.error('Ticket number elements not found');
                             }
 
                             if (displayServiceInfo && notificationServiceInfo && data
                                 .service_name && data.counter_name) {
                                 const serviceInfo =
-                                    `${data.service_name} - Loket ${data.counter_name}`;
+                                    `${data.service_name} - ${data.counter_name}`;
                                 displayServiceInfo.textContent = serviceInfo;
                                 notificationServiceInfo.textContent = serviceInfo;
                             }
@@ -513,7 +517,11 @@
                                 location.reload();
                             }, 30000);
 
+                        } else if (!data.ticket_number) {
+                            console.error('Missing ticket number in response:', data);
+                            throw new Error('Nomor antrian tidak ditemukan dalam respons server');
                         } else {
+                            console.error('Server error:', data);
                             throw new Error(data.message || 'Terjadi kesalahan');
                         }
                     } catch (error) {

@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             ServiceSeeder::class,
             CounterSeeder::class,
+            CounterLayananSeeder::class,
         ]);
 
         // User::factory(10)->create();
