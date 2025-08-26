@@ -335,6 +335,10 @@
             playSuccessSound();
         }
 
+        // Make functions globally available
+        window.showNotification = showNotification;
+        window.closeNotification = closeNotification;
+
         // Close notification
         function closeNotification() {
             const notification = document.getElementById('notification');

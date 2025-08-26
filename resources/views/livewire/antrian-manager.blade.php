@@ -234,11 +234,7 @@
                                             </button>
                                         @elseif($antrian->status === 'called')
                                             <button 
-                                                wire:click="$dispatch('antrian-called', { 
-                                                    number: '{{ $antrian->formatted_number }}', 
-                                                    service: '{{ $antrian->service->name }}', 
-                                                    counter: '{{ $antrian->counter->name ?? 'Umum' }}' 
-                                                })"
+                                                wire:click="recall({{ $antrian->id }})"
                                                 onclick="showNotification('info', 'Memanggil ulang antrian {{ $antrian->formatted_number }}')"
                                                 class="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-200 dark:hover:bg-yellow-800"
                                                 title="Panggil Ulang">
