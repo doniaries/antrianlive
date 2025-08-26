@@ -434,8 +434,7 @@
 
                     // Show loading state
                     submitBtn.disabled = true;
-                    submitBtn.innerHTML =
-                        '<div class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div> Memproses...';
+                    submitBtn.innerHTML = '<div class="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div> Memproses...';
 
                     try {
                         const formData = new FormData(form);
@@ -494,8 +493,7 @@
 
                         } else if (!data.ticket_number) {
                             console.error('Missing ticket number in response:', data);
-                            throw new Error(
-                                'Nomor antrian tidak ditemukan dalam respons server');
+                            throw new Error('Nomor antrian tidak ditemukan dalam respons server');
                         } else {
                             console.error('Server error:', data);
                             throw new Error(data.message || 'Terjadi kesalahan');
