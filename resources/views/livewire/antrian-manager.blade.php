@@ -82,7 +82,7 @@
         @endif
 
         <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-4 shadow-lg">
                 <div class="text-center">
                     <div class="text-2xl font-bold text-white">{{ $this->waitingCount }}</div>
@@ -101,18 +101,6 @@
                     <div class="text-sm text-green-100">Selesai</div>
                 </div>
             </div>
-            {{-- <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-xl p-4 shadow-lg">
-                <div class="text-center">
-                    <button wire:click="openModal"
-                        class="w-full text-white font-medium hover:scale-105 transition-transform duration-200">
-                        <svg class="w-6 h-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
-                            </path>
-                        </svg>
-                        Tambah Antrian
-                    </button>
-                </div>
-            </div> --}}
         </div>
 
 
