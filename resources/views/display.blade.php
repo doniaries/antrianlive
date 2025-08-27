@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Display Antrian - {{ $profil->nama_instansi ?? 'Sistem Antrian' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -24,7 +26,7 @@
 
         .modern-display {
             display: grid;
-            grid-template-columns: 1fr 400px;
+            grid-template-columns: 1fr 650px;
             grid-template-rows: 80px 1fr 60px;
             height: 100vh;
             gap: 0;
@@ -73,7 +75,7 @@
         .main-content {
             display: grid;
             grid-template-columns: 1fr;
-            grid-template-rows: 2fr 1fr;
+            grid-template-rows: 1fr 1fr;
             gap: 1rem;
             padding: 1rem;
             overflow: hidden;
@@ -87,31 +89,82 @@
             padding: 2rem;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
 
         .queue-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #ffd700;
+            margin-bottom: 1rem;
             text-align: center;
-            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            background: linear-gradient(45deg, #ffd700, #ffed4e, #ffd700);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .queue-status {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            text-align: center;
+            opacity: 0.8;
         }
 
         .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            flex: 1;
-            align-content: start;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: flex-start;
+            justify-content: center;
+            height: 100%;
+            padding: 1rem;
         }
 
         .service-item {
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 1rem;
-            padding: 1.5rem;
+            padding: 1.5rem 1rem;
             text-align: center;
             transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-width: 160px;
+            max-width: 200px;
+            height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .service-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            border-radius: 1rem;
+            z-index: 1;
+        }
+        
+        .service-item > * {
+            position: relative;
+            z-index: 2;
         }
 
         .service-item:hover {
@@ -120,29 +173,94 @@
         }
 
         .service-name {
-            font-size: 1.1rem;
-            font-weight: 600;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #ffffff;
             margin-bottom: 0.5rem;
-            color: #fff;
+            line-height: 1.2;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-
+        
         .current-queue {
-            font-size: 2.5rem;
+            font-size: 1.8rem;
             font-weight: 800;
             color: #ffd700;
-            margin: 0.5rem 0;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            margin-bottom: 0.25rem;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 215, 0, 0.4);
+            animation: pulse-glow 2s ease-in-out infinite alternate;
         }
-
-        .counter-info {
-            font-size: 0.9rem;
-            opacity: 0.8;
-            margin-bottom: 0.5rem;
+        
+        .next-queue {
+            font-size: 0.8rem;
+            color: #cccccc;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+        
+        @keyframes pulse-glow {
+            from {
+                text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 215, 0, 0.4);
+            }
+            to {
+                text-shadow: 0 0 30px rgba(255, 215, 0, 1), 0 0 60px rgba(255, 215, 0, 0.6);
+            }
         }
 
         .next-queue {
             font-size: 0.8rem;
             opacity: 0.7;
+        }
+
+        .counter-status-section {
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(20px);
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .counter-status-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            opacity: 0.9;
+            color: #ffd700;
+        }
+
+        .counter-status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .counter-status-item {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            min-height: 80px;
+        }
+
+        .counter-status-name {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 0.25rem;
+        }
+
+        .counter-status-status {
+            font-size: 0.8rem;
+            color: #00ff88;
+            font-weight: 600;
+            line-height: 1.2;
         }
 
         .video-section {
@@ -155,6 +273,9 @@
             align-items: center;
             justify-content: center;
             position: relative;
+            height: 100%;
+            min-height: 400px;
+            aspect-ratio: 16/9;
         }
 
         .video-placeholder {
@@ -180,6 +301,8 @@
             border-left: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             flex-direction: column;
+            padding: 1rem;
+            gap: 1rem;
         }
 
         .counters-section {
@@ -273,13 +396,25 @@
         }
 
         @keyframes marquee {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
+            0% {
+                transform: translateX(100%);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
         }
 
         @keyframes pulse-glow {
-            0%, 100% { text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
-            50% { text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 30px rgba(255, 215, 0, 0.6); }
+
+            0%,
+            100% {
+                text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            }
+
+            50% {
+                text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 30px rgba(255, 215, 0, 0.6);
+            }
         }
 
         .current-queue {
@@ -291,19 +426,19 @@
                 grid-template-columns: 1fr;
                 grid-template-rows: 80px 1fr 300px 60px;
             }
-            
+
             .sidebar {
                 border-left: none;
                 border-top: 1px solid rgba(255, 255, 255, 0.1);
             }
-            
+
             .counters-section {
                 display: grid;
                 grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
                 gap: 0.5rem;
                 align-content: start;
             }
-            
+
             .counter-card {
                 margin-bottom: 0;
             }
@@ -313,25 +448,26 @@
             .header-content h1 {
                 font-size: 1.3rem;
             }
-            
+
             .header-content .instansi {
                 font-size: 0.8rem;
             }
-            
+
             .services-grid {
                 grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             }
-            
+
             .current-queue {
                 font-size: 2rem;
             }
-            
+
             .service-name {
                 font-size: 0.9rem;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="modern-display">
         <div class="header-bar">
@@ -340,27 +476,44 @@
                 <div class="instansi">{{ $profil->nama_instansi ?? 'Nama Instansi' }}</div>
             </div>
             <div class="header-info">
-                <div class="date-display" id="currentDate">{{ now()->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</div>
+                <div class="date-display" id="currentDate">{{ now()->locale('id')->isoFormat('dddd, D MMMM YYYY') }}
+                </div>
                 <div class="time-display" id="currentTime">{{ now()->format('H:i:s') }}</div>
             </div>
         </div>
 
         <div class="main-content">
             <div class="queue-section">
-                <div class="queue-title">Nomor Antrian Sedang Dilayani</div>
+                <div class="queue-title">NOMOR ANTRIAN SEDANG DIPANGGIL</div>
                 <div class="services-grid">
-                    @foreach($currentQueues as $serviceCode => $queue)
+                    @foreach ($currentQueues as $serviceCode => $queue)
                         <div class="service-item">
                             <div class="service-name">{{ $queue['service_name'] }}</div>
                             <div class="current-queue" id="current-{{ $serviceCode }}">{{ $queue['number'] }}</div>
-                            <div class="counter-info" id="counter-{{ $serviceCode }}">Loket: {{ $queue['counter'] }}</div>
-                            <div class="next-queue">Berikutnya: <span id="next-{{ $serviceCode }}">{{ $nextQueues[$serviceCode] ?? '-' }}</span></div>
+                            <div class="next-queue" id="next-{{ $serviceCode }}">Berikutnya: <span
+                                    id="next-{{ $serviceCode }}">{{ $nextQueues[$serviceCode] ?? '-' }}</span></div>
                         </div>
                     @endforeach
                 </div>
             </div>
 
-            <div class="video-section">
+            <div class="counter-status-section">
+                <div class="counter-status-title">ANTREAN AKAN DIPANGGIL</div>
+                <div class="counter-status-grid">
+                    @foreach ($counters as $counter)
+                        <div class="counter-status-item">
+                            <div class="counter-status-name">{{ $counter->name }}</div>
+                            <div class="counter-status-status" id="status-{{ $counter->id }}">Menunggu antrean</div>
+                            <div style="font-size: 1rem; font-weight: 700; color: #ffd700; margin-top: 0.25rem;"
+                                id="upcoming-{{ $counter->id }}">-</div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="video-section" style="height: 100%; margin-bottom: 1rem;">
                 <div class="video-placeholder">
                     <i class="fas fa-play-circle"></i>
                     <div>Video YouTube</div>
@@ -369,23 +522,11 @@
             </div>
         </div>
 
-        <div class="sidebar">
-            <div class="counters-section">
-                <div class="counters-title">Status Loket</div>
-                @foreach($counters as $counter)
-                    <div class="counter-card">
-                        <div class="counter-number-display" id="counter{{ $counter->id }}Number">-</div>
-                        <div class="counter-name-display">{{ $counter->name }}</div>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-
         <div class="footer-bar">
             <div class="marquee-container">
                 <div class="marquee-text">
-                    Selamat datang di {{ $profil->nama_instansi ?? 'sistem antrian kami' }}. 
-                    Silakan mengambil nomor antrian dan menunggu dipanggil sesuai layanan yang tersedia. 
+                    Selamat datang di {{ $profil->nama_instansi ?? 'sistem antrian kami' }}.
+                    Silakan mengambil nomor antrian dan menunggu dipanggil sesuai layanan yang tersedia.
                     Terima kasih atas kesabaran Anda.
                 </div>
             </div>
@@ -400,65 +541,86 @@
         // Update time and date
         function updateDateTime() {
             const now = new Date();
-            const timeString = now.toLocaleTimeString('id-ID', { 
-                hour: '2-digit', 
-                minute: '2-digit', 
+            const timeString = now.toLocaleTimeString('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit',
                 second: '2-digit',
-                hour12: false 
+                hour12: false
             });
-            const dateString = now.toLocaleDateString('id-ID', { 
-                weekday: 'long', 
-                day: 'numeric', 
-                month: 'long', 
-                year: 'numeric' 
+            const dateString = now.toLocaleDateString('id-ID', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
             });
-            
+
             document.getElementById('currentTime').textContent = timeString;
             document.getElementById('currentDate').textContent = dateString;
         }
 
         // Fetch real-time queue data
         function fetchQueueData() {
-            fetch('{{ route("display.data") }}')
+            fetch('{{ route('display.data') }}')
                 .then(response => response.json())
                 .then(data => {
                     let hasNewNumber = false;
-                    
-                    // Update current serving numbers
-                    Object.keys(data).forEach(serviceCode => {
-                        const serviceData = data[serviceCode];
-                        const currentElement = document.getElementById(`current-${serviceCode}`);
-                        const counterElement = document.getElementById(`counter-${serviceCode}`);
-                        const nextElement = document.getElementById(`next-${serviceCode}`);
+
+                    // Update current serving numbers with enhanced highlight
+                Object.keys(data).forEach(serviceCode => {
+                    const serviceData = data[serviceCode];
+                    const currentElement = document.getElementById(`current-${serviceCode}`);
+                    const counterElement = document.getElementById(`counter-${serviceCode}`);
+                    const nextElement = document.getElementById(`next-${serviceCode}`);
+
+                    if (currentElement && currentElement.textContent !== serviceData.current) {
+                        const oldValue = currentElement.textContent;
+                        currentElement.textContent = serviceData.current;
                         
-                        if (currentElement && currentElement.textContent !== serviceData.current) {
-                            currentElement.classList.add('new-number');
-                            setTimeout(() => currentElement.classList.remove('new-number'), 800);
+                        // Enhanced highlight effect
+                        currentElement.classList.add('new-number');
+                        currentElement.style.animation = 'none';
+                        setTimeout(() => {
+                            currentElement.style.animation = 'pulse-glow 2s ease-in-out infinite alternate';
+                            currentElement.classList.remove('new-number');
+                        }, 2000);
+                        
+                        if (oldValue !== '-' && serviceData.current !== '-') {
                             hasNewNumber = true;
                         }
-                        
-                        if (currentElement) currentElement.textContent = serviceData.current;
-                        if (counterElement) counterElement.textContent = serviceData.current_counter;
-                        if (nextElement) nextElement.textContent = serviceData.next;
-                    });
-                    
-                    // Update counter displays
+                    }
+
+                    if (counterElement) counterElement.textContent = serviceData.current_counter;
+                    if (nextElement) nextElement.textContent = serviceData.next;
+                });
+
+                    // Update counter status displays with upcoming queues
                     const counters = @json($counters);
                     counters.forEach(counter => {
-                        const counterElement = document.getElementById(`counter${counter.id}Number`);
-                        if (counterElement) {
-                            // Find the current serving number for this counter
-                            let currentForCounter = '-';
+                        const statusElement = document.getElementById(`status-${counter.id}`);
+                        const upcomingElement = document.getElementById(`upcoming-${counter.id}`);
+
+                        if (statusElement && upcomingElement) {
+                            // Find the service assigned to this counter
+                            let assignedService = null;
+                            let upcomingNumber = '-';
+
                             Object.keys(data).forEach(serviceCode => {
                                 if (data[serviceCode].current_counter === counter.name) {
-                                    currentForCounter = data[serviceCode].current;
+                                    assignedService = serviceCode;
+                                    upcomingNumber = data[serviceCode].next || '-';
                                 }
                             });
-                            if (counterElement.textContent !== currentForCounter) {
-                                counterElement.classList.add('new-number');
-                                setTimeout(() => counterElement.classList.remove('new-number'), 800);
+
+                            if (assignedService) {
+                                statusElement.textContent = 'Akan dipanggil';
+                                statusElement.style.color = '#00ff88';
+                                upcomingElement.textContent = upcomingNumber !== '-' ? `A-${upcomingNumber}` :
+                                    '-';
+                            } else {
+                                statusElement.textContent = 'Menunggu antrean';
+                                statusElement.style.color = '#ffffff';
+                                upcomingElement.textContent = '-';
                             }
-                            counterElement.textContent = currentForCounter;
                         }
                     });
 
@@ -491,13 +653,28 @@
         const style = document.createElement('style');
         style.textContent = `
             .new-number {
-                animation: newNumber 0.8s ease-out;
+                background: rgba(255, 215, 0, 0.3) !important;
+                transform: scale(1.1);
+                box-shadow: 0 0 30px rgba(255, 215, 0, 0.6), 0 0 60px rgba(255, 215, 0, 0.3);
+                animation: flash-highlight 1s ease-in-out;
             }
             
-            @keyframes newNumber {
-                0% { transform: scale(0.8); opacity: 0; }
-                50% { transform: scale(1.2); opacity: 1; }
-                100% { transform: scale(1); opacity: 1; }
+            @keyframes flash-highlight {
+                0% { 
+                    background: rgba(255, 215, 0, 0.8);
+                    transform: scale(1.15);
+                    box-shadow: 0 0 50px rgba(255, 215, 0, 0.8);
+                }
+                50% { 
+                    background: rgba(255, 215, 0, 0.4);
+                    transform: scale(1.1);
+                    box-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
+                }
+                100% { 
+                    background: rgba(255, 215, 0, 0.2);
+                    transform: scale(1.05);
+                    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+                }
             }
         `;
         document.head.appendChild(style);
@@ -505,7 +682,7 @@
         // Initialize
         updateDateTime();
         setInterval(updateDateTime, 1000);
-        
+
         // Fetch queue data every 3 seconds
         fetchQueueData();
         setInterval(fetchQueueData, 3000);
@@ -531,12 +708,12 @@
         function loadVideo() {
             const videoSection = document.querySelector('.video-section');
             videoSection.innerHTML = `
-                <iframe 
-                    width="100%" 
-                    height="100%" 
-                    src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&loop=1&playlist=dQw4w9WgXcQ" 
-                    frameborder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                <iframe
+                    width="100%"
+                    height="100%"
+                    src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&loop=1&playlist=dQw4w9WgXcQ"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowfullscreen>
                 </iframe>
             `;
@@ -546,4 +723,5 @@
         // setTimeout(loadVideo, 2000);
     </script>
 </body>
+
 </html>
