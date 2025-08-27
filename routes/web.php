@@ -26,6 +26,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Manajemen Antrian
     Route::get('/antrians', AntrianManager::class)->name('antrians.index');
+    Route::get('/antrians/selesai', \App\Livewire\AntrianSelesaiManager::class)->name('antrian.selesai');
 
     // Settings (existing)
     Route::redirect('settings', 'settings/profile');

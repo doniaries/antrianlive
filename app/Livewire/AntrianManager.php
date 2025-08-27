@@ -197,7 +197,7 @@ class AntrianManager extends Component
                     $q->where('status', $this->filterStatus);
                 }
             })
-            ->latest();
+            ->orderBy('queue_number', 'asc');
 
         return view('livewire.antrian-manager', [
             'antrians' => $query->paginate(10),

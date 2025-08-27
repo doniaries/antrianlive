@@ -105,6 +105,40 @@
 
 
 
+        <!-- Filter Buttons -->
+        <div class="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 shadow-sm p-4 mb-4">
+            <div class="flex flex-wrap gap-2 items-center">
+                <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Filter:</span>
+                <button wire:click="$set('filterStatus', '')" 
+                    class="px-3 py-1.5 text-xs font-medium rounded-full transition-colors duration-150 {{ empty($filterStatus) ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600' }}">
+                    Semua
+                </button>
+                <button wire:click="$set('filterStatus', 'waiting')" 
+                    class="px-3 py-1.5 text-xs font-medium rounded-full transition-colors duration-150 {{ $filterStatus === 'waiting' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600' }}">
+                    Menunggu
+                </button>
+                <button wire:click="$set('filterStatus', 'called')" 
+                    class="px-3 py-1.5 text-xs font-medium rounded-full transition-colors duration-150 {{ $filterStatus === 'called' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600' }}">
+                    Dipanggil
+                </button>
+                <button wire:click="$set('filterStatus', 'finished')" 
+                    class="px-3 py-1.5 text-xs font-medium rounded-full transition-colors duration-150 {{ $filterStatus === 'finished' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600' }}">
+                    Selesai & Lewati
+                </button>
+                <div class="ml-auto">
+                    <a href="{{ route('antrian.selesai') }}" 
+                        class="px-3 py-1.5 text-xs font-medium bg-purple-500 text-white rounded-full hover:bg-purple-600 transition-colors duration-150">
+                        Lihat Selesai →
+                    </a>
+                </div>
+            </div>
+            <div class="mt-3 flex items-center gap-2">
+                <label class="text-sm text-zinc-600 dark:text-zinc-400">Tanggal:</label>
+                <input type="date" wire:model.live="filterDate" 
+                    class="px-2 py-1 text-xs border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-blue-500">
+            </div>
+        </div>
+
         <!-- Antrians Table -->
         <div class="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 shadow-sm">
             <div class="overflow-x-auto">
@@ -172,34 +206,37 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <div class="flex flex-wrap gap-1">
+                                    <div class="flex flex-col gap-2">
                                         @if ($antrian->status === 'waiting')
                                             <button
                                                 wire:click="callNext({{ $antrian->id }}, {{ $antrian->service_id }}, {{ $antrian->counter_id ?? 1 }})"
                                                 onclick="showNotification('success', 'Memanggil antrian {{ $antrian->formatted_number }}')"
-                                                class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800"
+                                                class="w-full px-3 py-1.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-md hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800 transition-colors"
                                                 title="Panggil">
                                                 Panggil
                                             </button>
                                         @elseif($antrian->status === 'called')
                                             <button wire:click="recall({{ $antrian->id }})"
                                                 onclick="showNotification('info', 'Memanggil ulang antrian {{ $antrian->formatted_number }}')"
-                                                class="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-200 dark:hover:bg-yellow-800"
+                                                class="w-full px-3 py-1.5 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-md hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-200 dark:hover:bg-yellow-800 transition-colors"
                                                 title="Panggil Ulang">
                                                 Panggil Ulang
                                             </button>
-                                            <button wire:click="skip({{ $antrian->id }})"
-                                                onclick="showNotification('warning', 'Melewatkan antrian {{ $antrian->formatted_number }}')"
-                                                class="px-2 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded-full hover:bg-orange-200 dark:bg-orange-900 dark:text-orange-200 dark:hover:bg-orange-800"
-                                                title="Lewati">
-                                                Lewati
-                                            </button>
-                                            <button wire:click="finish({{ $antrian->id }})"
-                                                onclick="showNotification('success', 'Menandai antrian {{ $antrian->formatted_number }} sebagai selesai')"
-                                                class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full hover:bg-green-200 dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-800"
-                                                title="Selesai">
-                                                Selesai
-                                            </button>
+                                            
+                                            <div class="flex gap-2">
+                                                <button wire:click="skip({{ $antrian->id }})"
+                                                    onclick="showNotification('warning', 'Melewatkan antrian {{ $antrian->formatted_number }}')"
+                                                    class="flex-1 px-3 py-1.5 text-xs font-medium bg-orange-500 text-white rounded-md hover:bg-orange-600 dark:bg-orange-600 dark:hover:bg-orange-700 transition-colors"
+                                                    title="Lewati">
+                                                    Lewati
+                                                </button>
+                                                <button wire:click="finish({{ $antrian->id }})"
+                                                    onclick="showNotification('success', 'Menandai antrian {{ $antrian->formatted_number }} sebagai selesai')"
+                                                    class="flex-1 px-3 py-1.5 text-xs font-medium bg-green-500 text-white rounded-md hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 transition-colors"
+                                                    title="Selesai">
+                                                    Selesai
+                                                </button>
+                                            </div>
                                         @endif
                                     </div>
                                 </td>
