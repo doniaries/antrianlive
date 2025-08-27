@@ -27,7 +27,7 @@
         .modern-display {
             display: grid;
             grid-template-columns: 1fr 650px;
-            grid-template-rows: 80px 1fr 60px;
+            grid-template-rows: 110px 1fr 60px;
             height: 100vh;
             gap: 0;
             background: rgba(0, 0, 0, 0.1);
@@ -37,47 +37,62 @@
             grid-column: 1 / -1;
             background: rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(20px);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 1fr 2fr 300px;
+            align-items: flex-start;
+            padding: 0.5rem 2rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            min-height: 100px;
+        }
+
+        .header-content {
+            text-align: center;
+            grid-column: 2;
         }
 
         .header-content h1 {
-            font-size: 1.8rem;
+            font-size: 2rem;
             font-weight: 700;
             margin-bottom: 0.2rem;
         }
 
         .header-content .instansi {
-            font-size: 1rem;
+            font-size: 1.2rem;
             opacity: 0.8;
         }
 
         .header-info {
             display: flex;
-            align-items: center;
-            gap: 2rem;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: flex-start;
+            grid-column: 3;
+            align-self: flex-start;
+            padding-top: 0.5rem;
+            text-align: right;
         }
 
         .time-display {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             font-weight: 600;
             font-family: 'Courier New', monospace;
+            line-height: 1.2;
+            margin-bottom: 0.2rem;
         }
 
         .date-display {
-            font-size: 0.9rem;
+            font-size: 1.1rem;
             opacity: 0.8;
+            line-height: 1.2;
+            margin-top: 0;
         }
 
         .main-content {
             display: grid;
             grid-template-columns: 1fr;
             grid-template-rows: 2fr 1fr;
-            gap: 1rem;
-            padding: 1rem;
+            gap: 1.5rem;
+            padding: 1.5rem 1rem 1rem;
             overflow: hidden;
         }
 
@@ -124,30 +139,30 @@
 
         .services-grid {
             display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-            align-items: flex-start;
-            justify-content: center;
+            flex-wrap: nowrap;
+            gap: 0.5rem;
+            align-items: center;
+            justify-content: space-between;
             height: 100%;
             padding: 1rem;
+            width: 100%;
         }
 
         .service-item {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 1rem;
             padding: 1.5rem 1rem;
-            text-align: center;
-            transition: all 0.3s ease;
-            min-width: 160px;
-            max-width: 200px;
-            height: 140px;
+            flex: 1;
+            min-width: 0;
+            height: 150px;
             display: flex;
             flex-direction: column;
             justify-content: center;
+            align-items: center;
             position: relative;
-            overflow: hidden;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
         }
         
         .service-item::before {
@@ -173,29 +188,27 @@
         }
 
         .service-name {
-            font-size: 0.9rem;
+            font-size: 1.1rem;
             font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 0.5rem;
-            line-height: 1.2;
+            color: rgba(255, 255, 255, 0.9);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+            text-align: center;
         }
-        
+
         .current-queue {
-            font-size: 1.8rem;
-            font-weight: 800;
+            font-size: 2.5rem;
+            font-weight: 900;
             color: #ffd700;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+            line-height: 1;
             margin-bottom: 0.25rem;
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 215, 0, 0.4);
-            animation: pulse-glow 2s ease-in-out infinite alternate;
+            text-align: center;
         }
-        
+
         .next-queue {
-            font-size: 0.8rem;
-            color: #cccccc;
-            opacity: 0.9;
-            font-weight: 500;
+            display: none;
         }
         
         @keyframes pulse-glow {
@@ -405,20 +418,23 @@
             }
         }
 
-        @keyframes pulse-glow {
-
-            0%,
-            100% {
-                text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        @keyframes gentle-pulse {
+            0% {
+                transform: scale(1);
+                text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
             }
-
             50% {
-                text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 30px rgba(255, 215, 0, 0.6);
+                transform: scale(1.05);
+                text-shadow: 0 0 15px rgba(255, 215, 0, 0.7), 0 0 25px rgba(255, 215, 0, 0.3);
+            }
+            100% {
+                transform: scale(1);
+                text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
             }
         }
 
         .current-queue {
-            animation: pulse-glow 2s ease-in-out infinite;
+            animation: gentle-pulse 3s ease-in-out infinite;
         }
 
         @media (max-width: 1024px) {
@@ -476,9 +492,9 @@
                 <div class="instansi">{{ $profil->nama_instansi ?? 'Nama Instansi' }}</div>
             </div>
             <div class="header-info">
+                <div class="time-display" id="currentTime">{{ now()->format('H:i:s') }}</div>
                 <div class="date-display" id="currentDate">{{ now()->locale('id')->isoFormat('dddd, D MMMM YYYY') }}
                 </div>
-                <div class="time-display" id="currentTime">{{ now()->format('H:i:s') }}</div>
             </div>
         </div>
 
@@ -653,29 +669,29 @@
         const style = document.createElement('style');
         style.textContent = `
             .new-number {
-                background: rgba(255, 215, 0, 0.3) !important;
-                transform: scale(1.1);
-                box-shadow: 0 0 30px rgba(255, 215, 0, 0.6), 0 0 60px rgba(255, 215, 0, 0.3);
-                animation: flash-highlight 1s ease-in-out;
+            background: rgba(255, 215, 0, 0.3) !important;
+            transform: scale(1.08);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.6), 0 0 60px rgba(255, 215, 0, 0.3);
+            animation: soft-highlight 2.5s ease-in-out;
+        }
+        
+        @keyframes soft-highlight {
+            0% {
+                transform: scale(1);
+                opacity: 0.9;
+                text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
             }
-            
-            @keyframes flash-highlight {
-                0% { 
-                    background: rgba(255, 215, 0, 0.8);
-                    transform: scale(1.15);
-                    box-shadow: 0 0 50px rgba(255, 215, 0, 0.8);
-                }
-                50% { 
-                    background: rgba(255, 215, 0, 0.4);
-                    transform: scale(1.1);
-                    box-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
-                }
-                100% { 
-                    background: rgba(255, 215, 0, 0.2);
-                    transform: scale(1.05);
-                    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
-                }
+            50% {
+                transform: scale(1.08);
+                opacity: 1;
+                text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 35px rgba(255, 215, 0, 0.4);
             }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+                text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            }
+        }
         `;
         document.head.appendChild(style);
 
