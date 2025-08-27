@@ -241,4 +241,54 @@ class AntrianManager extends Component
             'counters' => Counter::all(),
         ]);
     }
+
+    #[\Livewire\Attributes\On('callNext')]
+    public function handleCallNext($antrianId, $serviceId = null, $counterId = null)
+    {
+        try {
+            $this->callNext($antrianId, $serviceId, $counterId);
+        } catch (\Exception $e) {
+            $this->dispatch('error', message: $e->getMessage());
+        }
+    }
+
+    #[\Livewire\Attributes\On('recall')]
+    public function handleRecall($antrianId)
+    {
+        try {
+            $this->recall($antrianId);
+        } catch (\Exception $e) {
+            $this->dispatch('error', message: $e->getMessage());
+        }
+    }
+
+    #[\Livewire\Attributes\On('skip')]
+    public function handleSkip($antrianId)
+    {
+        try {
+            $this->skip($antrianId);
+        } catch (\Exception $e) {
+            $this->dispatch('error', message: $e->getMessage());
+        }
+    }
+
+    #[\Livewire\Attributes\On('finish')]
+    public function handleFinish($antrianId)
+    {
+        try {
+            $this->finish($antrianId);
+        } catch (\Exception $e) {
+            $this->dispatch('error', message: $e->getMessage());
+        }
+    }
+
+    #[\Livewire\Attributes\On('delete')]
+    public function handleDelete($antrianId)
+    {
+        try {
+            $this->delete($antrianId);
+        } catch (\Exception $e) {
+            $this->dispatch('error', message: $e->getMessage());
+        }
+    }
 }

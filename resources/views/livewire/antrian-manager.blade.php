@@ -293,16 +293,11 @@
 
         <!-- Modal -->
         @if ($showModal)
-            <div class="fixed inset-0 z-50 overflow-y-auto" wire:loading.attr="class"
-                wire:loading.class="opacity-100" wire:loading.remove.class="opacity-0" x-cloak>
-
-                <!-- Background overlay -->
-                <div class="fixed inset-0 bg-black/50" wire:click="closeModal"></div>
-
-                <!-- Modal panel -->
-                <div class="flex min-h-screen items-center justify-center p-4">
-                    <div
-                        class="relative w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-2xl">
+            <div class="fixed inset-0 z-50 overflow-hidden" x-cloak>
+                <div class="absolute inset-0 bg-black/50 transition-opacity duration-300" wire:click="closeModal"></div>
+                <div class="fixed inset-0 flex items-center justify-center p-4">
+                    <div class="relative w-full max-w-md">
+                        <div class="transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-2xl">
 
                         <!-- Close button -->
                         <button wire:click="closeModal"
