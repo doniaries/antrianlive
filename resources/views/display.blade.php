@@ -75,7 +75,7 @@
         .main-content {
             display: grid;
             grid-template-columns: 1fr;
-            grid-template-rows: 1fr 1fr;
+            grid-template-rows: 2fr 1fr;
             gap: 1rem;
             padding: 1rem;
             overflow: hidden;
@@ -217,16 +217,16 @@
             backdrop-filter: blur(20px);
             border-radius: 1rem;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 1.5rem;
+            padding: 1rem;
             overflow: hidden;
             display: flex;
             flex-direction: column;
         }
 
         .counter-status-title {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: 700;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
             text-align: center;
             opacity: 0.9;
             color: #ffd700;
