@@ -36,13 +36,30 @@
         .header-bar {
             grid-column: 1 / -1;
             background: rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(20px);
             display: grid;
-            grid-template-columns: 1fr 2fr 300px;
+            grid-template-columns: 200px 2fr 300px;
             align-items: flex-start;
             padding: 0.5rem 2rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             min-height: 100px;
+        }
+
+        .header-logo {
+            grid-column: 1;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 0.5rem 0;
+            height: 90px;
+        }
+
+        .header-logo img {
+            max-height: 80px;
+            max-width: 180px;
+            object-fit: contain;
+            border-radius: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem;
         }
 
         .header-content {
@@ -98,7 +115,6 @@
 
         .queue-section {
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
             border-radius: 1rem;
             border: 1px solid rgba(255, 255, 255, 0.2);
             padding: 2rem;
@@ -162,7 +178,6 @@
             align-items: center;
             position: relative;
             transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
         }
         
         .service-item::before {
@@ -200,8 +215,8 @@
         .current-queue {
             font-size: 2.5rem;
             font-weight: 900;
-            color: #ffd700;
-            text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+            color: #ffffff;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
             line-height: 1;
             margin-bottom: 0.25rem;
             text-align: center;
@@ -213,11 +228,15 @@
         
         @keyframes pulse-glow {
             from {
-                text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 215, 0, 0.4);
+                text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 40px rgba(255, 255, 255, 0.4);
             }
             to {
-                text-shadow: 0 0 30px rgba(255, 215, 0, 1), 0 0 60px rgba(255, 215, 0, 0.6);
+                text-shadow: 0 0 30px rgba(255, 255, 255, 1), 0 0 60px rgba(255, 255, 255, 0.6);
             }
+        }
+
+        .current-queue {
+            animation: pulse-glow 2s ease-in-out infinite alternate;
         }
 
         .next-queue {
@@ -227,13 +246,13 @@
 
         .counter-status-section {
             background: rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(20px);
             border-radius: 1rem;
             border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 1rem;
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            align-items: center;
         }
 
         .counter-status-title {
@@ -249,11 +268,14 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 0.75rem;
+            justify-items: center;
+            align-items: start;
+            max-width: 800px;
+            margin: 0 auto;
         }
 
         .counter-status-item {
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 0.5rem;
             padding: 0.75rem;
@@ -278,7 +300,6 @@
 
         .video-section {
             background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(20px);
             border-radius: 1rem;
             border: 1px solid rgba(255, 255, 255, 0.1);
             overflow: hidden;
@@ -310,7 +331,6 @@
 
         .sidebar {
             background: rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(20px);
             border-left: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             flex-direction: column;
@@ -361,7 +381,6 @@
         .footer-bar {
             grid-column: 1 / -1;
             background: rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(20px);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -384,8 +403,8 @@
 
         .fullscreen-btn {
             position: absolute;
-            top: 1rem;
-            left: 1rem;
+            bottom: 1rem;
+            right: 1rem;
             background: rgba(255, 255, 255, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
@@ -394,18 +413,24 @@
             font-size: 1.2rem;
             cursor: pointer;
             transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
             z-index: 1000;
             display: flex;
             align-items: center;
             justify-content: center;
             width: 3rem;
             height: 3rem;
+            opacity: 0;
+            visibility: hidden;
         }
 
         .fullscreen-btn:hover {
             background: rgba(255, 255, 255, 0.3);
             transform: scale(1.05);
+        }
+
+        body:hover .fullscreen-btn {
+            opacity: 1;
+            visibility: visible;
         }
 
         @keyframes marquee {
@@ -487,6 +512,13 @@
 <body>
     <div class="modern-display">
         <div class="header-bar">
+            <div class="header-logo">
+                @if($profil && $profil->logo)
+                    <img src="{{ $profil->logo_url }}" alt="Logo {{ $profil->nama_instansi ?? 'Instansi' }}">
+                @else
+                    <img src="{{ asset('favicon.svg') }}" alt="Logo Default">
+                @endif
+            </div>
             <div class="header-content">
                 <h1>Sistem Antrian</h1>
                 <div class="instansi">{{ $profil->nama_instansi ?? 'Nama Instansi' }}</div>
