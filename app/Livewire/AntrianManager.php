@@ -20,8 +20,6 @@ class AntrianManager extends Component
     public $status = 'waiting';
     
     public $showModal = false;
-    public $isEditMode = false;
-    public $antrianId = null;
 
     public $filterService = '';
     public $filterStatus = '';
@@ -63,8 +61,6 @@ class AntrianManager extends Component
         $this->selectedService = null;
         $this->selectedCounter = null;
         $this->status = 'waiting';
-        $this->antrianId = null;
-        $this->isEditMode = false;
     }
 
     public function create()
@@ -96,39 +92,7 @@ class AntrianManager extends Component
         $this->closeModal();
     }
 
-    public function edit($id)
-    {
-        $antrian = Antrian::findOrFail($id);
-        $this->antrianId = $id;
-        $this->selectedService = $antrian->service_id;
-        $this->selectedCounter = $antrian->counter_id;
-        $this->status = $antrian->status;
-        $this->isEditMode = true;
-        $this->showModal = true;
-    }
 
-    public function update()
-    {
-        $this->validate();
-
-        $antrian = Antrian::findOrFail($this->antrianId);
-        
-        $antrian->update([
-            'service_id' => $this->selectedService,
-            'counter_id' => $this->selectedCounter,
-            'status' => $this->status,
-        ]);
-
-        session()->flash('message', 'Antrian berhasil diperbarui');
-        $this->closeModal();
-    }
-
-    public function delete($id)
-    {
-        $antrian = Antrian::findOrFail($id);
-        $antrian->delete();
-        session()->flash('message', 'Antrian berhasil dihapus');
-    }
 
     public function getServicesProperty()
     {

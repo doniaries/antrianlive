@@ -65,13 +65,15 @@
                 <div class="bg-green-500 text-white px-6 py-4 rounded-xl shadow-lg flex items-center justify-between">
                     <div class="flex items-center">
                         <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
                         </svg>
                         <span>{{ session('message') }}</span>
                     </div>
                     <button @click="show = false" class="text-white hover:text-gray-100 ml-4">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12">
                             </path>
                         </svg>
                     </button>
@@ -99,7 +101,7 @@
                     <div class="text-sm text-green-100">Selesai</div>
                 </div>
             </div>
-            <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-xl p-4 shadow-lg">
+            {{-- <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-xl p-4 shadow-lg">
                 <div class="text-center">
                     <button wire:click="openModal"
                         class="w-full text-white font-medium hover:scale-105 transition-transform duration-200">
@@ -110,51 +112,10 @@
                         Tambah Antrian
                     </button>
                 </div>
-            </div>
+            </div> --}}
         </div>
 
-        {{-- <!-- Filters -->
-        <div class="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-4 shadow-sm">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Tanggal</label>
-                    <input type="date" wire:model.live="filterDate"
-                        class="w-full rounded-md border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 focus:border-indigo-500 focus:ring-indigo-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Layanan</label>
-                    <select wire:model.live="filterService"
-                        class="w-full rounded-md border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 focus:border-indigo-500 focus:ring-indigo-500">
-                        <option value="">Semua Layanan</option>
-                        @foreach ($services as $service)
-                            <option value="{{ $service->id }}">{{ $service->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Status</label>
-                    <select wire:model.live="filterStatus"
-                        class="w-full rounded-md border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 focus:border-indigo-500 focus:ring-indigo-500">
-                        <option value="">Semua Status</option>
-                        <option value="waiting">Menunggu</option>
-                        <option value="called">Dipanggil</option>
-                        <option value="finished">Selesai</option>
-                        <option value="skipped">Dilewati</option>
-                    </select>
-                </div>
-                <div class="flex items-end">
-                    <button wire:click="$refresh"
-                        class="inline-flex items-center px-4 py-2 bg-zinc-100 dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-md font-semibold text-xs text-zinc-700 dark:text-zinc-300 uppercase tracking-widest hover:bg-zinc-50 dark:hover:bg-zinc-600 focus:outline-none focus:border-zinc-700 focus:ring focus:ring-zinc-200 disabled:opacity-25 transition w-full justify-center">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
-                            </path>
-                        </svg>
-                        Refresh
-                    </button>
-                </div>
-            </div>
-        </div> --}}
+
 
         <!-- Antrians Table -->
         <div class="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 shadow-sm">
@@ -233,8 +194,7 @@
                                                 Panggil
                                             </button>
                                         @elseif($antrian->status === 'called')
-                                            <button 
-                                                wire:click="recall({{ $antrian->id }})"
+                                            <button wire:click="recall({{ $antrian->id }})"
                                                 onclick="showNotification('info', 'Memanggil ulang antrian {{ $antrian->formatted_number }}')"
                                                 class="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-200 dark:hover:bg-yellow-800"
                                                 title="Panggil Ulang">
@@ -253,18 +213,6 @@
                                                 Selesai
                                             </button>
                                         @endif
-                                        <button wire:click="delete({{ $antrian->id }})"
-                                            class="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full hover:bg-red-200 dark:bg-red-900 dark:text-red-200 dark:hover:bg-red-800"
-                                            title="Hapus"
-                                            onclick="if(confirm('Apakah Anda yakin ingin menghapus antrian ini?')) { showNotification('success', 'Menghapus antrian {{ $antrian->formatted_number }}') }">
-                                            Hapus
-                                        </button>
-                                        <button wire:click="edit({{ $antrian->id }})"
-                                            onclick="showNotification('info', 'Mengedit antrian {{ $antrian->formatted_number }}')"
-                                            class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-                                            title="Edit">
-                                            Edit
-                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -294,85 +242,74 @@
         <!-- Modal -->
         @if ($showModal)
             <div class="fixed inset-0 z-50 overflow-hidden" x-cloak>
-                <div class="absolute inset-0 bg-black/50 transition-opacity duration-300" wire:click="closeModal"></div>
+                <div class="absolute inset-0 bg-black/50 transition-opacity duration-300" wire:click="closeModal">
+                </div>
                 <div class="fixed inset-0 flex items-center justify-center p-4">
                     <div class="relative w-full max-w-md">
                         <div class="transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-2xl">
 
-                        <!-- Close button -->
-                        <button wire:click="closeModal"
-                            class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-150">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
+                            <!-- Close button -->
+                            <button wire:click="closeModal"
+                                class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-150">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
 
-                        <form wire:submit.prevent="{{ $isEditMode ? 'update' : 'create' }}" class="p-6">
-                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                                {{ $isEditMode ? 'Edit Antrian' : 'Tambah Antrian' }}
-                            </h3>
+                            <form wire:submit.prevent="create" class="p-6">
+                                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                                    Tambah Antrian
+                                </h3>
 
-                            <div class="space-y-5">
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                        Layanan
-                                    </label>
-                                    <select wire:model="selectedService" required
-                                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-150">
-                                        <option value="">Pilih Layanan</option>
-                                        @foreach ($services as $service)
-                                            <option value="{{ $service->id }}">{{ $service->name }}
-                                                ({{ $service->code }})
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                        Loket (Opsional)
-                                    </label>
-                                    <select wire:model="selectedCounter"
-                                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-150">
-                                        <option value="">Pilih Loket</option>
-                                        @foreach ($counters as $counter)
-                                            <option value="{{ $counter->id }}">{{ $counter->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                @if ($isEditMode)
+                                <div class="space-y-5">
                                     <div>
                                         <label
                                             class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                            Status
+                                            Layanan
                                         </label>
-                                        <select wire:model="status" required
+                                        <select wire:model="selectedService" required
                                             class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-150">
-                                            <option value="waiting">Menunggu</option>
-                                            <option value="called">Dipanggil</option>
-                                            <option value="finished">Selesai</option>
-                                            <option value="skipped">Dilewati</option>
+                                            <option value="">Pilih Layanan</option>
+                                            @foreach ($services as $service)
+                                                <option value="{{ $service->id }}">{{ $service->name }}
+                                                    ({{ $service->code }})
+                                                </option>
+                                            @endforeach
                                         </select>
                                     </div>
-                                @endif
-                            </div>
 
-                            <div class="flex justify-end space-x-3 mt-8">
-                                <button type="button" wire:click="closeModal"
-                                    class="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl transition-colors duration-150">
-                                    Batal
-                                </button>
-                                <button type="submit"
-                                    class="px-5 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
-                                    {{ $isEditMode ? 'Perbarui' : 'Simpan' }}
-                                </button>
-                            </div>
-                        </form>
+                                    <div>
+                                        <label
+                                            class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                            Loket (Opsional)
+                                        </label>
+                                        <select wire:model="selectedCounter"
+                                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-150">
+                                            <option value="">Pilih Loket</option>
+                                            @foreach ($counters as $counter)
+                                                <option value="{{ $counter->id }}">{{ $counter->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+
+                                </div>
+
+                                <div class="flex justify-end space-x-3 mt-8">
+                                    <button type="button" wire:click="closeModal"
+                                        class="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl transition-colors duration-150">
+                                        Batal
+                                    </button>
+                                    <button type="submit"
+                                        class="px-5 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                                        Simpan
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
         @endif
 </div>
 
@@ -386,7 +323,7 @@
         function showToast(type, message) {
             const toast = document.createElement('div');
             toast.className = `fixed top-4 right-4 px-6 py-4 rounded-lg shadow-lg text-white ${
-            type === 'success' ? 'bg-green-500' : 
+            type === 'success' ? 'bg-green-500' :
             type === 'error' ? 'bg-red-500' :
             type === 'warning' ? 'bg-amber-500' : 'bg-blue-500'
         }`;
