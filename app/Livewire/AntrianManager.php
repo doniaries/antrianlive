@@ -205,8 +205,11 @@ class AntrianManager extends Component
                 } else {
                     $q->where('status', $this->filterStatus);
                 }
+            }, function($q) {
+                // Default: only show waiting and called queues
+                $q->whereIn('status', ['waiting', 'called']);
             })
-            ->orderBy('queue_number', 'asc');
+            ->orderBy('created_at', 'desc');
 
         return view('livewire.antrian-manager', [
             'antrians' => $query->paginate(10),
