@@ -174,7 +174,16 @@ class AntrianManager extends Component
 
     public function getFinishedCountProperty()
     {
-        return Antrian::whereIn('status', ['finished', 'skipped'])
+        return Antrian::where('status', 'finished')
+            ->when($this->filterDate, function($q) {
+                $q->whereDate('created_at', Carbon::parse($this->filterDate));
+            })
+            ->count();
+    }
+
+    public function getSkippedCountProperty()
+    {
+        return Antrian::where('status', 'skipped')
             ->when($this->filterDate, function($q) {
                 $q->whereDate('created_at', Carbon::parse($this->filterDate));
             })

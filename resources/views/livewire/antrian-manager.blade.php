@@ -82,7 +82,7 @@
         @endif
 
         <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-4 shadow-lg">
                 <div class="text-center">
                     <div class="text-2xl font-bold text-white">{{ $this->waitingCount }}</div>
@@ -99,6 +99,12 @@
                 <div class="text-center">
                     <div class="text-2xl font-bold text-white">{{ $this->finishedCount }}</div>
                     <div class="text-sm text-green-100">Selesai</div>
+                </div>
+            </div>
+            <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-4 shadow-lg">
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-white">{{ $this->skippedCount }}</div>
+                    <div class="text-sm text-orange-100">Dilewati</div>
                 </div>
             </div>
         </div>

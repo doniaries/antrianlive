@@ -39,9 +39,8 @@ Route::get('/profil', App\Livewire\ProfilManager::class)->name('profil.index');
 
 
 // Public display untuk customer (opsional)
-Route::get('/display', function () {
-    return view('display');
-})->name('display');
+Route::get('/display', [\App\Http\Controllers\QueueDisplayController::class, 'index'])->name('display');
+Route::get('/display/data', [\App\Http\Controllers\QueueDisplayController::class, 'getQueueData'])->name('display.data');
 
 // Halaman pengambilan tiket antrian
 use App\Models\Service;
