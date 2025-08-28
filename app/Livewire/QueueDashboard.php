@@ -26,6 +26,13 @@ class QueueDashboard extends Component
         // This method will trigger re-rendering
     }
 
+    #[On('ticket-created')]
+    public function handleTicketCreated($data)
+    {
+        // Refresh dashboard data when new ticket is created
+        $this->refreshDashboard();
+    }
+
     public function getServicesProperty()
     {
         return Service::where('is_active', true)

@@ -267,4 +267,11 @@ class AntrianManager extends Component
             $this->dispatch('error', message: $e->getMessage());
         }
     }
+
+    #[\Livewire\Attributes\On('ticket-created')]
+    public function handleTicketCreated($data)
+    {
+        // Refresh data when new ticket is created
+        $this->render();
+    }
 }

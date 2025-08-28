@@ -75,6 +75,15 @@ class QueueTicketController extends Controller
                 'finished_at' => null,
             ]);
 
+            // Broadcast event for real-time display update
+            event(new \App\Events\TicketCreatedEvent([
+                'service_id' => $service->id,
+                'service_code' => $service->code,
+                'ticket_number' => $formattedNumber,
+                'queue_number' => $nextNumber,
+                'counter_name' => $counter->name
+            ]));
+
             if ($request->ajax()) {
                 return response()->json([
                     'success' => true,

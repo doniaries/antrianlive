@@ -493,6 +493,39 @@
 
                             showNotification();
 
+                            // Trigger display update using localStorage event
+                            const eventData = {
+                                ticket_number: ticketNum,
+                                service_name: data.service_name,
+                                counter_name: data.counter_name,
+                                timestamp: new Date().toISOString()
+                            };
+                            
+                            // Try Livewire event first
+                            if (typeof Livewire !== 'undefined') {
+                                Livewire.dispatch('ticket-created', eventData);
+                            }
+                            
+                            // Force immediate refresh via localStorage with unique key
+                            const uniqueKey = 'ticket-created-' + Date.now();
+                            localStorage.setItem(uniqueKey, JSON.stringify(eventData));
+                            
+                            // Also use the old key for backward compatibility
+                            localStorage.setItem('ticket-created', JSON.stringify(eventData));
+                            
+                            // Clean up after a short delay
+                            setTimeout(() => {
+                                localStorage.removeItem(uniqueKey);
+                            }, 5000);
+                            
+                            // Force immediate refresh via fetch to ensure display updates
+                            fetch('/api/queue-data')
+                                .then(response => response.json())
+                                .then(queueData => {
+                                    console.log('Immediate refresh triggered:', queueData);
+                                })
+                                .catch(error => console.error('Immediate refresh failed:', error));
+
                             // Auto refresh after 30 seconds if still on the page
                             setTimeout(() => {
                                 location.reload();

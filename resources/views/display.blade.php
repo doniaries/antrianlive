@@ -735,6 +735,49 @@
         fetchQueueData();
         setInterval(fetchQueueData, 3000);
 
+        // Listen for Livewire events for real-time updates
+        if (typeof Livewire !== 'undefined') {
+            Livewire.on('ticket-created', (data) => {
+                console.log('New ticket created:', data);
+                // Immediately refresh display data
+                fetchQueueData();
+                // Optional: play notification for new ticket
+                setTimeout(playNotification, 500);
+            });
+        }
+
+        // Listen for Laravel Echo broadcasting events
+        if (typeof Echo !== 'undefined') {
+            Echo.channel('ticket-updates')
+                .listen('.ticket.created', (data) => {
+                    console.log('Broadcast event received:', data);
+                    fetchQueueData();
+                    setTimeout(playNotification, 500);
+                });
+        }
+
+        // Listen for localStorage events (cross-tab communication)
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'ticket-created') {
+                const data = JSON.parse(event.newValue);
+                console.log('Display received ticket via localStorage:', data);
+                fetchQueueData();
+                setTimeout(playNotification, 500);
+                
+                // Clean up the storage event
+                setTimeout(() => {
+                    localStorage.removeItem('ticket-created');
+                }, 1000);
+            }
+        });
+
+        // Fallback: Listen for custom events via document
+        document.addEventListener('ticket-created', (event) => {
+            console.log('Display received ticket-created event:', event.detail);
+            fetchQueueData();
+            setTimeout(playNotification, 500);
+        });
+
         // Keyboard shortcuts for testing
         document.addEventListener('keydown', function(e) {
             if (e.key === ' ') {
