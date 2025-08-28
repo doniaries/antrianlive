@@ -220,22 +220,41 @@
             line-height: 1;
             margin-bottom: 0.25rem;
             text-align: center;
+            animation: colorGlowTransition 2s ease-in-out infinite alternate;
         }
 
-        
+        @keyframes colorGlowTransition {
+            0% {
+                color: #ffffff;
+                text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 40px rgba(255, 255, 255, 0.4);
+            }
+            100% {
+                color: #ffd700;
+                text-shadow: 0 0 30px rgba(255, 215, 0, 1), 0 0 60px rgba(255, 215, 0, 0.6);
+            }
+        }
 
-@keyframes pulse-glow {
-    from {
-        text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 40px rgba(255, 255, 255, 0.4);
-    }
-    to {
-        text-shadow: 0 0 30px rgba(255, 255, 255, 1), 0 0 60px rgba(255, 255, 255, 0.6);
-    }
-}
+        .new-number-highlight {
+            animation: numberAppearEffect 0.8s ease-in-out;
+        }
 
-.current-queue {
-    animation: pulse-glow 2s ease-in-out infinite alternate;
-}
+        @keyframes numberAppearEffect {
+            0% {
+                color: #ff0000;
+                text-shadow: 0 0 30px rgba(255, 0, 0, 1), 0 0 60px rgba(255, 0, 0, 0.8);
+                transform: scale(1.2);
+            }
+            50% {
+                color: #ffd700;
+                text-shadow: 0 0 40px rgba(255, 215, 0, 1), 0 0 80px rgba(255, 215, 0, 0.8);
+                transform: scale(1.1);
+            }
+            100% {
+                color: #ffd700;
+                text-shadow: 0 0 30px rgba(255, 215, 0, 1), 0 0 60px rgba(255, 215, 0, 0.6);
+                transform: scale(1);
+            }
+        }
 
         .counter-status-section {
             background: rgba(0, 0, 0, 0.2);
@@ -614,13 +633,15 @@
                         const oldValue = currentElement.textContent;
                         currentElement.textContent = serviceData.current;
                         
-                        // Enhanced highlight effect
-                        currentElement.classList.add('new-number');
-                        currentElement.style.animation = 'none';
+                        // Enhanced highlight effect with color change
+                        currentElement.classList.add('new-number-highlight');
+                        currentElement.style.animation = 'colorGlowTransition 0.5s ease-in-out 3';
+                        
+                        // Reset to continuous animation after highlight
                         setTimeout(() => {
-                            currentElement.style.animation = 'pulse-glow 2s ease-in-out infinite alternate';
-                            currentElement.classList.remove('new-number');
-                        }, 2000);
+                            currentElement.style.animation = 'colorGlowTransition 2s ease-in-out infinite alternate';
+                            currentElement.classList.remove('new-number-highlight');
+                        }, 1500);
                         
                         if (oldValue !== '-' && serviceData.current !== '-') {
                             hasNewNumber = true;
