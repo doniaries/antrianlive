@@ -16,7 +16,7 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard utama antrian
-    Route::get('/dashboard', QueueDashboard::class)->name('dashboard');
+    Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
     // Manajemen Layanan
     Route::get('/services', ServiceManager::class)->name('services.index');
