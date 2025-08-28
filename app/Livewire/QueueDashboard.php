@@ -109,6 +109,20 @@ class QueueDashboard extends Component
 
     public function callNext($serviceId, $counterId)
     {
+        // Cek apakah ada antrian yang masih aktif (dipanggil) untuk layanan ini
+        $activeAntrian = Antrian::query()
+            ->where('service_id', $serviceId)
+            ->whereDate('created_at', $this->currentDate)
+            ->where('status', 'called')
+            ->first();
+
+        if ($activeAntrian) {
+            $this->dispatch('error', [
+                'message' => 'Antrian ' . $activeAntrian->formatted_number . ' untuk layanan ' . $activeAntrian->service->name . ' masih aktif. Selesaikan terlebih dahulu sebelum memanggil antrian berikutnya.'
+            ]);
+            return;
+        }
+
         $nextAntrian = Antrian::query()
             ->where('service_id', $serviceId)
             ->whereDate('created_at', $this->currentDate)

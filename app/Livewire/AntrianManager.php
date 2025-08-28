@@ -101,6 +101,20 @@ class AntrianManager extends Component
 
     public function callNext($antrianId, $serviceId, $counterId = null)
     {
+        // Cek apakah ada antrian yang masih aktif (dipanggil) untuk layanan ini
+        $activeAntrian = Antrian::where('service_id', $serviceId)
+            ->where('status', 'called')
+            ->whereDate('created_at', today())
+            ->first();
+
+        if ($activeAntrian) {
+            $this->dispatch('error', [
+                'title' => 'Antrian Masih Aktif',
+                'message' => 'Antrian ' . $activeAntrian->formatted_number . ' untuk layanan ' . $activeAntrian->service->name . ' masih aktif. Selesaikan terlebih dahulu sebelum memanggil antrian berikutnya.'
+            ]);
+            return;
+        }
+
         // Update status antrian yang sedang diproses
         $antrian = Antrian::findOrFail($antrianId);
         $antrian->update([

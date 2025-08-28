@@ -182,9 +182,16 @@
                                 <div class="space-y-2">
                                     @foreach ($counters as $counter)
                                         @if ($counter->services->contains($service))
+                                            @php
+                                                $hasActiveQueue = Antrian::query()
+                                                    ->where('service_id', $service->id)
+                                                    ->whereDate('created_at', $this->currentDate)
+                                                    ->where('status', 'called')
+                                                    ->count() > 0;
+                                            @endphp
                                             <button wire:click="callNext({{ $service->id }}, {{ $counter->id }})"
                                                 class="w-full px-5 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-                                                @if (!$nextQueue) disabled @endif>
+                                                @if (!$nextQueue || $hasActiveQueue) disabled @endif>
                                                 Panggil ke {{ $counter->name }}
                                             </button>
                                         @endif
@@ -241,6 +248,20 @@
                         body: `Nomor ${data[0].number} ke ${data[0].counter}`,
                         icon: '/favicon.ico'
                     });
+                }
+            });
+
+            // Event untuk error
+            Livewire.on('error', (data) => {
+                // Show browser notification if supported
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    new Notification('Peringatan', {
+                        body: data[0].message,
+                        icon: '/favicon.ico'
+                    });
+                } else {
+                    // Fallback to alert if notifications not available
+                    alert(data[0].message);
                 }
             });
         });

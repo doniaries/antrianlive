@@ -214,11 +214,18 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex flex-col gap-2">
                                         @if ($antrian->status === 'waiting')
+                                            @php
+                                                $hasActiveQueue = $antrians->where('service_id', $antrian->service_id)
+                                                    ->where('status', 'called')
+                                                    ->where('id', '!=', $antrian->id)
+                                                    ->count() > 0;
+                                            @endphp
                                             <button
                                                 wire:click="callNext({{ $antrian->id }}, {{ $antrian->service_id }}, {{ $antrian->counter_id ?? 1 }})"
                                                 onclick="showNotification('success', 'Memanggil antrian {{ $antrian->formatted_number }}')"
-                                                class="w-full px-3 py-1.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-md hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800 transition-colors"
-                                                title="Panggil">
+                                                class="w-full px-3 py-1.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-md hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-100 dark:disabled:hover:bg-blue-900"
+                                                title="Panggil"
+                                                @if($hasActiveQueue) disabled @endif>
                                                 Panggil
                                             </button>
                                         @elseif($antrian->status === 'called')
@@ -558,6 +565,14 @@
                 setTimeout(() => {
                     showCurrentCall(event.detail.number, event.detail.service, event.detail
                         .counter);
+                }, 100);
+            });
+
+            // Event untuk error
+            Livewire.on('error', (event) => {
+                // Gunakan setTimeout untuk memastikan event loop selesai
+                setTimeout(() => {
+                    showToast('error', event.detail.message);
                 }, 100);
             });
         });
