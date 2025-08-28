@@ -454,8 +454,12 @@
                         const data = await response.json();
                         console.log('Ticket response:', data); // Debug log
 
-                        if (data.success && data.ticket_number) {
+                        if (data.success && (data.ticket_number || data.formatted_number)) {
                             console.log('Ticket response:', data);
+                            
+                            // Use either ticket_number or formatted_number from response
+                            const ticketNum = data.ticket_number || data.formatted_number;
+                            
                             // Play sound and show success message
                             await Promise.all([
                                 playSuccessSound(),
@@ -473,8 +477,8 @@
                                 'notificationServiceInfo');
 
                             if (displayTicketNumber && ticketNumber) {
-                                displayTicketNumber.textContent = data.ticket_number;
-                                ticketNumber.textContent = data.ticket_number;
+                                displayTicketNumber.textContent = ticketNum;
+                                ticketNumber.textContent = ticketNum;
                             } else {
                                 console.error('Ticket number elements not found');
                             }
@@ -494,8 +498,9 @@
                                 location.reload();
                             }, 30000);
 
-                        } else if (!data.ticket_number) {
+                        } else if (!data.ticket_number && !data.formatted_number) {
                             console.error('Missing ticket number in response:', data);
+                            console.error('Available fields:', Object.keys(data));
                             throw new Error(
                                 'Nomor antrian tidak ditemukan dalam respons server');
                         } else {
