@@ -454,11 +454,11 @@
                         const data = await response.json();
                         console.log('Ticket response:', data); // Debug log
 
-                        if (data.success && (data.ticket_number || data.formatted_number)) {
+                        if (data.success && data.ticket_number) {
                             console.log('Ticket response:', data);
                             
-                            // Use either ticket_number or formatted_number from response
-                            const ticketNum = data.ticket_number || data.formatted_number;
+                            // Use ticket_number from response
+                            const ticketNum = data.ticket_number;
                             
                             // Play sound and show success message
                             await Promise.all([
@@ -531,21 +531,22 @@
                                 location.reload();
                             }, 30000);
 
-                        } else if (!data.ticket_number && !data.formatted_number) {
+                        } else if (!data.success) {
+                            console.error('Server error:', data);
+                            throw new Error(data.message || 'Terjadi kesalahan saat memproses tiket');
+                        } else if (!data.ticket_number) {
                             console.error('Missing ticket number in response:', data);
                             console.error('Available fields:', Object.keys(data));
                             throw new Error(
                                 'Nomor antrian tidak ditemukan dalam respons server');
-                        } else {
-                            console.error('Server error:', data);
-                            throw new Error(data.message || 'Terjadi kesalahan');
                         }
                     } catch (error) {
+                        console.error('Ticket generation error:', error);
                         Swal.fire({
                             icon: 'error',
-                            title: 'Oops...',
+                            title: 'Gagal Mengambil Tiket',
                             text: error.message ||
-                                'Terjadi kesalahan saat memproses tiket',
+                                'Terjadi kesalahan saat memproses tiket. Silakan coba lagi.',
                             confirmButtonColor: '#4f46e5',
                         });
                     } finally {

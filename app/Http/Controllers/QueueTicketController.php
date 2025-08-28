@@ -44,6 +44,17 @@ class QueueTicketController extends Controller
             $service = Service::findOrFail($request->service_id);
             $counter = Counter::findOrFail($request->counter_id);
 
+            // Check if service is active
+            if (!$service->is_active) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Layanan ini sedang tidak aktif.'
+                    ], 400);
+                }
+                return back()->with('error', 'Layanan ini sedang tidak aktif.');
+            }
+
             // Check if the counter is valid for this service
             if (!$service->counters->contains($counter->id)) {
                 if ($request->ajax()) {
@@ -63,6 +74,11 @@ class QueueTicketController extends Controller
 
             $nextNumber = $lastAntrian ? $lastAntrian->queue_number + 1 : 1;
             $formattedNumber = $service->code . '-' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+            
+            // Ensure the formatted number is generated correctly
+            if (empty($formattedNumber)) {
+                throw new \Exception('Gagal menghasilkan nomor antrian');
+            }
 
             // Create new ticket
             $antrian = Antrian::create([
