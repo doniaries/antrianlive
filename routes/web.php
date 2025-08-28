@@ -54,6 +54,6 @@ Route::get('/ambil-tiket', function () {
     return view('ambil-tiket', compact('services'));
 })->name('ambil.tiket');
 Route::post('/ticket/take', [\App\Http\Controllers\QueueTicketController::class, 'takeTicket'])->name('queue.ticket.take');
-Route::get('/ticket/success/{antrian}', [\App\Http\Controllers\QueueTicketController::class, 'success'])->name('queue.ticket.success');
+
 
 require __DIR__ . '/auth.php';

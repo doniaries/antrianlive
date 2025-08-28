@@ -94,7 +94,7 @@ class QueueTicketController extends Controller
                 ]);
             }
 
-            return redirect()->route('queue.ticket.success', $antrian->id);
+            return redirect()->route('queue.ticket')->with('success', 'Tiket berhasil dibuat: ' . $formattedNumber);
 
         } catch (\Exception $e) {
             if ($request->ajax()) {
@@ -133,6 +133,6 @@ class QueueTicketController extends Controller
             return redirect()->route('queue.ticket');
         }
 
-        return view('queue.success', compact('antrian'));
+        return redirect()->route('queue.ticket')->with('success', 'Tiket berhasil dibuat: ' . $antrian->formatted_number);
     }
 }
