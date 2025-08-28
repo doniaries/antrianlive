@@ -222,27 +222,20 @@
             text-align: center;
         }
 
-        .next-queue {
-            display: none;
-        }
         
-        @keyframes pulse-glow {
-            from {
-                text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 40px rgba(255, 255, 255, 0.4);
-            }
-            to {
-                text-shadow: 0 0 30px rgba(255, 255, 255, 1), 0 0 60px rgba(255, 255, 255, 0.6);
-            }
-        }
 
-        .current-queue {
-            animation: pulse-glow 2s ease-in-out infinite alternate;
-        }
+@keyframes pulse-glow {
+    from {
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 40px rgba(255, 255, 255, 0.4);
+    }
+    to {
+        text-shadow: 0 0 30px rgba(255, 255, 255, 1), 0 0 60px rgba(255, 255, 255, 0.6);
+    }
+}
 
-        .next-queue {
-            font-size: 0.8rem;
-            opacity: 0.7;
-        }
+.current-queue {
+    animation: pulse-glow 2s ease-in-out infinite alternate;
+}
 
         .counter-status-section {
             background: rgba(0, 0, 0, 0.2);
@@ -538,8 +531,6 @@
                         <div class="service-item">
                             <div class="service-name">{{ $queue['service_name'] }}</div>
                             <div class="current-queue" id="current-{{ $serviceCode }}">{{ $queue['number'] }}</div>
-                            <div class="next-queue" id="next-{{ $serviceCode }}">Berikutnya: <span
-                                    id="next-{{ $serviceCode }}">{{ $nextQueues[$serviceCode] ?? '-' }}</span></div>
                         </div>
                     @endforeach
                 </div>
@@ -618,7 +609,6 @@
                     const serviceData = data[serviceCode];
                     const currentElement = document.getElementById(`current-${serviceCode}`);
                     const counterElement = document.getElementById(`counter-${serviceCode}`);
-                    const nextElement = document.getElementById(`next-${serviceCode}`);
 
                     if (currentElement && currentElement.textContent !== serviceData.current) {
                         const oldValue = currentElement.textContent;
@@ -638,37 +628,52 @@
                     }
 
                     if (counterElement) counterElement.textContent = serviceData.current_counter;
-                    if (nextElement) nextElement.textContent = serviceData.next;
                 });
 
                     // Update counter status displays with upcoming queues
                     const counters = @json($counters);
+                    const services = @json($services);
+                    
+                    // Create mapping of services to counters
+                    const serviceCounterMap = {};
+                    services.forEach(service => {
+                        const assignedCounters = service.counters || [];
+                        if (assignedCounters.length > 0) {
+                            serviceCounterMap[service.code] = assignedCounters;
+                        }
+                    });
+
+                    // Reset all counter displays
                     counters.forEach(counter => {
                         const statusElement = document.getElementById(`status-${counter.id}`);
                         const upcomingElement = document.getElementById(`upcoming-${counter.id}`);
-
+                        
                         if (statusElement && upcomingElement) {
-                            // Find the service assigned to this counter
-                            let assignedService = null;
-                            let upcomingNumber = '-';
+                            statusElement.textContent = 'Menunggu antrean';
+                            statusElement.style.color = '#ffffff';
+                            upcomingElement.textContent = '-';
+                        }
+                    });
 
-                            Object.keys(data).forEach(serviceCode => {
-                                if (data[serviceCode].current_counter === counter.name) {
-                                    assignedService = serviceCode;
-                                    upcomingNumber = data[serviceCode].next || '-';
+                    // Display next queue for each service
+                    Object.keys(data).forEach(serviceCode => {
+                        const serviceData = data[serviceCode];
+                        const nextNumber = serviceData.next;
+                        
+                        if (nextNumber && nextNumber !== '-') {
+                            // Find counters assigned to this service
+                            const assignedCounters = serviceCounterMap[serviceCode] || [];
+                            
+                            assignedCounters.forEach(counter => {
+                                const statusElement = document.getElementById(`status-${counter.id}`);
+                                const upcomingElement = document.getElementById(`upcoming-${counter.id}`);
+                                
+                                if (statusElement && upcomingElement) {
+                                    statusElement.textContent = 'Akan dipanggil';
+                                    statusElement.style.color = '#00ff88';
+                                    upcomingElement.textContent = nextNumber;
                                 }
                             });
-
-                            if (assignedService) {
-                                statusElement.textContent = 'Akan dipanggil';
-                                statusElement.style.color = '#00ff88';
-                                upcomingElement.textContent = upcomingNumber !== '-' ? `A-${upcomingNumber}` :
-                                    '-';
-                            } else {
-                                statusElement.textContent = 'Menunggu antrean';
-                                statusElement.style.color = '#ffffff';
-                                upcomingElement.textContent = '-';
-                            }
                         }
                     });
 
