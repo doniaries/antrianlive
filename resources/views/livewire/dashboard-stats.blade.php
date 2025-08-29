@@ -1,30 +1,31 @@
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
-    <!-- Header -->
-    <div class="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Dashboard Antrian</h1>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Sistem Antrian Pelayanan</p>
-                </div>
-                <div class="text-right">
-                    <div class="text-sm text-gray-600 dark:text-gray-400">{{ now()->format('d/m/Y') }}</div>
-                    <div class="text-lg font-bold text-gray-900 dark:text-white" x-data="{ time: '' }"
-                        x-init="() => {
-                            const updateTime = () => {
-                                const now = new Date();
-                                const hours = String(now.getHours()).padStart(2, '0');
-                                const minutes = String(now.getMinutes()).padStart(2, '0');
-                                const seconds = String(now.getSeconds()).padStart(2, '0');
-                                time = `${hours}:${minutes}:${seconds}`;
-                            };
-                            updateTime();
-                            setInterval(updateTime, 1000);
-                        }" x-text="time"></div>
+    <div>
+        <!-- Header -->
+        <div class="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Dashboard Antrian</h1>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Sistem Antrian Pelayanan</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm text-gray-600 dark:text-gray-400">{{ now()->format('d/m/Y') }}</div>
+                        <div class="text-lg font-bold text-gray-900 dark:text-white" x-data="{ time: '' }"
+                            x-init="() => {
+                                const updateTime = () => {
+                                    const now = new Date();
+                                    const hours = String(now.getHours()).padStart(2, '0');
+                                    const minutes = String(now.getMinutes()).padStart(2, '0');
+                                    const seconds = String(now.getSeconds()).padStart(2, '0');
+                                    time = `${hours}:${minutes}:${seconds}`;
+                                };
+                                updateTime();
+                                setInterval(updateTime, 1000);
+                            }" x-text="time"></div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
     <!-- Statistics Cards -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -78,47 +79,235 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
             <!-- Main Chart -->
             <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Grafik Pengunjung Tiket</h2>
-                    <div class="flex space-x-2">
-                        <button wire:click="setChartType('daily')" 
-                                class="px-3 py-1 text-sm rounded {{ $chartType === 'daily' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300' }}">
-                            Harian
-                        </button>
-                        <button wire:click="setChartType('weekly')" 
-                                class="px-3 py-1 text-sm rounded {{ $chartType === 'weekly' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300' }}">
-                            Mingguan
-                        </button>
-                        <button wire:click="setChartType('monthly')" 
-                                class="px-3 py-1 text-sm rounded {{ $chartType === 'monthly' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300' }}">
-                            Bulanan
-                        </button>
-                        <button wire:click="setChartType('services')" 
-                                class="px-3 py-1 text-sm rounded {{ $chartType === 'services' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300' }}">
-                            Layanan
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="relative" style="min-height: 320px; height: 320px;">
-                    <!-- Chart Container -->
-                    <div class="w-full h-full">
-                        <canvas id="queueChart" wire:ignore></canvas>
-                    </div>
-                    
-                    <!-- Loading State -->
-                    <div id="chartLoading" class="absolute inset-0 flex items-center justify-center bg-white/70 dark:bg-gray-800/70 rounded-lg">
-                        <div class="text-center">
-                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-                            <p class="text-sm text-gray-600 dark:text-gray-400">Memuat grafik...</p>
+                <div class="flex flex-col">
+                    <!-- Chart Header -->
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Grafik Pengunjung Tiket</h2>
+                        
+                        <!-- Chart Type Selector -->
+                        <div class="flex flex-wrap gap-2">
+                            <button wire:click="setChartType('daily')" 
+                                    class="px-3 py-1 text-sm rounded {{ $chartType === 'daily' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300' }}">
+                                Harian
+                            </button>
+                            <button wire:click="setChartType('weekly')" 
+                                    class="px-3 py-1 text-sm rounded {{ $chartType === 'weekly' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300' }}">
+                                Mingguan
+                            </button>
+                            <button wire:click="setChartType('monthly')" 
+                                    class="px-3 py-1 text-sm rounded {{ $chartType === 'monthly' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300' }}">
+                                Bulanan
+                            </button>
+                            <button wire:click="setChartType('services')" 
+                                    class="px-3 py-1 text-sm rounded {{ $chartType === 'services' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300' }}">
+                                Layanan
+                            </button>
                         </div>
                     </div>
+
+                    <!-- Legend Indicator -->
+                    <div class="flex flex-wrap justify-center sm:justify-start items-center gap-x-4 mb-3 sm:mb-4">
+                        <div class="inline-flex items-center">
+                            <span class="size-2.5 inline-block bg-blue-600 rounded-sm me-2"></span>
+                            <span class="text-[13px] text-gray-600 dark:text-neutral-400">
+                                Menunggu
+                            </span>
+                        </div>
+                        <div class="inline-flex items-center">
+                            <span class="size-2.5 inline-block bg-yellow-500 rounded-sm me-2"></span>
+                            <span class="text-[13px] text-gray-600 dark:text-neutral-400">
+                                Dipanggil
+                            </span>
+                        </div>
+                        <div class="inline-flex items-center">
+                            <span class="size-2.5 inline-block bg-green-500 rounded-sm me-2"></span>
+                            <span class="text-[13px] text-gray-600 dark:text-neutral-400">
+                                Selesai
+                            </span>
+                        </div>
+                    </div>
+                    <!-- End Legend Indicator -->
+
+                    <!-- Chart Container -->
+                    <div id="ticket-chart" class="h-80 w-full"></div>
+                </div>
+
+                <script>
+                document.addEventListener('livewire:load', function () {
+                    const chartData = @json($chartData);
+                    const chartType = '{{ $chartType }}';
                     
-                    <!-- Debug info (hidden by default, add 'block' class to show) -->
-                    <div class="absolute top-2 left-2 bg-yellow-100/90 dark:bg-yellow-900/90 p-2 rounded text-xs z-10 hidden">
-                        <div><strong>Chart Type:</strong> {{ $chartType }}</div>
-                        <div><strong>Labels:</strong> {{ json_encode($chartData['labels'] ?? []) }}</div>
-                        <div><strong>Data:</strong> {{ json_encode($chartData['data'] ?? []) }}</div>
+                    // Initialize chart
+                    let chart = new ApexCharts(document.querySelector("#ticket-chart"), getChartOptions(chartType, chartData));
+                    chart.render();
+                    
+                    // Update chart when Livewire updates the data
+                    Livewire.on('chartUpdated', () => {
+                        const updatedData = @this.chartData;
+                        const updatedType = @this.chartType;
+                        
+                        chart.updateOptions(getChartOptions(updatedType, updatedData));
+                    });
+
+                    // Handle window resize
+                    window.addEventListener('resize', function() {
+                        chart.updateOptions({
+                            chart: {
+                                width: '100%'
+                            }
+                        });
+                    });
+                    
+                    function getChartOptions(type, data) {
+                        let series = [];
+                        let categories = [];
+                        
+                        if (type === 'services') {
+                            // Prepare data for services chart
+                            categories = data.labels || [];
+                            series = [{
+                                name: 'Jumlah Tiket',
+                                data: data.data || []
+                            }];
+                        } else {
+                            // Prepare data for time-based charts
+                            categories = data.labels || [];
+                            
+                            if (data.datasets && data.datasets.length > 0) {
+                                series = data.datasets.map(dataset => ({
+                                    name: dataset.label,
+                                    data: dataset.data || []
+                                }));
+                            } else {
+                                series = [{
+                                    name: 'Jumlah Tiket',
+                                    data: data.data || []
+                                }];
+                            }
+                        }
+
+                        return {
+                            chart: {
+                                height: '100%',
+                                type: 'line',
+                                fontFamily: 'Inter, ui-sans-serif',
+                                toolbar: {
+                                    show: true,
+                                    tools: {
+                                        download: true,
+                                        selection: true,
+                                        zoom: false,
+                                        zoomin: false,
+                                        zoomout: false,
+                                        pan: false,
+                                        reset: true
+                                    }
+                                },
+                                zoom: {
+                                    enabled: false
+                                },
+                                animations: {
+                                    enabled: true,
+                                    easing: 'easeinout',
+                                    speed: 800,
+                                    animateGradually: {
+                                        enabled: true,
+                                        delay: 150
+                                    },
+                                    dynamicAnimation: {
+                                        enabled: true,
+                                        speed: 350
+                                    }
+                                }
+                            },
+                            series: series,
+                            stroke: {
+                                curve: 'smooth',
+                                width: [3, 3, 3],
+                                dashArray: [0, 0, 0]
+                            },
+                            colors: ['#2563EB', '#eab308', '#22c55e'],
+                            dataLabels: {
+                                enabled: false
+                            },
+                            markers: {
+                                size: 4,
+                                hover: {
+                                    size: 6
+                                }
+                            },
+                            xaxis: {
+                                categories: categories,
+                                labels: {
+                                    style: {
+                                        colors: '#9ca3af',
+                                        fontSize: '12px',
+                                        fontFamily: 'Inter, ui-sans-serif',
+                                        fontWeight: 400
+                                    },
+                                    formatter: function(value) {
+                                        // Format date labels if needed
+                                        if (type === 'daily' || type === 'weekly' || type === 'monthly') {
+                                            return value.split(' ')[0];
+                                        }
+                                        return value;
+                                    }
+                                },
+                                axisBorder: {
+                                    show: false
+                                },
+                                axisTicks: {
+                                    show: false
+                                }
+                            },
+                            yaxis: {
+                                labels: {
+                                    style: {
+                                        colors: '#9ca3af',
+                                        fontSize: '12px',
+                                        fontFamily: 'Inter, ui-sans-serif',
+                                        fontWeight: 400
+                                    },
+                                    formatter: function(value) {
+                                        return Math.floor(value) === value ? value : '';
+                                    }
+                                },
+                                forceNiceScale: true,
+                                min: 0,
+                                tickAmount: 5
+                            },
+                            grid: {
+                                borderColor: '#e5e7eb',
+                                strokeDashArray: 4,
+                                padding: {
+                                    top: 10,
+                                    right: 0,
+                                    bottom: 0,
+                                    left: 10
+                                }
+                            },
+                            tooltip: {
+                                enabled: true,
+                                shared: true,
+                                intersect: false,
+                                theme: 'light',
+                                style: {
+                                    fontSize: '12px',
+                                    fontFamily: 'Inter, ui-sans-serif'
+                                },
+                                y: {
+                                    formatter: function(value) {
+                                        return value + ' tiket';
+                                    }
+                                }
+                            },
+                            legend: {
+                                show: false
+                            }
+                        };
+                    }
+                });
+                </script>
                     </div>
                 </div>
             </div>
@@ -223,198 +412,25 @@
                 </div>
             </div>
         </div>
+            </div>
+
+            <script>
+                // Initialize Preline charts
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Initialize charts
+                    if (window.HSStaticMethods) {
+                        HSStaticMethods.autoInit();
+                    }
+                    
+                    // Listen for Livewire updates
+                    Livewire.on('chartDataUpdated', () => {
+                        console.log('Livewire updated, refreshing chart...');
+                        if (window.HSStaticMethods) {
+                            HSStaticMethods.autoInit();
+                        }
+                    });
+                });
+            </script>
+        </div>
     </div>
 </div>
-
-@push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-let chart = null;
-
-function initChart() {
-    const canvas = document.getElementById('queueChart');
-    const loading = document.getElementById('chartLoading');
-    
-    // Check if required elements exist
-    if (!canvas || typeof Chart === 'undefined') {
-        if (loading) loading.style.display = 'none';
-        return;
-    }
-    
-    // Get data from Livewire
-    const type = @json($chartType);
-    const data = @json($chartData);
-    
-    // Clear previous chart if exists
-    if (chart) {
-        chart.destroy();
-    }
-    
-    // Show loading state
-    if (loading) {
-        loading.style.display = 'flex';
-    }
-    
-    // Set canvas dimensions
-    const container = canvas.parentElement;
-    canvas.width = container.offsetWidth;
-    canvas.height = container.offsetHeight;
-    
-    // Get context
-    const ctx = canvas.getContext('2d');
-    
-    // Handle no data case
-    if (!data?.labels?.length) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.textAlign = 'center';
-        ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
-        ctx.fillStyle = window.matchMedia('(prefers-color-scheme: dark)').matches ? '#9CA3AF' : '#6B7280';
-        ctx.fillText('Tidak ada data yang tersedia', canvas.width / 2, canvas.height / 2);
-        if (loading) loading.style.display = 'none';
-        return;
-    }
-    
-    // Chart configuration
-    const chartType = type === 'services' ? 'bar' : 'line';
-    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    const chartOptions = {
-        type: chartType,
-        data: {
-            labels: data.labels,
-            datasets: [{
-                label: 'Jumlah Tiket',
-                data: data.data,
-                borderColor: '#3b82f6',
-                backgroundColor: chartType === 'bar' 
-                    ? 'rgba(59, 130, 246, 0.7)' 
-                    : 'rgba(59, 130, 246, 0.1)',
-                borderWidth: 2,
-                pointBackgroundColor: '#3b82f6',
-                pointBorderColor: '#fff',
-                pointHoverRadius: 5,
-                pointHoverBackgroundColor: '#3b82f6',
-                pointHoverBorderColor: '#fff',
-                pointHitRadius: 10,
-                pointBorderWidth: 2,
-                fill: chartType === 'line',
-                tension: 0.3
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            layout: {
-                padding: 10
-            },
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    backgroundColor: isDarkMode ? '#1F2937' : '#ffffff',
-                    titleColor: isDarkMode ? '#F3F4F6' : '#111827',
-                    bodyColor: isDarkMode ? '#D1D5DB' : '#4B5563',
-                    borderColor: isDarkMode ? '#374151' : '#E5E7EB',
-                    borderWidth: 1,
-                    padding: 12,
-                    displayColors: false,
-                    callbacks: {
-                        label: function(context) {
-                            return `Jumlah: ${context.raw}`;
-                        }
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    grid: {
-                        display: false,
-                        drawBorder: false
-                    },
-                    ticks: {
-                        color: isDarkMode ? '#9CA3AF' : '#6B7280'
-                    }
-                },
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)',
-                        drawBorder: false
-                    },
-                    ticks: {
-                        color: isDarkMode ? '#9CA3AF' : '#6B7280',
-                        precision: 0
-                    }
-                }
-            },
-            animation: {
-                duration: 800,
-                easing: 'easeInOutQuart'
-            },
-            onHover: (event, chartElement) => {
-                const canvas = event.native.target;
-                canvas.style.cursor = chartElement[0] ? 'pointer' : 'default';
-            }
-        }
-    };
-    
-    // Create new chart
-    chart = new Chart(ctx, chartOptions);
-    
-    // Hide loading state
-    if (loading) {
-        loading.style.display = 'none';
-    }
-}
-
-// Initialize chart when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    // Initial chart load
-    setTimeout(initChart, 300);
-    
-    // Handle window resize with debounce
-    let resizeTimer;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(() => {
-            if (chart) {
-                chart.destroy();
-                chart = null;
-            }
-            initChart();
-        }, 250);
-    });
-    
-    // Listen for Livewire component initialization
-    Livewire.hook('component.initialized', component => {
-        if (component.id === @this.__instance.id) {
-            // Reinitialize chart when component is initialized
-            setTimeout(initChart, 300);
-        }
-    });
-});
-
-// Listen for custom events from Livewire
-window.addEventListener('chartDataUpdated', () => {
-    if (chart) {
-        chart.destroy();
-        chart = null;
-    }
-    initChart();
-});
-
-// Handle Livewire component updates
-Livewire.hook('morph.updated', ({ el, component }) => {
-    if (component.id === @this.__instance.id) {
-        setTimeout(() => {
-            if (chart) {
-                chart.destroy();
-                chart = null;
-            }
-            initChart();
-        }, 50);
-    }
-});
-</script>
-@endpush
