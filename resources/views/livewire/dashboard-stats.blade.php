@@ -27,7 +27,7 @@
     </div>
 
     <!-- Statistics Cards -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6" wire:poll.{{ $this->refreshRate }}ms="loadData">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <!-- Enhanced Statistics Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4 mb-6">
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 transition-colors duration-200">
@@ -100,8 +100,26 @@
                     </div>
                 </div>
                 
-                <div class="h-80">
-                    <canvas id="queueChart" wire:ignore style="min-height: 300px; width: 100% !important; height: auto !important;"></canvas>
+                <div class="relative" style="min-height: 320px; height: 320px;">
+                    <!-- Chart Container -->
+                    <div class="w-full h-full">
+                        <canvas id="queueChart" wire:ignore></canvas>
+                    </div>
+                    
+                    <!-- Loading State -->
+                    <div id="chartLoading" class="absolute inset-0 flex items-center justify-center bg-white/70 dark:bg-gray-800/70 rounded-lg">
+                        <div class="text-center">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Memuat grafik...</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Debug info (hidden by default, add 'block' class to show) -->
+                    <div class="absolute top-2 left-2 bg-yellow-100/90 dark:bg-yellow-900/90 p-2 rounded text-xs z-10 hidden">
+                        <div><strong>Chart Type:</strong> {{ $chartType }}</div>
+                        <div><strong>Labels:</strong> {{ json_encode($chartData['labels'] ?? []) }}</div>
+                        <div><strong>Data:</strong> {{ json_encode($chartData['data'] ?? []) }}</div>
+                    </div>
                 </div>
             </div>
 
@@ -211,221 +229,167 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    let chart = null;
+let chart = null;
 
-    function initializeChart() {
-        const canvas = document.getElementById('queueChart');
-        if (!canvas) {
-            console.error('Canvas element not found');
-            return;
-        }
-        
-        const ctx = canvas.getContext('2d');
-        const chartType = @json($chartType);
-        const chartData = @json($chartData);
-        
-        console.log('Chart Type:', chartType);
-        console.log('Chart Data:', chartData);
-        
-        // Destroy existing chart if it exists
-        if (chart) {
-            chart.destroy();
-            chart = null;
-        }
-        
-        // Check if we have data
-        if (!chartData || !chartData.labels || chartData.labels.length === 0 || !chartData.data || chartData.data.length === 0) {
-            console.warn('No chart data available');
-            // Clear canvas and show message
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.font = '16px Arial';
-            ctx.fillStyle = document.body.classList.contains('dark') ? '#9ca3af' : '#6b7280';
-            ctx.textAlign = 'center';
-            ctx.fillText('Memuat data...', canvas.width/2, canvas.height/2);
-            return;
-        }
-        
-        // Configure chart based on type
-        const isDark = document.body.classList.contains('dark');
-        
-        let chartConfig = {
-            type: chartType === 'services' ? 'bar' : 'line',
-            data: {
-                labels: chartData.labels,
-                datasets: [{
-                    label: 'Jumlah Pengunjung',
-                    data: chartData.data,
-                    borderColor: '#3b82f6',
-                    backgroundColor: chartType === 'services' ? 'rgba(59, 130, 246, 0.8)' : 'rgba(59, 130, 246, 0.2)',
-                    borderWidth: 2,
-                    fill: chartType === 'services' ? false : true,
-                    tension: 0.4,
-                    pointBackgroundColor: '#3b82f6',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointRadius: 4,
-                    pointHoverRadius: 6
-                }]
+function initChart() {
+    const canvas = document.getElementById('queueChart');
+    const loading = document.getElementById('chartLoading');
+    
+    // Check if required elements exist
+    if (!canvas || typeof Chart === 'undefined') {
+        if (loading) loading.style.display = 'none';
+        return;
+    }
+    
+    // Get data from Livewire
+    const type = @json($chartType);
+    const data = @json($chartData);
+    
+    // Clear previous chart if exists
+    if (chart) {
+        chart.destroy();
+    }
+    
+    // Show loading state
+    if (loading) {
+        loading.style.display = 'flex';
+    }
+    
+    // Set canvas dimensions
+    const container = canvas.parentElement;
+    canvas.width = container.offsetWidth;
+    canvas.height = container.offsetHeight;
+    
+    // Get context
+    const ctx = canvas.getContext('2d');
+    
+    // Handle no data case
+    if (!data?.labels?.length) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.textAlign = 'center';
+        ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+        ctx.fillStyle = window.matchMedia('(prefers-color-scheme: dark)').matches ? '#9CA3AF' : '#6B7280';
+        ctx.fillText('Tidak ada data yang tersedia', canvas.width / 2, canvas.height / 2);
+        if (loading) loading.style.display = 'none';
+        return;
+    }
+    
+    // Chart configuration
+    const chartType = type === 'services' ? 'bar' : 'line';
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    const chartOptions = {
+        type: chartType,
+        data: {
+            labels: data.labels,
+            datasets: [{
+                label: 'Jumlah Tiket',
+                data: data.data,
+                borderColor: '#3b82f6',
+                backgroundColor: chartType === 'bar' 
+                    ? 'rgba(59, 130, 246, 0.7)' 
+                    : 'rgba(59, 130, 246, 0.1)',
+                borderWidth: 2,
+                pointBackgroundColor: '#3b82f6',
+                pointBorderColor: '#fff',
+                pointHoverRadius: 5,
+                pointHoverBackgroundColor: '#3b82f6',
+                pointHoverBorderColor: '#fff',
+                pointHitRadius: 10,
+                pointBorderWidth: 2,
+                fill: chartType === 'line',
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: {
+                padding: 10
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top',
-                        labels: {
-                            color: isDark ? '#9ca3af' : '#6b7280',
-                            font: {
-                                size: 12
-                            }
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: isDarkMode ? '#1F2937' : '#ffffff',
+                    titleColor: isDarkMode ? '#F3F4F6' : '#111827',
+                    bodyColor: isDarkMode ? '#D1D5DB' : '#4B5563',
+                    borderColor: isDarkMode ? '#374151' : '#E5E7EB',
+                    borderWidth: 1,
+                    padding: 12,
+                    displayColors: false,
+                    callbacks: {
+                        label: function(context) {
+                            return `Jumlah: ${context.raw}`;
                         }
                     }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: isDark ? '#374151' : '#e5e7eb',
-                            borderColor: isDark ? '#374151' : '#e5e7eb'
-                        },
-                        ticks: {
-                            color: isDark ? '#9ca3af' : '#6b7280',
-                            font: {
-                                size: 11
-                            }
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false,
-                            borderColor: isDark ? '#374151' : '#e5e7eb'
-                        },
-                        ticks: {
-                            color: isDark ? '#9ca3af' : '#6b7280',
-                            font: {
-                                size: 11
-                            }
-                        }
-                    }
-                },
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
-                },
-                animation: {
-                    duration: 750,
-                    easing: 'easeInOutQuart'
                 }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        color: isDarkMode ? '#9CA3AF' : '#6B7280'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        color: isDarkMode ? '#9CA3AF' : '#6B7280',
+                        precision: 0
+                    }
+                }
+            },
+            animation: {
+                duration: 800,
+                easing: 'easeInOutQuart'
+            },
+            onHover: (event, chartElement) => {
+                const canvas = event.native.target;
+                canvas.style.cursor = chartElement[0] ? 'pointer' : 'default';
             }
-        };
-        
-        // Configure datasets based on chart type
-        if (chartType === 'services') {
-            chartConfig.data.datasets = [{
-                label: 'Tiket per Layanan',
-                data: chartData.data,
-                backgroundColor: [
-                    'rgba(59, 130, 246, 0.8)',
-                    'rgba(16, 185, 129, 0.8)',
-                    'rgba(245, 158, 11, 0.8)',
-                    'rgba(239, 68, 68, 0.8)',
-                    'rgba(139, 92, 246, 0.8)',
-                    'rgba(236, 72, 153, 0.8)',
-                    'rgba(34, 197, 94, 0.8)',
-                    'rgba(251, 146, 60, 0.8)'
-                ],
-                borderColor: [
-                    'rgb(59, 130, 246)',
-                    'rgb(16, 185, 129)',
-                    'rgb(245, 158, 11)',
-                    'rgb(239, 68, 68)',
-                    'rgb(139, 92, 246)',
-                    'rgb(236, 72, 153)',
-                    'rgb(34, 197, 94)',
-                    'rgb(251, 146, 60)'
-                ],
-                borderWidth: 1
-            }];
-        } else {
-            // Line chart for daily/weekly/monthly trends
-            chartConfig.data.datasets = [{
-                label: 'Total Tiket',
-                data: chartData.data,
-                borderColor: 'rgb(59, 130, 246)',
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                tension: 0.4,
-                fill: true
-            }];
         }
-        
-        chart = new Chart(ctx, chartConfig);
+    };
+    
+    // Create new chart
+    chart = new Chart(ctx, chartOptions);
+    
+    // Hide loading state
+    if (loading) {
+        loading.style.display = 'none';
     }
+}
 
-    function updateChart() {
-        const canvas = document.getElementById('queueChart');
-        if (!canvas) {
-            console.error('Canvas element not found during update');
-            return;
-        }
-        
-        console.log('Updating chart...');
-        initializeChart();
-    }
-
-    // Handle dark mode changes
-    window.addEventListener('themeChanged', () => {
-        updateChart();
-    });
-
+// Initialize chart when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    // Small delay to ensure Livewire is fully loaded
+    setTimeout(initChart, 100);
+    
     // Handle window resize
+    let resizeTimer;
     window.addEventListener('resize', () => {
-        if (chart) {
-            chart.resize();
-        }
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(initChart, 250);
     });
+});
 
-    // Initialize chart when component loads
-    document.addEventListener('livewire:initialized', () => {
-        setTimeout(() => {
-            initializeChart();
-        }, 500);
+// Update chart when Livewire updates
+document.addEventListener('livewire:init', () => {
+    Livewire.hook('commit', ({ component, commit, respond, succeed, fail }) => {
+        succeed(() => {
+            if (component.id === @this.__instance.id) {
+                setTimeout(initChart, 50);
+            }
+        });
     });
-
-    // Update chart when Livewire updates
-    document.addEventListener('livewire:updated', () => {
-        setTimeout(() => {
-            updateChart();
-        }, 100);
-    });
-
-    // Fallback initialization
-    document.addEventListener('DOMContentLoaded', () => {
-        if (typeof Livewire === 'undefined') {
-            setTimeout(() => {
-                initializeChart();
-            }, 1000);
-        }
-    });
-
-    // Handle dark mode changes
-    function handleDarkModeChange() {
-        if (chart) {
-            const isDark = document.documentElement.classList.contains('dark');
-            chart.options.plugins.legend.labels.color = isDark ? '#e5e7eb' : '#374151';
-            chart.options.scales.y.ticks.color = isDark ? '#e5e7eb' : '#374151';
-            chart.options.scales.x.ticks.color = isDark ? '#e5e7eb' : '#374151';
-            chart.options.scales.y.grid.color = isDark ? '#374151' : '#e5e7eb';
-            chart.options.scales.x.grid.color = isDark ? '#374151' : '#e5e7eb';
-            chart.update('none');
-        }
-    }
-
-    // Listen for dark mode changes
-    const observer = new MutationObserver(handleDarkModeChange);
-    observer.observe(document.documentElement, {
-        attributes: true,
-        attributeFilter: ['class']
-    });
+});
 </script>
 @endpush
