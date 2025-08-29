@@ -53,14 +53,16 @@
                 @if (isset($nextTicket))
                     <div class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
                         <p class="text-sm text-gray-600 dark:text-gray-300">Antrian Anda Selanjutnya:</p>
-                        <p class="text-lg font-semibold text-blue-700 dark:text-blue-300">#{{ $nextTicket->ticket_number }}</p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Layanan: {{ $nextTicket->service->name ?? 'Umum' }}</p>
+                        <p class="text-lg font-semibold text-blue-700 dark:text-blue-300">
+                            #{{ $nextTicket->ticket_number }}</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Layanan:
+                            {{ $nextTicket->service->name ?? 'Umum' }}</p>
                     </div>
                 @endif
             </div>
 
             <!-- Statistics Cards -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            {{-- <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <!-- Total Tiket Hari Ini -->
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                     <div class="flex items-center">
@@ -135,7 +137,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> --}}
 
 
         </div>
