@@ -22,6 +22,7 @@ class DashboardStats extends Component
     public function mount()
     {
         $this->loadData();
+        $this->prepareChartData(); // Ensure chart data is prepared after loading data
     }
 
     #[On('queue-updated')]
@@ -48,8 +49,12 @@ class DashboardStats extends Component
         
         // Tiket terbaru
         $this->loadRecentTickets();
-
+        
+        // Force chart data refresh
         $this->prepareChartData();
+        
+        // Emit an event to force Livewire to update the view
+        $this->dispatch('chartDataUpdated');
     }
 
     public function prepareChartData()

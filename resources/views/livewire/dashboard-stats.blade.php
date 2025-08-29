@@ -370,26 +370,51 @@ function initChart() {
 
 // Initialize chart when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    // Small delay to ensure Livewire is fully loaded
-    setTimeout(initChart, 100);
+    // Initial chart load
+    setTimeout(initChart, 300);
     
-    // Handle window resize
+    // Handle window resize with debounce
     let resizeTimer;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(initChart, 250);
+        resizeTimer = setTimeout(() => {
+            if (chart) {
+                chart.destroy();
+                chart = null;
+            }
+            initChart();
+        }, 250);
+    });
+    
+    // Listen for Livewire component initialization
+    Livewire.hook('component.initialized', component => {
+        if (component.id === @this.__instance.id) {
+            // Reinitialize chart when component is initialized
+            setTimeout(initChart, 300);
+        }
     });
 });
 
-// Update chart when Livewire updates
-document.addEventListener('livewire:init', () => {
-    Livewire.hook('commit', ({ component, commit, respond, succeed, fail }) => {
-        succeed(() => {
-            if (component.id === @this.__instance.id) {
-                setTimeout(initChart, 50);
+// Listen for custom events from Livewire
+window.addEventListener('chartDataUpdated', () => {
+    if (chart) {
+        chart.destroy();
+        chart = null;
+    }
+    initChart();
+});
+
+// Handle Livewire component updates
+Livewire.hook('morph.updated', ({ el, component }) => {
+    if (component.id === @this.__instance.id) {
+        setTimeout(() => {
+            if (chart) {
+                chart.destroy();
+                chart = null;
             }
-        });
-    });
+            initChart();
+        }, 50);
+    }
 });
 </script>
 @endpush
