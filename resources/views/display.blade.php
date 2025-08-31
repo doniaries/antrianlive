@@ -4,377 +4,274 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Display Antrian - {{ $profil->nama_instansi ?? 'Sistem Antrian' }}</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <title>Sistem Antrian Digital</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            overflow: hidden;
-            height: 100vh;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             color: white;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
         }
 
-        .modern-display {
-            display: grid;
-            grid-template-columns: 1fr 650px;
-            grid-template-rows: 110px 1fr 60px;
-            height: 100vh;
-            gap: 0;
-            background: rgba(0, 0, 0, 0.1);
+        .header {
+            background-color: #0f172a;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .header-bar {
-            grid-column: 1 / -1;
-            background: rgba(0, 0, 0, 0.2);
-            display: grid;
-            grid-template-columns: 200px 2fr 300px;
-            align-items: flex-start;
-            padding: 0.5rem 2rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            min-height: 100px;
-        }
-
-        .header-logo {
-            grid-column: 1;
+        .logo {
             display: flex;
             align-items: center;
-            justify-content: flex-start;
-            padding: 0.5rem 0;
-            height: 90px;
+            gap: 0.75rem;
         }
 
-        .header-logo img {
-            max-height: 80px;
-            max-width: 180px;
-            object-fit: contain;
-            border-radius: 0.5rem;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 0.5rem;
-        }
-
-        .header-content {
-            text-align: center;
-            grid-column: 2;
-        }
-
-        .header-content h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.2rem;
-        }
-
-        .header-content .instansi {
-            font-size: 1.2rem;
-            opacity: 0.8;
-        }
-
-        .header-info {
+        .logo-icon {
+            background-color: #3b82f6;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
             display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            justify-content: flex-start;
-            grid-column: 3;
-            align-self: flex-start;
-            padding-top: 0.5rem;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #3b82f6, #06b6d4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .datetime {
             text-align: right;
         }
 
-        .time-display {
-            font-size: 1.8rem;
-            font-weight: 600;
+        .time {
+            font-size: 1.75rem;
+            font-weight: 700;
             font-family: 'Courier New', monospace;
-            line-height: 1.2;
-            margin-bottom: 0.2rem;
+            color: #fbbf24;
+            margin-bottom: 0.25rem;
         }
 
-        .date-display {
-            font-size: 1.1rem;
-            opacity: 0.8;
-            line-height: 1.2;
-            margin-top: 0;
+        .date {
+            font-size: 1rem;
+            color: #cbd5e1;
         }
 
-        .main-content {
+        .container {
             display: grid;
-            grid-template-columns: 1fr;
-            grid-template-rows: 2fr 1fr;
+            grid-template-columns: 1fr 1fr;
             gap: 1.5rem;
-            padding: 1.5rem 1rem 1rem;
-            overflow: hidden;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
-        .queue-section {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 2rem;
+        .card {
+            background-color: #1e293b;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid #334155;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+            color: #f8fafc;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .calling-card {
+            grid-column: 1 / 2;
+        }
+
+        .video-card {
+            grid-column: 2 / 3;
+            grid-row: 1 / 3;
+        }
+
+        .next-card {
+            grid-column: 1 / 2;
+        }
+
+        .services-card {
+            grid-column: 1 / 3;
+        }
+
+        .queue-number {
+            font-size: 4rem;
+            font-weight: 800;
+            text-align: center;
+            color: #3b82f6;
+            margin: 1rem 0;
+            text-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+            animation: pulse 2s infinite;
+        }
+
+        .queue-counter {
+            font-size: 1.5rem;
+            text-align: center;
+            color: #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .counter-icon {
+            color: #06b6d4;
+        }
+
+        .video-container {
+            width: 100%;
+            height: 280px;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-placeholder {
+            text-align: center;
+            color: #64748b;
+        }
+
+        .video-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .next-queue {
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            gap: 1rem;
         }
 
-        .queue-title {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: #ffd700;
-            margin-bottom: 1rem;
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
-            background: linear-gradient(45deg, #ffd700, #ffed4e, #ffd700);
-            background-size: 200% 200%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: shimmer 3s ease-in-out infinite;
+        .next-item {
+            background: linear-gradient(to right, #1e293b, #334155);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        @keyframes shimmer {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
+        .next-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #8b5cf6;
+            margin-bottom: 0.25rem;
         }
 
-        .queue-status {
+        .next-counter {
             font-size: 1rem;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            text-align: center;
-            opacity: 0.8;
+            color: #cbd5e1;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
         }
 
         .services-grid {
-            display: flex;
-            flex-wrap: nowrap;
-            gap: 0.5rem;
-            align-items: center;
-            justify-content: space-between;
-            height: 100%;
-            padding: 1rem;
-            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
         }
 
         .service-item {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 1rem;
-            padding: 1.5rem 1rem;
-            flex: 1;
-            min-width: 0;
-            height: 150px;
+            background: linear-gradient(to right, #1e293b, #334155);
+            border-radius: 8px;
+            padding: 1.25rem;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        .service-item::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-            border-radius: 1rem;
-            z-index: 1;
-        }
-
-        .service-item>* {
-            position: relative;
-            z-index: 2;
-        }
-
-        .service-item:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: translateY(-2px);
         }
 
         .service-name {
             font-size: 1.1rem;
-            font-weight: 700;
-            color: rgba(255, 255, 255, 0.9);
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-weight: 600;
             margin-bottom: 0.5rem;
+            color: #f8fafc;
+        }
+
+        .service-range {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #3b82f6;
+        }
+
+        .service-range.secondary {
+            color: #8b5cf6;
+        }
+
+        .running-text {
+            background: linear-gradient(to right, #3b82f6, #06b6d4);
+            padding: 1rem 0;
+            overflow: hidden;
+            margin-top: 2rem;
+        }
+
+        .marquee {
+            white-space: nowrap;
+            animation: marquee 25s linear infinite;
+            font-size: 1.1rem;
+            color: #0f172a;
+            font-weight: 500;
+        }
+
+        .marquee i {
+            margin-right: 1rem;
+        }
+
+        .footer {
+            background-color: #0f172a;
+            padding: 1rem 0;
             text-align: center;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            border-top: 1px solid #334155;
+            margin-top: 2rem;
         }
 
-        .current-queue {
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: #ffffff;
-            text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
-            line-height: 1;
-            margin-bottom: 0.25rem;
-            text-align: center;
-            animation: colorGlowTransition 2s ease-in-out infinite alternate;
-        }
-
-        @keyframes colorGlowTransition {
+        @keyframes pulse {
             0% {
-                color: #ffffff;
-                text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 40px rgba(255, 255, 255, 0.4);
-            }
-
-            100% {
-                color: #ffd700;
-                text-shadow: 0 0 30px rgba(255, 215, 0, 1), 0 0 60px rgba(255, 215, 0, 0.6);
-            }
-        }
-
-        .new-number-highlight {
-            animation: numberAppearEffect 0.8s ease-in-out;
-        }
-
-        @keyframes numberAppearEffect {
-            0% {
-                color: #ff0000;
-                text-shadow: 0 0 30px rgba(255, 0, 0, 1), 0 0 60px rgba(255, 0, 0, 0.8);
-                transform: scale(1.2);
+                transform: scale(1);
             }
 
             50% {
-                color: #ffd700;
-                text-shadow: 0 0 40px rgba(255, 215, 0, 1), 0 0 80px rgba(255, 215, 0, 0.8);
-                transform: scale(1.1);
+                transform: scale(1.05);
             }
 
             100% {
-                color: #ffd700;
-                text-shadow: 0 0 30px rgba(255, 215, 0, 1), 0 0 60px rgba(255, 215, 0, 0.6);
                 transform: scale(1);
             }
-        }
-
-        .counter-status-section {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 1rem;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .counter-status-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            text-align: center;
-            opacity: 0.9;
-            color: #ffd700;
-        }
-
-        .counter-status-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 0.75rem;
-            justify-items: center;
-            align-items: start;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .counter-status-item {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 0.5rem;
-            padding: 0.75rem;
-            text-align: center;
-            transition: all 0.3s ease;
-            min-height: 80px;
-        }
-
-        .counter-status-name {
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 0.25rem;
-        }
-
-        .counter-status-status {
-            font-size: 0.8rem;
-            color: #00ff88;
-            font-weight: 600;
-            line-height: 1.2;
-        }
-
-        .footer-bar {
-            grid-column: 1 / -1;
-            background: rgba(0, 0, 0, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .marquee-container {
-            overflow: hidden;
-            width: 100%;
-            padding: 0 2rem;
-        }
-
-        .marquee-text {
-            display: inline-block;
-            white-space: nowrap;
-            animation: marquee 30s linear infinite;
-            font-size: 1rem;
-            opacity: 0.9;
-        }
-
-        .fullscreen-btn {
-            position: absolute;
-            bottom: 1rem;
-            right: 1rem;
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 3rem;
-            height: 3rem;
-            opacity: 0;
-            visibility: hidden;
-        }
-
-        .fullscreen-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.05);
-        }
-
-        body:hover .fullscreen-btn {
-            opacity: 1;
-            visibility: visible;
         }
 
         @keyframes marquee {
@@ -387,450 +284,191 @@
             }
         }
 
-        @keyframes gentle-pulse {
-            0% {
-                transform: scale(1);
-                text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
-            }
-
-            50% {
-                transform: scale(1.05);
-                text-shadow: 0 0 15px rgba(255, 215, 0, 0.7), 0 0 25px rgba(255, 215, 0, 0.3);
-            }
-
-            100% {
-                transform: scale(1);
-                text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
-            }
-        }
-
-        .current-queue {
-            animation: gentle-pulse 3s ease-in-out infinite;
-        }
-
-        @media (max-width: 1024px) {
-            .modern-display {
-                grid-template-columns: 1fr;
-                grid-template-rows: 80px 1fr 300px 60px;
-            }
-
-            .sidebar {
-                border-left: none;
-                border-top: 1px solid rgba(255, 255, 255, 0.1);
-            }
-
-            .counters-section {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-                gap: 0.5rem;
-                align-content: start;
-            }
-
-            .counter-card {
-                margin-bottom: 0;
-            }
-        }
-
         @media (max-width: 768px) {
-            .header-content h1 {
-                font-size: 1.3rem;
+            .container {
+                grid-template-columns: 1fr;
+                padding: 1rem;
             }
 
-            .header-content .instansi {
-                font-size: 0.8rem;
+            .calling-card,
+            .video-card,
+            .next-card,
+            .services-card {
+                grid-column: 1 / 2;
+            }
+
+            .video-card {
+                grid-row: auto;
+            }
+
+            .queue-number {
+                font-size: 3rem;
             }
 
             .services-grid {
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            }
-
-            .current-queue {
-                font-size: 2rem;
-            }
-
-            .service-name {
-                font-size: 0.9rem;
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 
 <body>
-    <div class="modern-display">
-        <div class="header-bar">
-            <div class="header-logo">
-                @if ($profil && $profil->logo)
-                    <img src="{{ $profil->logo_url }}" alt="Logo {{ $profil->nama_instansi ?? 'Instansi' }}">
-                @else
-                    <img src="{{ asset('favicon.svg') }}" alt="Logo Default">
-                @endif
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-list-ol text-white text-xl"></i>
             </div>
-            <div class="header-content">
-                <h1>Sistem Antrian</h1>
-                <div class="instansi">{{ $profil->nama_instansi ?? 'Nama Instansi' }}</div>
+            <div class="logo-text">Sistem Antrian Digital</div>
+        </div>
+        <div class="datetime">
+            <div id="current-time" class="time">14:25:36</div>
+            <div id="current-date" class="date">Selasa, 12 Maret 2024</div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Sedang Dipanggil Card -->
+        <div class="card calling-card">
+            <h2 class="card-title">
+                <div class="card-icon" style="background-color: #3b82f6;">
+                    <i class="fas fa-volume-up text-white"></i>
+                </div>
+                Sedang Dipanggil
+            </h2>
+            <div class="queue-number" id="current-number">B007</div>
+            <div class="queue-counter">
+                <i class="fas fa-map-marker-alt counter-icon"></i>
+                <span id="current-counter">Loket 2</span>
             </div>
-            <div class="header-info">
-                <div class="time-display" id="currentTime">{{ now()->format('H:i:s') }}</div>
-                <div class="date-display" id="currentDate">{{ now()->locale('id')->isoFormat('dddd, D MMMM YYYY') }}
+        </div>
+
+        <!-- Video Informasi Card -->
+        <div class="card video-card">
+            <h2 class="card-title">
+                <div class="card-icon" style="background-color: #ef4444;">
+                    <i class="fab fa-youtube text-white"></i>
+                </div>
+                Video Informasi
+            </h2>
+            <div class="video-container">
+                <div class="video-placeholder">
+                    <i class="fas fa-play-circle"></i>
+                    <div>IoTI hip hop radio</div>
+                    <div>Informatija</div>
+                    <div>Tagikan</div>
+                    <div>Info</div>
                 </div>
             </div>
         </div>
 
-        <div class="main-content">
-            <div class="queue-section">
-                <div class="queue-title">NOMOR ANTRIAN SEDANG DIPANGGIL</div>
-                <div class="services-grid">
-                    @foreach ($currentQueues as $serviceCode => $queue)
-                        <div class="service-item">
-                            <div class="service-name">{{ $queue['service_name'] }}</div>
-                            <div class="current-queue" id="current-{{ $serviceCode }}">{{ $queue['number'] }}</div>
-                        </div>
-                    @endforeach
+        <!-- Akan Dipanggil Card -->
+        <div class="card next-card">
+            <h2 class="card-title">
+                <div class="card-icon" style="background-color: #8b5cf6;">
+                    <i class="fas fa-forward text-white"></i>
                 </div>
-            </div>
-
-            <div class="counter-status-section">
-                <div class="counter-status-title">ANTREAN AKAN DIPANGGIL</div>
-                <div class="counter-status-grid">
-                    @foreach ($counters as $counter)
-                        <div class="counter-status-item">
-                            <div class="counter-status-name">{{ $counter->name }}</div>
-                            <div class="counter-status-status" id="status-{{ $counter->id }}">Menunggu antrean</div>
-                            <div style="font-size: 1rem; font-weight: 700; color: #ffd700; margin-top: 0.25rem;"
-                                id="upcoming-{{ $counter->id }}">-</div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-
-        <!-- Sidebar dengan desain baru menggunakan Tailwind CSS -->
-        <div class="sidebar bg-black bg-opacity-20 border-l border-white border-opacity-10 flex flex-col p-4 gap-4">
-            <!-- Card Video dengan Tailwind CSS -->
-            <div
-                class="video-card bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 rounded-xl overflow-hidden shadow-lg border border-white border-opacity-20 h-full flex flex-col">
-                <div
-                    class="video-header bg-black bg-opacity-30 py-3 px-4 border-b border-white border-opacity-10 flex items-center justify-between">
-                    <h3 class="text-white font-bold text-lg flex items-center">
-                        <i class="fas fa-video mr-2 text-yellow-300"></i> Video Informasi
-                    </h3>
-                    <span class="bg-red-500 text-xs text-white px-2 py-1 rounded-full flex items-center">
-                        <i class="fas fa-circle mr-1 text-xs animate-pulse"></i> LIVE
-                    </span>
-                </div>
-                <div class="video-content flex-1 flex items-center justify-center p-4">
-                    <div
-                        class="w-full h-full bg-black bg-opacity-40 rounded-lg flex flex-col items-center justify-center text-center p-6">
-                        <i class="fas fa-play-circle text-5xl text-white text-opacity-40 mb-4"></i>
-                        <p class="text-white text-opacity-70 font-medium mb-1">Video YouTube</p>
-                        <p class="text-white text-opacity-50 text-sm">Akan ditampilkan di sini</p>
-                    </div>
-                </div>
-                <div
-                    class="video-footer bg-black bg-opacity-20 py-2 px-4 text-xs text-white text-opacity-60 flex items-center justify-between">
-                    <div class="flex items-center">
-                        <i class="fas fa-info-circle mr-2"></i> Video informasi layanan
-                    </div>
-                    <div class="flex items-center">
-                        <i class="fas fa-volume-up mr-2"></i> <span class="mr-3">Sound ON</span>
-                        <i class="fas fa-hd mr-2"></i> <span>HD Quality</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card Informasi Antrian dengan Tailwind CSS -->
-            <div
-                class="info-card bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 rounded-xl overflow-hidden shadow-lg border border-white border-opacity-20">
-                <div class="info-header bg-black bg-opacity-30 py-3 px-4 border-b border-white border-opacity-10">
-                    <h3 class="text-white font-bold text-lg flex items-center">
-                        <i class="fas fa-info-circle mr-2 text-blue-300"></i> Informasi Antrian
-                    </h3>
-                </div>
-                <div class="info-content p-4">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="stat-box bg-black bg-opacity-20 rounded-lg p-3 text-center">
-                            <div class="text-white text-opacity-70 text-sm mb-1">Total Antrian Hari Ini</div>
-                            <div class="text-2xl font-bold text-yellow-300">142</div>
-                        </div>
-                        <div class="stat-box bg-black bg-opacity-20 rounded-lg p-3 text-center">
-                            <div class="text-white text-opacity-70 text-sm mb-1">Sedang Dilayani</div>
-                            <div class="text-2xl font-bold text-green-300">8</div>
-                        </div>
-                    </div>
-
-                    <div class="mt-4 bg-black bg-opacity-20 rounded-lg p-3">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-white text-opacity-70 text-sm">Rata-rata Waktu Tunggu</span>
-                            <span class="text-white font-medium">15 menit</span>
-                        </div>
-                        <div class="w-full bg-gray-700 bg-opacity-50 rounded-full h-2">
-                            <div class="bg-blue-500 h-2 rounded-full" style="width: 60%"></div>
-                        </div>
+                Akan Dipanggil
+            </h2>
+            <div class="next-queue">
+                <div class="next-item">
+                    <div class="next-number">B008</div>
+                    <div class="next-counter">
+                        <i class="fas fa-map-marker-alt counter-icon"></i>
+                        Loket 2
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="footer-bar">
-            <div class="marquee-container">
-                <div class="marquee-text">
-                    Selamat datang di {{ $profil->nama_instansi ?? 'sistem antrian kami' }}.
-                    Silakan mengambil nomor antrian dan menunggu dipanggil sesuai layanan yang tersedia.
-                    Terima kasih atas kesabaran Anda.
+        <!-- Informasi Layanan Card -->
+        <div class="card services-card">
+            <h2 class="card-title">
+                <div class="card-icon" style="background-color: #10b981;">
+                    <i class="fas fa-info-circle text-white"></i>
+                </div>
+                Informasi Layanan
+            </h2>
+            <div class="services-grid">
+                <div class="service-item">
+                    <div class="service-name">Layanan A</div>
+                    <div class="service-range">A001 – A050</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-name">Layanan B</div>
+                    <div class="service-range secondary">B001 – B030</div>
                 </div>
             </div>
         </div>
-
-        <button class="fullscreen-btn" onclick="toggleFullscreen()" title="Fullscreen">
-            <i class="fas fa-expand"></i>
-        </button>
     </div>
 
+    <!-- Running Text -->
+    <div class="running-text">
+        <div class="marquee">
+            <i class="fas fa-info-circle"></i>
+            Sedang dipanggil: B007 di Loket 2. Silakan menunggu jika nomor Anda belum dipanggil.
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2023 Sistem Antrian Digital. All rights reserved.</p>
+    </footer>
+
     <script>
-        // Update time and date
+        // Update waktu dan tanggal
         function updateDateTime() {
             const now = new Date();
-            const timeString = now.toLocaleTimeString('id-ID', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
-            });
-            const dateString = now.toLocaleDateString('id-ID', {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-            });
+            const timeElement = document.getElementById('current-time');
+            const dateElement = document.getElementById('current-date');
 
-            document.getElementById('currentTime').textContent = timeString;
-            document.getElementById('currentDate').textContent = dateString;
+            // Format waktu
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+
+            timeElement.textContent = `${hours}:${minutes}:${seconds}`;
+
+            // Format tanggal Indonesia
+            const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September',
+                'Oktober', 'November', 'Desember'
+            ];
+
+            const dayName = days[now.getDay()];
+            const date = now.getDate();
+            const monthName = months[now.getMonth()];
+            const year = now.getFullYear();
+
+            dateElement.textContent = `${dayName}, ${date} ${monthName} ${year}`;
         }
 
-        // Fetch real-time queue data
-        function fetchQueueData() {
-            fetch('{{ route('display.data') }}')
-                .then(response => response.json())
-                .then(data => {
-                    let hasNewNumber = false;
-
-                    // Update current serving numbers with enhanced highlight
-                    Object.keys(data).forEach(serviceCode => {
-                        const serviceData = data[serviceCode];
-                        const currentElement = document.getElementById(`current-${serviceCode}`);
-                        const counterElement = document.getElementById(`counter-${serviceCode}`);
-
-                        if (currentElement && currentElement.textContent !== serviceData.current) {
-                            const oldValue = currentElement.textContent;
-                            currentElement.textContent = serviceData.current;
-
-                            // Enhanced highlight effect with color change
-                            currentElement.classList.add('new-number-highlight');
-                            currentElement.style.animation = 'colorGlowTransition 0.5s ease-in-out 3';
-
-                            // Reset to continuous animation after highlight
-                            setTimeout(() => {
-                                currentElement.style.animation =
-                                    'colorGlowTransition 2s ease-in-out infinite alternate';
-                                currentElement.classList.remove('new-number-highlight');
-                            }, 1500);
-
-                            if (oldValue !== '-' && serviceData.current !== '-') {
-                                hasNewNumber = true;
-                            }
-                        }
-
-                        if (counterElement) counterElement.textContent = serviceData.current_counter;
-                    });
-
-                    // Update counter status displays with upcoming queues
-                    const counters = @json($counters);
-                    const services = @json($services);
-
-                    // Create mapping of services to counters
-                    const serviceCounterMap = {};
-                    services.forEach(service => {
-                        const assignedCounters = service.counters || [];
-                        if (assignedCounters.length > 0) {
-                            serviceCounterMap[service.code] = assignedCounters;
-                        }
-                    });
-
-                    // Reset all counter displays
-                    counters.forEach(counter => {
-                        const statusElement = document.getElementById(`status-${counter.id}`);
-                        const upcomingElement = document.getElementById(`upcoming-${counter.id}`);
-
-                        if (statusElement && upcomingElement) {
-                            statusElement.textContent = 'Menunggu antrean';
-                            statusElement.style.color = '#ffffff';
-                            upcomingElement.textContent = '-';
-                        }
-                    });
-
-                    // Display next queue for each service
-                    Object.keys(data).forEach(serviceCode => {
-                        const serviceData = data[serviceCode];
-                        const nextNumber = serviceData.next;
-
-                        if (nextNumber && nextNumber !== '-') {
-                            // Find counters assigned to this service
-                            const assignedCounters = serviceCounterMap[serviceCode] || [];
-
-                            assignedCounters.forEach(counter => {
-                                const statusElement = document.getElementById(`status-${counter.id}`);
-                                const upcomingElement = document.getElementById(
-                                    `upcoming-${counter.id}`);
-
-                                if (statusElement && upcomingElement) {
-                                    statusElement.textContent = 'Akan dipanggil';
-                                    statusElement.style.color = '#00ff88';
-                                    upcomingElement.textContent = nextNumber;
-                                }
-                            });
-                        }
-                    });
-
-                    // Play notification if there's a new number
-                    if (hasNewNumber) {
-                        playNotification();
-                    }
-                })
-                .catch(error => console.error('Error fetching queue data:', error));
-        }
-
-        // Add sound notification
-        function playNotification() {
-            const audio = new Audio('/sounds/bell.mp3');
-            audio.play().catch(e => console.log('Audio play failed:', e));
-        }
-
-        // Fullscreen toggle functionality
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.error(`Error attempting to enable fullscreen: ${err.message}`);
-                });
-            } else {
-                document.exitFullscreen();
-            }
-        }
-
-        // Add animation class for new numbers
-        const style = document.createElement('style');
-        style.textContent = `
-            .new-number {
-            background: rgba(255, 215, 0, 0.3) !important;
-            transform: scale(1.08);
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.6), 0 0 60px rgba(255, 215, 0, 0.3);
-            animation: soft-highlight 2.5s ease-in-out;
-        }
-
-        @keyframes soft-highlight {
-            0% {
-                transform: scale(1);
-                opacity: 0.9;
-                text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-            }
-            50% {
-                transform: scale(1.08);
-                opacity: 1;
-                text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 35px rgba(255, 215, 0, 0.4);
-            }
-            100% {
-                transform: scale(1);
-                opacity: 1;
-                text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-            }
-        }
-        `;
-        document.head.appendChild(style);
-
-        // Initialize
+        // Inisialisasi
         updateDateTime();
         setInterval(updateDateTime, 1000);
 
-        // Fetch queue data every 3 seconds
-        fetchQueueData();
-        setInterval(fetchQueueData, 3000);
+        // Simulasi perubahan antrian (hanya untuk demo)
+        function simulateQueueChange() {
+            const numbers = ['B007', 'B008', 'B009', 'A012', 'A013'];
+            const counters = ['Loket 2', 'Loket 1', 'Loket 3'];
 
-        // Listen for Livewire events for real-time updates
-        if (typeof Livewire !== 'undefined') {
-            Livewire.on('ticket-created', (data) => {
-                console.log('New ticket created:', data);
-                // Immediately refresh display data
-                fetchQueueData();
-                // Optional: play notification for new ticket
-                setTimeout(playNotification, 500);
-            });
+            setInterval(() => {
+                const randomNumber = numbers[Math.floor(Math.random() * numbers.length)];
+                const randomCounter = counters[Math.floor(Math.random() * counters.length)];
+
+                document.getElementById('current-number').textContent = randomNumber;
+                document.getElementById('current-counter').textContent = randomCounter;
+
+                // Update running text
+                document.querySelector('.marquee').innerHTML =
+                    `<i class="fas fa-info-circle"></i> Sedang dipanggil: ${randomNumber} di ${randomCounter}. Silakan menunggu jika nomor Anda belum dipanggil.`;
+
+            }, 10000);
         }
 
-        // Listen for Laravel Echo broadcasting events
-        if (typeof Echo !== 'undefined') {
-            Echo.channel('ticket-updates')
-                .listen('.ticket.created', (data) => {
-                    console.log('Broadcast event received:', data);
-                    fetchQueueData();
-                    setTimeout(playNotification, 500);
-                });
-        }
-
-        // Listen for localStorage events (cross-tab communication)
-        window.addEventListener('storage', (event) => {
-            if (event.key === 'ticket-created') {
-                const data = JSON.parse(event.newValue);
-                console.log('Display received ticket via localStorage:', data);
-                fetchQueueData();
-                setTimeout(playNotification, 500);
-
-                // Clean up the storage event
-                setTimeout(() => {
-                    localStorage.removeItem('ticket-created');
-                }, 1000);
-            }
-        });
-
-        // Fallback: Listen for custom events via document
-        document.addEventListener('ticket-created', (event) => {
-            console.log('Display received ticket-created event:', event.detail);
-            fetchQueueData();
-            setTimeout(playNotification, 500);
-        });
-
-        // Keyboard shortcuts for testing
-        document.addEventListener('keydown', function(e) {
-            if (e.key === ' ') {
-                e.preventDefault();
-                fetchQueueData();
-                playNotification();
-            }
-        });
-
-        // Handle visibility change to pause/resume updates
-        document.addEventListener('visibilitychange', function() {
-            if (!document.hidden) {
-                // Page is visible, resume normal updates
-                fetchQueueData();
-            }
-        });
-
-        // Add smooth transitions for video section
-        function loadVideo() {
-            const videoSection = document.querySelector('.video-section');
-            videoSection.innerHTML = `
-                <iframe
-                    width="100%"
-                    height="100%"
-                    src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1&loop=1&playlist=dQw4w9WgXcQ"
-                    frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen>
-                </iframe>
-            `;
-        }
-
-        // Optional: Load video after page load
-        // setTimeout(loadVideo, 2000);
+        // Jalankan simulasi (bisa dihapus di production)
+        simulateQueueChange();
     </script>
 </body>
 

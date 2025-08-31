@@ -218,28 +218,34 @@ class AntrianManager extends Component
 
     public function render()
     {
-        $query = Antrian::with(['service', 'counter'])
-            ->when($this->filterDate, function($q) {
-                $q->whereDate('created_at', Carbon::parse($this->filterDate));
-            })
-            ->when($this->filterService, function($q) {
-                $q->where('service_id', $this->filterService);
-            })
-            ->when($this->filterStatus, function($q) {
-                if ($this->filterStatus === 'finished') {
-                    $q->whereIn('status', ['finished', 'skipped']);
-                } else {
-                    $q->where('status', $this->filterStatus);
-                }
-            }, function($q) {
-                // Default: only show waiting and called queues
-                $q->whereIn('status', ['waiting', 'called']);
-            })
-            ->orderBy('created_at', 'desc');
+        $services = Service::where('is_active', true)->get();
+        
+        // Get antrians grouped by service
+        $antriansByService = [];
+        foreach ($services as $service) {
+            $query = Antrian::with(['service', 'counter'])
+                ->where('service_id', $service->id)
+                ->when($this->filterDate, function($q) {
+                    $q->whereDate('created_at', Carbon::parse($this->filterDate));
+                })
+                ->when($this->filterStatus, function($q) {
+                    if ($this->filterStatus === 'finished') {
+                        $q->whereIn('status', ['finished', 'skipped']);
+                    } else {
+                        $q->where('status', $this->filterStatus);
+                    }
+                }, function($q) {
+                    // Default: only show waiting and called queues
+                    $q->whereIn('status', ['waiting', 'called']);
+                })
+                ->orderBy('queue_number', 'asc');
+            
+            $antriansByService[$service->id] = $query->get();
+        }
 
         return view('livewire.antrian-manager', [
-            'antrians' => $query->paginate(10),
-            'services' => Service::where('is_active', true)->get(),
+            'antriansByService' => $antriansByService,
+            'services' => $services,
             'counters' => Counter::all(),
         ]);
     }
