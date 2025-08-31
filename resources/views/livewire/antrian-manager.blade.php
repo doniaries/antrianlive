@@ -250,7 +250,6 @@
                                             @endphp
                                             <button
                                                 wire:click="callNext({{ $antrian->id }}, {{ $antrian->service_id }}, {{ $antrian->counter_id ?? 1 }})"
-                                                onclick="showNotification('success', 'Memanggil antrian {{ $antrian->formatted_number }}')"
                                                 class="w-full px-3 py-1.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-md hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-100 dark:disabled:hover:bg-blue-900"
                                                 title="Panggil"
                                                 @if($hasActiveQueue) disabled @endif>
@@ -258,7 +257,6 @@
                                             </button>
                                         @elseif($antrian->status === 'called')
                                             <button wire:click="recall({{ $antrian->id }})"
-                                                onclick="showNotification('info', 'Memanggil ulang antrian {{ $antrian->formatted_number }}')"
                                                 class="w-full px-3 py-1.5 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-md hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-200 dark:hover:bg-yellow-800 transition-colors"
                                                 title="Panggil Ulang">
                                                 Panggil Ulang
@@ -266,13 +264,11 @@
                                             
                                             <div class="flex gap-2">
                                                 <button wire:click="skip({{ $antrian->id }})"
-                                                    onclick="showNotification('warning', 'Melewatkan antrian {{ $antrian->formatted_number }}')"
                                                     class="flex-1 px-3 py-1.5 text-xs font-medium bg-orange-500 text-white rounded-md hover:bg-orange-600 dark:bg-orange-600 dark:hover:bg-orange-700 transition-colors"
                                                     title="Lewati">
                                                     Lewati
                                                 </button>
                                                 <button wire:click="finish({{ $antrian->id }})"
-                                                    onclick="showNotification('success', 'Menandai antrian {{ $antrian->formatted_number }} sebagai selesai')"
                                                     class="flex-1 px-3 py-1.5 text-xs font-medium bg-green-500 text-white rounded-md hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 transition-colors"
                                                     title="Selesai">
                                                     Selesai

@@ -343,9 +343,6 @@
                     content.style.opacity = '1';
                 }
             }, 10);
-
-            // Play success sound
-            playSuccessSound();
         }
 
         // Close notification
@@ -369,14 +366,6 @@
                     content.style.opacity = '0';
                 }
             }, 300);
-        }
-
-
-        // Play success sound
-        function playSuccessSound() {
-            const audio = new Audio('{{ asset('sounds/bell.mp3') }}');
-            audio.volume = 0.5;
-            return audio.play().catch(e => console.log('Audio play failed:', e));
         }
 
         // Confetti effect
@@ -460,11 +449,8 @@
                             // Use ticket_number from response
                             const ticketNum = data.ticket_number;
                             
-                            // Play sound and show success message
-                            await Promise.all([
-                                playSuccessSound(),
-                                triggerConfetti()
-                            ]);
+                            // Show success message with confetti (no sound)
+                            await triggerConfetti();
 
                             // Show notification with ticket number and service info
                             const displayTicketNumber = document.getElementById(

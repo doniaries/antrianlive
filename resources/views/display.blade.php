@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         * {
             margin: 0;
@@ -138,11 +139,19 @@
             -webkit-text-fill-color: transparent;
             animation: shimmer 3s ease-in-out infinite;
         }
-        
+
         @keyframes shimmer {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
         }
 
         .queue-status {
@@ -179,7 +188,7 @@
             position: relative;
             transition: all 0.3s ease;
         }
-        
+
         .service-item::before {
             content: '';
             position: absolute;
@@ -191,8 +200,8 @@
             border-radius: 1rem;
             z-index: 1;
         }
-        
-        .service-item > * {
+
+        .service-item>* {
             position: relative;
             z-index: 2;
         }
@@ -228,6 +237,7 @@
                 color: #ffffff;
                 text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 40px rgba(255, 255, 255, 0.4);
             }
+
             100% {
                 color: #ffd700;
                 text-shadow: 0 0 30px rgba(255, 215, 0, 1), 0 0 60px rgba(255, 215, 0, 0.6);
@@ -244,11 +254,13 @@
                 text-shadow: 0 0 30px rgba(255, 0, 0, 1), 0 0 60px rgba(255, 0, 0, 0.8);
                 transform: scale(1.2);
             }
+
             50% {
                 color: #ffd700;
                 text-shadow: 0 0 40px rgba(255, 215, 0, 1), 0 0 80px rgba(255, 215, 0, 0.8);
                 transform: scale(1.1);
             }
+
             100% {
                 color: #ffd700;
                 text-shadow: 0 0 30px rgba(255, 215, 0, 1), 0 0 60px rgba(255, 215, 0, 0.6);
@@ -308,86 +320,6 @@
             color: #00ff88;
             font-weight: 600;
             line-height: 1.2;
-        }
-
-        .video-section {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            height: 100%;
-            min-height: 400px;
-            aspect-ratio: 16/9;
-        }
-
-        .video-placeholder {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 1rem;
-        }
-
-        .video-placeholder i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-
-        .sidebar {
-            background: rgba(0, 0, 0, 0.2);
-            border-left: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            flex-direction: column;
-            padding: 1rem;
-            gap: 1rem;
-        }
-
-        .counters-section {
-            flex: 1;
-            padding: 1rem;
-            overflow-y: auto;
-        }
-
-        .counters-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            text-align: center;
-            opacity: 0.9;
-        }
-
-        .counter-card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 0.75rem;
-            padding: 1rem;
-            margin-bottom: 0.75rem;
-            text-align: center;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .counter-card:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .counter-number-display {
-            font-size: 2rem;
-            font-weight: 800;
-            color: #fff;
-            margin-bottom: 0.25rem;
-        }
-
-        .counter-name-display {
-            font-size: 0.9rem;
-            opacity: 0.8;
         }
 
         .footer-bar {
@@ -460,10 +392,12 @@
                 transform: scale(1);
                 text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
             }
+
             50% {
                 transform: scale(1.05);
                 text-shadow: 0 0 15px rgba(255, 215, 0, 0.7), 0 0 25px rgba(255, 215, 0, 0.3);
             }
+
             100% {
                 transform: scale(1);
                 text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
@@ -525,7 +459,7 @@
     <div class="modern-display">
         <div class="header-bar">
             <div class="header-logo">
-                @if($profil && $profil->logo)
+                @if ($profil && $profil->logo)
                     <img src="{{ $profil->logo_url }}" alt="Logo {{ $profil->nama_instansi ?? 'Instansi' }}">
                 @else
                     <img src="{{ asset('favicon.svg') }}" alt="Logo Default">
@@ -570,12 +504,69 @@
             </div>
         </div>
 
-        <div class="sidebar">
-            <div class="video-section" style="height: 100%; margin-bottom: 1rem;">
-                <div class="video-placeholder">
-                    <i class="fas fa-play-circle"></i>
-                    <div>Video YouTube</div>
-                    <div style="font-size: 0.8rem; opacity: 0.6;">Akan ditampilkan di sini</div>
+        <!-- Sidebar dengan desain baru menggunakan Tailwind CSS -->
+        <div class="sidebar bg-black bg-opacity-20 border-l border-white border-opacity-10 flex flex-col p-4 gap-4">
+            <!-- Card Video dengan Tailwind CSS -->
+            <div
+                class="video-card bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 rounded-xl overflow-hidden shadow-lg border border-white border-opacity-20 h-full flex flex-col">
+                <div
+                    class="video-header bg-black bg-opacity-30 py-3 px-4 border-b border-white border-opacity-10 flex items-center justify-between">
+                    <h3 class="text-white font-bold text-lg flex items-center">
+                        <i class="fas fa-video mr-2 text-yellow-300"></i> Video Informasi
+                    </h3>
+                    <span class="bg-red-500 text-xs text-white px-2 py-1 rounded-full flex items-center">
+                        <i class="fas fa-circle mr-1 text-xs animate-pulse"></i> LIVE
+                    </span>
+                </div>
+                <div class="video-content flex-1 flex items-center justify-center p-4">
+                    <div
+                        class="w-full h-full bg-black bg-opacity-40 rounded-lg flex flex-col items-center justify-center text-center p-6">
+                        <i class="fas fa-play-circle text-5xl text-white text-opacity-40 mb-4"></i>
+                        <p class="text-white text-opacity-70 font-medium mb-1">Video YouTube</p>
+                        <p class="text-white text-opacity-50 text-sm">Akan ditampilkan di sini</p>
+                    </div>
+                </div>
+                <div
+                    class="video-footer bg-black bg-opacity-20 py-2 px-4 text-xs text-white text-opacity-60 flex items-center justify-between">
+                    <div class="flex items-center">
+                        <i class="fas fa-info-circle mr-2"></i> Video informasi layanan
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-volume-up mr-2"></i> <span class="mr-3">Sound ON</span>
+                        <i class="fas fa-hd mr-2"></i> <span>HD Quality</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Informasi Antrian dengan Tailwind CSS -->
+            <div
+                class="info-card bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 rounded-xl overflow-hidden shadow-lg border border-white border-opacity-20">
+                <div class="info-header bg-black bg-opacity-30 py-3 px-4 border-b border-white border-opacity-10">
+                    <h3 class="text-white font-bold text-lg flex items-center">
+                        <i class="fas fa-info-circle mr-2 text-blue-300"></i> Informasi Antrian
+                    </h3>
+                </div>
+                <div class="info-content p-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="stat-box bg-black bg-opacity-20 rounded-lg p-3 text-center">
+                            <div class="text-white text-opacity-70 text-sm mb-1">Total Antrian Hari Ini</div>
+                            <div class="text-2xl font-bold text-yellow-300">142</div>
+                        </div>
+                        <div class="stat-box bg-black bg-opacity-20 rounded-lg p-3 text-center">
+                            <div class="text-white text-opacity-70 text-sm mb-1">Sedang Dilayani</div>
+                            <div class="text-2xl font-bold text-green-300">8</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 bg-black bg-opacity-20 rounded-lg p-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-white text-opacity-70 text-sm">Rata-rata Waktu Tunggu</span>
+                            <span class="text-white font-medium">15 menit</span>
+                        </div>
+                        <div class="w-full bg-gray-700 bg-opacity-50 rounded-full h-2">
+                            <div class="bg-blue-500 h-2 rounded-full" style="width: 60%"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -624,37 +615,38 @@
                     let hasNewNumber = false;
 
                     // Update current serving numbers with enhanced highlight
-                Object.keys(data).forEach(serviceCode => {
-                    const serviceData = data[serviceCode];
-                    const currentElement = document.getElementById(`current-${serviceCode}`);
-                    const counterElement = document.getElementById(`counter-${serviceCode}`);
+                    Object.keys(data).forEach(serviceCode => {
+                        const serviceData = data[serviceCode];
+                        const currentElement = document.getElementById(`current-${serviceCode}`);
+                        const counterElement = document.getElementById(`counter-${serviceCode}`);
 
-                    if (currentElement && currentElement.textContent !== serviceData.current) {
-                        const oldValue = currentElement.textContent;
-                        currentElement.textContent = serviceData.current;
-                        
-                        // Enhanced highlight effect with color change
-                        currentElement.classList.add('new-number-highlight');
-                        currentElement.style.animation = 'colorGlowTransition 0.5s ease-in-out 3';
-                        
-                        // Reset to continuous animation after highlight
-                        setTimeout(() => {
-                            currentElement.style.animation = 'colorGlowTransition 2s ease-in-out infinite alternate';
-                            currentElement.classList.remove('new-number-highlight');
-                        }, 1500);
-                        
-                        if (oldValue !== '-' && serviceData.current !== '-') {
-                            hasNewNumber = true;
+                        if (currentElement && currentElement.textContent !== serviceData.current) {
+                            const oldValue = currentElement.textContent;
+                            currentElement.textContent = serviceData.current;
+
+                            // Enhanced highlight effect with color change
+                            currentElement.classList.add('new-number-highlight');
+                            currentElement.style.animation = 'colorGlowTransition 0.5s ease-in-out 3';
+
+                            // Reset to continuous animation after highlight
+                            setTimeout(() => {
+                                currentElement.style.animation =
+                                    'colorGlowTransition 2s ease-in-out infinite alternate';
+                                currentElement.classList.remove('new-number-highlight');
+                            }, 1500);
+
+                            if (oldValue !== '-' && serviceData.current !== '-') {
+                                hasNewNumber = true;
+                            }
                         }
-                    }
 
-                    if (counterElement) counterElement.textContent = serviceData.current_counter;
-                });
+                        if (counterElement) counterElement.textContent = serviceData.current_counter;
+                    });
 
                     // Update counter status displays with upcoming queues
                     const counters = @json($counters);
                     const services = @json($services);
-                    
+
                     // Create mapping of services to counters
                     const serviceCounterMap = {};
                     services.forEach(service => {
@@ -668,7 +660,7 @@
                     counters.forEach(counter => {
                         const statusElement = document.getElementById(`status-${counter.id}`);
                         const upcomingElement = document.getElementById(`upcoming-${counter.id}`);
-                        
+
                         if (statusElement && upcomingElement) {
                             statusElement.textContent = 'Menunggu antrean';
                             statusElement.style.color = '#ffffff';
@@ -680,15 +672,16 @@
                     Object.keys(data).forEach(serviceCode => {
                         const serviceData = data[serviceCode];
                         const nextNumber = serviceData.next;
-                        
+
                         if (nextNumber && nextNumber !== '-') {
                             // Find counters assigned to this service
                             const assignedCounters = serviceCounterMap[serviceCode] || [];
-                            
+
                             assignedCounters.forEach(counter => {
                                 const statusElement = document.getElementById(`status-${counter.id}`);
-                                const upcomingElement = document.getElementById(`upcoming-${counter.id}`);
-                                
+                                const upcomingElement = document.getElementById(
+                                    `upcoming-${counter.id}`);
+
                                 if (statusElement && upcomingElement) {
                                     statusElement.textContent = 'Akan dipanggil';
                                     statusElement.style.color = '#00ff88';
@@ -732,7 +725,7 @@
             box-shadow: 0 0 30px rgba(255, 215, 0, 0.6), 0 0 60px rgba(255, 215, 0, 0.3);
             animation: soft-highlight 2.5s ease-in-out;
         }
-        
+
         @keyframes soft-highlight {
             0% {
                 transform: scale(1);
@@ -789,7 +782,7 @@
                 console.log('Display received ticket via localStorage:', data);
                 fetchQueueData();
                 setTimeout(playNotification, 500);
-                
+
                 // Clean up the storage event
                 setTimeout(() => {
                     localStorage.removeItem('ticket-created');

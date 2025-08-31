@@ -130,7 +130,10 @@ class AntrianManager extends Component
             'counter' => $antrian->counter ? $antrian->counter->name : 'Umum'
         ]);
 
-        session()->flash('message', 'Antrian ' . $antrian->formatted_number . ' dipanggil');
+        $this->dispatch('notify', [
+            'type' => 'success',
+            'message' => 'Antrian ' . $antrian->formatted_number . ' dipanggil'
+        ]);
     }
 
     public function recall($antrianId)
@@ -143,7 +146,10 @@ class AntrianManager extends Component
             'counter' => $antrian->counter ? $antrian->counter->name : 'Umum'
         ]);
 
-        session()->flash('message', 'Antrian ' . $antrian->formatted_number . ' dipanggil ulang');
+        $this->dispatch('notify', [
+            'type' => 'info',
+            'message' => 'Antrian ' . $antrian->formatted_number . ' dipanggil ulang'
+        ]);
     }
 
     public function skip($antrianId)
@@ -154,7 +160,10 @@ class AntrianManager extends Component
             'finished_at' => now()
         ]);
 
-        session()->flash('message', 'Antrian ' . $antrian->formatted_number . ' dilewati');
+        $this->dispatch('notify', [
+            'type' => 'warning',
+            'message' => 'Antrian ' . $antrian->formatted_number . ' dilewati'
+        ]);
     }
 
     public function finish($antrianId)
@@ -165,7 +174,10 @@ class AntrianManager extends Component
             'finished_at' => now()
         ]);
 
-        session()->flash('message', 'Antrian ' . $antrian->formatted_number . ' selesai diproses');
+        $this->dispatch('notify', [
+            'type' => 'success',
+            'message' => 'Antrian ' . $antrian->formatted_number . ' selesai diproses'
+        ]);
     }
 
     public function getWaitingCountProperty()
