@@ -7,6 +7,18 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
+        <!-- Favicon -->
+        @php
+            $profil = \App\Models\Profil::first();
+        @endphp
+        @if($profil && $profil->favicon)
+            <link rel="icon" href="{{ asset('storage/' . $profil->favicon) }}" type="image/x-icon">
+            <link rel="shortcut icon" href="{{ asset('storage/' . $profil->favicon) }}" type="image/x-icon">
+        @else
+            <link rel="icon" href="/favicon.ico" type="image/x-icon">
+            <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+        @endif
+
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
