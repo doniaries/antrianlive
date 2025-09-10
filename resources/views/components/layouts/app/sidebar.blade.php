@@ -54,7 +54,7 @@
                 <flux:navlist.item icon="cog" :href="route('profil.index')"
                     :current="request()->routeIs('profil.*')" wire:navigate>{{ __('Profil') }}
                 </flux:navlist.item>
-                @if(auth()->user()->role === 'superadmin')
+                @if(auth()->check() && auth()->user()->role === 'superadmin')
                 <flux:navlist.item icon="users" :href="route('users.index')"
                     :current="request()->routeIs('users.*')" wire:navigate>{{ __('User Management') }}
                 </flux:navlist.item>

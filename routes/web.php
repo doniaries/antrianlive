@@ -2,13 +2,16 @@
 
 use Illuminate\Support\Facades\Route;
 
-// Route untuk welcome page - menggunakan ambil tiket sebagai index
-Route::get('/', \App\Livewire\AmbilTiket::class)->name('welcome');
-
-// Route alternatif untuk welcome
-Route::get('/welcome', function () {
+// Route untuk welcome page - menampilkan welcome jika belum login, redirect ke dashboard jika sudah login
+Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
     return view('welcome');
-})->name('welcome.original');
+})->name('welcome');
+
+// Route untuk ambil tiket (public access)
+Route::get('/ambil-tiket', \App\Livewire\AmbilTiket::class)->name('ambil.tiket');
 
 Route::impersonate();
 

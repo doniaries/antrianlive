@@ -151,7 +151,7 @@
                                         </svg>
                                         Edit
                                     </button>
-                                    <button @click="openConfirm('Konfirmasi Hapus', 'Apakah Anda yakin ingin menghapus layanan {{ $service->name }}? Semua data yang terkait akan dihapus secara permanen.', () => $wire.delete({{ $service->id }}))"
+                                    <button @click="openConfirm('Konfirmasi Hapus', 'Apakah Anda yakin ingin menghapus layanan {{ $service->name }}? Semua data yang terkait akan dihapus secara permanen.', () => { $wire.delete({{ $service->id }}) })"
                                         class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105"
                                         title="Hapus">
                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor"

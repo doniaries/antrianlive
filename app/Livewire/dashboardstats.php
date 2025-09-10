@@ -64,12 +64,11 @@ class DashboardStats extends Component
         $this->prepareChartData($today);
         
         // Prepare statistics
-        $this->prepareStatistics();
+        $this->prepareStatistics($today);
     }
 
     private function prepareChartData($today)
     {
-        $hourlyData = [];
         $labels = [];
         $data = [];
 
@@ -85,16 +84,20 @@ class DashboardStats extends Component
             $data[] = $count;
         }
 
+        // Ensure arrays are not empty
+        if (empty($labels)) {
+            $labels = ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00'];
+            $data = [0, 0, 0, 0, 0, 0, 0, 0];
+        }
+
         $this->chartData = [
             'labels' => $labels,
             'data' => $data
         ];
     }
 
-    private function prepareStatistics()
+    private function prepareStatistics($today)
     {
-        $today = Carbon::today();
-        
         $this->statistics = [
             'total' => $this->totalAntrianHariIni,
             'completed' => $this->antrianSelesai,
@@ -133,11 +136,19 @@ class DashboardStats extends Component
                           ->orderBy('count', 'desc')
                           ->first();
 
-        return $peakHour ? $peakHour->hour . ':00' : 'N/A';
+        return $peakHour ? str_pad($peakHour->hour, 2, '0', STR_PAD_LEFT) . ':00' : 'N/A';
     }
 
     public function render()
     {
-        return view('livewire.dashboard-stats');
+        return view('livewire.dashboard-stats', [
+            'totalAntrianHariIni' => $this->totalAntrianHariIni,
+            'antrianSelesai' => $this->antrianSelesai,
+            'antrianDiproses' => $this->antrianDiproses,
+            'antrianDitunda' => $this->antrianDitunda,
+            'counters' => $this->counters,
+            'recentAntrian' => $this->recentAntrian,
+            'chartData' => $this->chartData
+        ]);
     }
 }

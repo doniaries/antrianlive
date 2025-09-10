@@ -20,7 +20,8 @@ class ServiceManager extends Component
     
     protected $listeners = [
         'showServiceModal' => 'openModal',
-        'hideServiceModal' => 'closeModal'
+        'hideServiceModal' => 'closeModal',
+        'delete-service' => 'delete'
     ];
 
     protected $rules = [

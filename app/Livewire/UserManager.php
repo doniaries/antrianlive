@@ -164,6 +164,12 @@ class UserManager extends Component
         session()->flash('message', 'Password user ' . $user->name . ' berhasil direset menjadi: ' . $newPassword);
     }
 
+    #[On('delete-user')]
+    public function deleteUserEvent($id)
+    {
+        $this->deleteUser($id);
+    }
+
     public function render()
     {
         $users = User::query()
