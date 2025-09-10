@@ -1,21 +1,21 @@
-<div x-data="{ 
-        showConfirmModal: false, 
-        confirmTitle: '', 
-        confirmMessage: '', 
-        confirmAction: null,
-        openConfirm(title, message, action) {
-            this.confirmTitle = title;
-            this.confirmMessage = message;
-            this.confirmAction = action;
-            this.showConfirmModal = true;
-        },
-        executeConfirm() {
-            if (this.confirmAction) {
-                this.confirmAction();
-            }
-            this.showConfirmModal = false;
+<div x-data="{
+    showConfirmModal: false,
+    confirmTitle: '',
+    confirmMessage: '',
+    confirmAction: null,
+    openConfirm(title, message, action) {
+        this.confirmTitle = title;
+        this.confirmMessage = message;
+        this.confirmAction = action;
+        this.showConfirmModal = true;
+    },
+    executeConfirm() {
+        if (this.confirmAction) {
+            this.confirmAction();
         }
-    }">
+        this.showConfirmModal = false;
+    }
+}">
     <!-- Header -->
     <div class="bg-white dark:bg-gray-800 shadow-sm rounded-xl p-6 mb-6">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -35,11 +35,14 @@
     </div>
 
     <!-- Panduan Layanan -->
-    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-800 rounded-xl p-6 mb-6 border border-blue-200 dark:border-blue-700">
+    <div
+        class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-800 rounded-xl p-6 mb-6 border border-blue-200 dark:border-blue-700">
         <div class="flex items-start">
             <div class="flex-shrink-0">
-                <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
             </div>
             <div class="ml-4">
@@ -171,7 +174,8 @@
                                         </svg>
                                         Edit
                                     </button>
-                                    <button @click="openConfirm('Konfirmasi Hapus', 'Apakah Anda yakin ingin menghapus layanan {{ $service->name }}? Semua data yang terkait akan dihapus secara permanen.', () => { $wire.delete({{ $service->id }}) })"
+                                    <button
+                                        @click="openConfirm('Konfirmasi Hapus', 'Apakah Anda yakin ingin menghapus layanan {{ $service->name }}? Semua data yang terkait akan dihapus secara permanen.', () => { $wire.delete({{ $service->id }}) })"
                                         class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105"
                                         title="Hapus">
                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor"
@@ -279,31 +283,34 @@
         </div>
 
         <!-- Confirmation Modal -->
-        <div x-show="showConfirmModal" x-cloak
-            class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
-            
+        <div x-show="showConfirmModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+
             <!-- Background overlay -->
-            <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" 
-                 x-show="showConfirmModal"
-                 x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0"
-                 x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200"
-                 x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+            <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" x-show="showConfirmModal"
+                x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200"
+                x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
             </div>
 
             <!-- Modal panel -->
             <div class="flex min-h-screen items-center justify-center p-4" x-show="showConfirmModal"
-                 x-transition:enter="ease-out duration-300"
-                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-                 x-transition:leave="ease-in duration-200"
-                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
-                <div class="relative w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-2xl ring-1 ring-black/5">
-                    
+                x-transition:enter="ease-out duration-300"
+                x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                x-transition:leave="ease-in duration-200"
+                x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+                <div
+                    class="relative w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-2xl ring-1 ring-black/5">
+
                     <!-- Icon -->
-                    <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-r from-red-100 to-red-200 dark:from-red-900/50 dark:to-red-800/50 mt-8">
-                        <svg class="h-10 w-10 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    <div
+                        class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-r from-red-100 to-red-200 dark:from-red-900/50 dark:to-red-800/50 mt-8">
+                        <svg class="h-10 w-10 text-red-600 dark:text-red-400" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z">
+                            </path>
                         </svg>
                     </div>
 
@@ -315,12 +322,12 @@
 
                     <!-- Actions -->
                     <div class="mt-8 flex gap-3 px-8 pb-8">
-                        <button @click="showConfirmModal = false" 
-                                class="flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200">
+                        <button @click="showConfirmModal = false"
+                            class="flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200">
                             Batal
                         </button>
-                        <button @click="executeConfirm()" 
-                                class="flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 transition-all duration-200">
+                        <button @click="executeConfirm()"
+                            class="flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 transition-all duration-200">
                             Ya, Lanjutkan
                         </button>
                     </div>

@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Service;
 use Livewire\Component;
 use Livewire\WithPagination;
+
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
@@ -23,20 +24,30 @@ class UserManager extends Component
     public $showModal = false;
     public $isEditMode = false;
 
-    protected $rules = [
-        'name' => 'required|string|max:255',
-        'email' => 'required|email|unique:users,email',
-        'password' => 'required|string|min:8',
-        'role' => 'required|in:superadmin,petugas',
-        'selectedService' => 'required_if:role,petugas|exists:services,id',
-    ];
+    protected function rules()
+    {
+        $rules = [
+            'name' => 'required|string|max:25',
+            'email' => $this->isEditMode 
+                ? 'required|email|unique:users,email,' . $this->userId 
+                : 'required|email|unique:users,email',
+            'role' => 'required|in:superadmin,petugas',
+        ];
 
-    protected $rulesUpdate = [
-        'name' => 'required|string|max:255',
-        'email' => 'required|email',
-        'role' => 'required|in:superadmin,petugas',
-        'selectedService' => 'required_if:role,petugas|exists:services,id',
-    ];
+        // Tambahkan password rules
+        if ($this->isEditMode) {
+            $rules['password'] = 'nullable|string|min:8';
+        } else {
+            $rules['password'] = 'required|string|min:8';
+        }
+
+        // Tambahkan selectedService hanya jika role adalah petugas
+        if ($this->role === 'petugas') {
+            $rules['selectedService'] = 'required|exists:services,id';
+        }
+
+        return $rules;
+    }
 
     public function updatingSearch()
     {
@@ -79,22 +90,28 @@ class UserManager extends Component
         $this->reset(['name', 'email', 'password', 'role', 'selectedService', 'userId']);
     }
 
+    protected function messages()
+    {
+        return [
+            'name.required' => 'Nama lengkap wajib diisi.',
+            'name.string' => 'Nama lengkap harus berupa teks.',
+            'name.max' => 'Nama lengkap maksimal 25 karakter.',
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Email sudah digunakan oleh user lain.',
+            'password.required' => 'Password wajib diisi.',
+            'password.string' => 'Password harus berupa teks.',
+            'password.min' => 'Password minimal 8 karakter.',
+            'password.nullable' => 'Kosongkan password jika tidak ingin mengubahnya.',
+            'role.required' => 'Role wajib dipilih.',
+            'role.in' => 'Role tidak valid.',
+            'selectedService.required' => 'Layanan wajib dipilih untuk role petugas.',
+            'selectedService.exists' => 'Layanan tidak valid.',
+        ];
+    }
+
     public function store()
     {
-        if ($this->isEditMode) {
-            $this->rules['email'] = 'required|email|unique:users,email,' . $this->userId;
-            $this->rules['password'] = 'nullable|string|min:8';
-        } else {
-            $this->rules['email'] = 'required|email|unique:users,email';
-            $this->rules['password'] = 'required|string|min:8';
-        }
-
-        if ($this->role === 'petugas') {
-            $this->rules['selectedService'] = 'required|exists:services,id';
-        } else {
-            unset($this->rules['selectedService']);
-        }
-
         $this->validate();
 
         $data = [
@@ -164,11 +181,7 @@ class UserManager extends Component
         session()->flash('message', 'Password user ' . $user->name . ' berhasil direset menjadi: ' . $newPassword);
     }
 
-    #[On('delete-user')]
-    public function deleteUserEvent($id)
-    {
-        $this->deleteUser($id);
-    }
+
 
     public function render()
     {
