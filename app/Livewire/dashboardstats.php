@@ -3,69 +3,137 @@
 namespace App\Livewire;
 
 use Livewire\Component;
-use Livewire\Attributes\On;
 use App\Models\Antrian;
-use App\Models\Service;
 use App\Models\Counter;
+use App\Models\Service;
 use Carbon\Carbon;
-// Using error_log instead of Log facade for better compatibility
 
 class DashboardStats extends Component
 {
+    public $totalAntrianHariIni = 0;
+    public $antrianSelesai = 0;
+    public $antrianDitunda = 0;
+    public $antrianDiproses = 0;
+    public $counters = [];
+    public $services = [];
+    public $recentAntrian = [];
+    public $chartType = 'line';
+    public $chartData = [];
     public $statistics = [];
-    public $serviceStats = [];
-    public $peakHours = [];
-    public $avgProcessingTime = 0;
-    public $recentTickets = [];
 
     public function mount()
     {
         $this->loadData();
     }
 
-    #[On('queue-updated')]
     public function loadData()
     {
         $today = Carbon::today();
 
-        // Statistik utama
-        $this->statistics = [
-            'total_today' => Antrian::whereDate('created_at', $today)->count(),
-            'waiting' => Antrian::where('status', 'waiting')->count(),
-            'called' => Antrian::where('status', 'called')->count(),
-            'finished' => Antrian::where('status', 'finished')->count(),
-            'skipped' => Antrian::where('status', 'skipped')->count(),
-            'avg_wait_time' => $this->getAverageWaitTime(),
-            'total_services' => Service::where('is_active', true)->count(),
-        ];
+        // Get today's queue statistics
+        $this->totalAntrianHariIni = Antrian::whereDate('created_at', $today)->count();
+        $this->antrianSelesai = Antrian::whereDate('created_at', $today)
+                                        ->where('status', 'selesai')
+                                        ->count();
+        $this->antrianDitunda = Antrian::whereDate('created_at', $today)
+                                        ->where('status', 'pending')
+                                        ->count();
+        $this->antrianDiproses = Antrian::whereDate('created_at', $today)
+                                        ->where('status', 'diproses')
+                                        ->count();
 
-        // Tiket terbaru
-        $this->loadRecentTickets();
+        // Get active counters with services and current antrians
+        $this->counters = Counter::with(['services', 'antrians' => function($query) use ($today) {
+            $query->whereDate('created_at', $today)
+                  ->whereIn('status', ['diproses', 'pending']);
+        }])->get();
+
+        // Get services with queue count
+        $this->services = Service::withCount(['antrians' => function($query) use ($today) {
+            $query->whereDate('created_at', $today);
+        }])->get();
+
+        // Get recent queue
+        $this->recentAntrian = Antrian::with(['service', 'counter'])
+                                    ->whereDate('created_at', $today)
+                                    ->latest()
+                                    ->take(5)
+                                    ->get();
+
+        // Prepare chart data
+        $this->prepareChartData($today);
+        
+        // Prepare statistics
+        $this->prepareStatistics();
     }
 
-    private function loadRecentTickets()
+    private function prepareChartData($today)
     {
-        $this->recentTickets = Antrian::with(['service', 'counter'])
-            ->orderBy('created_at', 'desc')
-            ->limit(10)
-            ->get();
+        $hourlyData = [];
+        $labels = [];
+        $data = [];
+
+        // Get data for the last 8 hours
+        for ($i = 7; $i >= 0; $i--) {
+            $hour = Carbon::now()->subHours($i);
+            $startHour = $hour->copy()->startOfHour();
+            $endHour = $hour->copy()->endOfHour();
+            
+            $count = Antrian::whereBetween('created_at', [$startHour, $endHour])->count();
+            
+            $labels[] = $hour->format('H:i');
+            $data[] = $count;
+        }
+
+        $this->chartData = [
+            'labels' => $labels,
+            'data' => $data
+        ];
     }
 
-    private function getAverageWaitTime()
+    private function prepareStatistics()
     {
         $today = Carbon::today();
-
-        $avgMinutes = Antrian::whereDate('created_at', $today)
-            ->whereNotNull('called_at')
-            ->selectRaw('AVG(TIMESTAMPDIFF(MINUTE, created_at, called_at)) as avg_wait')
-            ->value('avg_wait');
-
-        return $avgMinutes ? round($avgMinutes) : 0;
+        
+        $this->statistics = [
+            'total' => $this->totalAntrianHariIni,
+            'completed' => $this->antrianSelesai,
+            'pending' => $this->antrianDitunda,
+            'processing' => $this->antrianDiproses,
+            'average_wait_time' => $this->calculateAverageWaitTime($today),
+            'peak_hour' => $this->getPeakHour($today)
+        ];
     }
 
-    public function getRefreshRateProperty()
+    private function calculateAverageWaitTime($today)
     {
-        return 5000; // 5 detik
+        $completedAntrians = Antrian::whereDate('created_at', $today)
+                                   ->where('status', 'selesai')
+                                   ->whereNotNull('called_at')
+                                   ->whereNotNull('finished_at')
+                                   ->get();
+
+        if ($completedAntrians->isEmpty()) {
+            return 0;
+        }
+
+        $totalWaitTime = 0;
+        foreach ($completedAntrians as $antrian) {
+            $totalWaitTime += $antrian->finished_at->diffInMinutes($antrian->called_at);
+        }
+
+        return round($totalWaitTime / $completedAntrians->count());
+    }
+
+    private function getPeakHour($today)
+    {
+        $peakHour = Antrian::selectRaw('HOUR(created_at) as hour, COUNT(*) as count')
+                          ->whereDate('created_at', $today)
+                          ->groupBy('hour')
+                          ->orderBy('count', 'desc')
+                          ->first();
+
+        return $peakHour ? $peakHour->hour . ':00' : 'N/A';
     }
 
     public function render()

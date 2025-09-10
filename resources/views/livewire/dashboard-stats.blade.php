@@ -1,144 +1,201 @@
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
-    <div>
-        <!-- Header -->
-        <div class="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Dashboard Antrian</h1>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-sm text-gray-600 dark:text-gray-400">{{ now()->format('d/m/Y') }}</div>
-                        <div class="text-lg font-bold text-gray-900 dark:text-white" x-data="{ time: '' }"
-                            x-init="() => {
-                                const updateTime = () => {
-                                    const now = new Date();
-                                    const hours = String(now.getHours()).padStart(2, '0');
-                                    const minutes = String(now.getMinutes()).padStart(2, '0');
-                                    const seconds = String(now.getSeconds()).padStart(2, '0');
-                                    time = `${hours}:${minutes}:${seconds}`;
-                                };
-                                updateTime();
-                                setInterval(updateTime, 1000);
-                            }" x-text="time"></div>
-                    </div>
+<div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Antrian -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-blue-100 text-blue-500">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-semibold text-gray-700">Total Antrian</h3>
+                    <p class="text-2xl font-bold text-gray-900">{{ $totalAntrianHariIni }}</p>
                 </div>
             </div>
         </div>
 
-        <!-- Greeting Card -->
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
-                @php
-                    $hour = now()->hour;
-                    $greeting = 'Selamat ';
-
-                    if ($hour < 10) {
-                        $greeting .= 'Pagi';
-                    } elseif ($hour < 15) {
-                        $greeting .= 'Siang';
-                    } elseif ($hour < 19) {
-                        $greeting .= 'Sore';
-                    } else {
-                        $greeting .= 'Malam';
-                    }
-
-                    $greeting .= ', ' . (auth()->user()->name ?? 'Pengguna');
-                @endphp
-
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">{{ $greeting }}!</h2>
-                <p class="text-gray-600 dark:text-gray-300">Selamat datang di Sistem Antrian Online</p>
-
-                @if (isset($nextTicket))
-                    <div class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
-                        <p class="text-sm text-gray-600 dark:text-gray-300">Antrian Anda Selanjutnya:</p>
-                        <p class="text-lg font-semibold text-blue-700 dark:text-blue-300">
-                            #{{ $nextTicket->ticket_number }}</p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Layanan:
-                            {{ $nextTicket->service->name ?? 'Umum' }}</p>
-                    </div>
-                @endif
+        <!-- Antrian Selesai -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-green-100 text-green-500">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-semibold text-gray-700">Selesai</h3>
+                    <p class="text-2xl font-bold text-gray-900">{{ $antrianSelesai }}</p>
+                </div>
             </div>
+        </div>
 
-            <!-- Statistics Cards -->
-            {{-- <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <!-- Total Tiket Hari Ini -->
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                    <div class="flex items-center">
-                        <div class="p-3 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Tiket</p>
-                            <p class="text-2xl font-semibold text-gray-900 dark:text-white">
-                                {{ $statistics['total_today'] }}</p>
-                        </div>
-                    </div>
+        <!-- Antrian Diproses -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-yellow-100 text-yellow-500">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
                 </div>
-
-                <!-- Dalam Antrian -->
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                    <div class="flex items-center">
-                        <div
-                            class="p-3 rounded-full bg-yellow-100 text-yellow-600 dark:bg-yellow-900/50 dark:text-yellow-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Menunggu</p>
-                            <p class="text-2xl font-semibold text-gray-900 dark:text-white">{{ $statistics['waiting'] }}
-                            </p>
-                        </div>
-                    </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-semibold text-gray-700">Diproses</h3>
+                    <p class="text-2xl font-bold text-gray-900">{{ $antrianDiproses }}</p>
                 </div>
+            </div>
+        </div>
 
-                <!-- Selesai -->
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                    <div class="flex items-center">
-                        <div
-                            class="p-3 rounded-full bg-green-100 text-green-600 dark:bg-green-900/50 dark:text-green-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Selesai</p>
-                            <p class="text-2xl font-semibold text-gray-900 dark:text-white">
-                                {{ $statistics['finished'] }}</p>
-                        </div>
-                    </div>
+        <!-- Antrian Menunggu -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-red-100 text-red-500">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
                 </div>
-
-                <!-- Rata-rata Waktu -->
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                    <div class="flex items-center">
-                        <div
-                            class="p-3 rounded-full bg-purple-100 text-purple-600 dark:bg-purple-900/50 dark:text-purple-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Rata Waktu</p>
-                            <p class="text-2xl font-semibold text-gray-900 dark:text-white">
-                                {{ $statistics['avg_wait_time'] }} menit</p>
-                        </div>
-                    </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-semibold text-gray-700">Menunggu</h3>
+                    <p class="text-2xl font-bold text-gray-900">{{ $antrianDitunda }}</p>
                 </div>
-            </div> --}}
-
-
+            </div>
         </div>
     </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Chart -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Grafik Antrian Harian</h3>
+            <canvas id="queueChart" width="400" height="200"></canvas>
+        </div>
+
+        <!-- Statistics -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Statistik</h3>
+            <div class="space-y-4">
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Rata-rata Waktu Tunggu:</span>
+                    <span class="font-semibold">{{ $statistics['average_wait_time'] }} menit</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Jam Sibuk:</span>
+                    <span class="font-semibold">{{ $statistics['peak_hour'] }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Persentase Selesai:</span>
+                    <span class="font-semibold">
+                        {{ $totalAntrianHariIni > 0 ? round(($antrianSelesai / $totalAntrianHariIni) * 100, 1) : 0 }}%
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Counters Section -->
+    <div class="mb-8">
+        <h3 class="text-lg font-semibold text-gray-700 mb-4">Status Loket</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            @foreach($counters as $counter)
+                <div class="bg-white rounded-lg shadow p-4">
+                    <h4 class="font-semibold text-gray-800">{{ $counter->name }}</h4>
+                    <p class="text-sm text-gray-600 mb-2">{{ $counter->description }}</p>
+                    <div class="flex flex-wrap gap-1 mb-2">
+                        @foreach($counter->services as $service)
+                            <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
+                                {{ $service->name }}
+                            </span>
+                        @endforeach
+                    </div>
+                    <div class="text-sm">
+                        <span class="text-green-600">
+                            Aktif: {{ $counter->antrians->count() }} antrian
+                        </span>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+
+    <!-- Recent Queue -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b">
+            <h3 class="text-lg font-semibold text-gray-700">Antrian Terbaru</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No Antrian</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Layanan</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Loket</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Waktu</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @foreach($recentAntrian as $antrian)
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                {{ $antrian->nomor_antrian }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ $antrian->service->name }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                    {{ $antrian->status == 'selesai' ? 'bg-green-100 text-green-800' : '' }}
+                                    {{ $antrian->status == 'diproses' ? 'bg-yellow-100 text-yellow-800' : '' }}
+                                    {{ $antrian->status == 'pending' ? 'bg-red-100 text-red-800' : '' }}
+                                ">
+                                    {{ ucfirst($antrian->status) }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ $antrian->counter ? $antrian->counter->name : '-' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ $antrian->created_at->format('H:i') }}
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('livewire:load', function () {
+            const ctx = document.getElementById('queueChart').getContext('2d');
+            const chartData = @json($chartData);
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: 'Jumlah Antrian',
+                        data: chartData.data,
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+    @endpush
 </div>

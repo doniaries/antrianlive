@@ -1,46 +1,43 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\AntrianController;
-use App\Http\Controllers\CounterController;
-use App\Http\Controllers\ServiceController;
-use App\Http\Controllers\ProfileController;
-use App\Livewire\DashboardStats;
 
+// Route untuk welcome page
 Route::get('/', function () {
-    return redirect()->route('dashboard');
-});
+    return view('welcome');
+})->name('welcome');
+
+// Route untuk ambil tiket (public access)
+Route::get('/ambil-tiket', function () {
+    return view('ambil-tiket');
+})->name('ambil.tiket');
+
+// Route untuk display antrian (public access)
+Route::get('/display', function () {
+    return view('display');
+})->name('display');
+
+require __DIR__.'/auth.php';
 
 Route::middleware([
-    'auth:sanctum',
-    config('jetstream.auth_session'),
+    'auth',
     'verified',
 ])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/antrian', [AntrianController::class, 'index'])->name('antrian.index');
-    Route::post('/antrian', [AntrianController::class, 'store'])->name('antrian.store');
-    Route::get('/antrian/{antrian}', [AntrianController::class, 'show'])->name('antrian.show');
-    Route::patch('/antrian/{antrian}/call', [AntrianController::class, 'call'])->name('antrian.call');
-    Route::patch('/antrian/{antrian}/finish', [AntrianController::class, 'finish'])->name('antrian.finish');
-    Route::patch('/antrian/{antrian}/skip', [AntrianController::class, 'skip'])->name('antrian.skip');
-    Route::patch('/antrian/{antrian}/recall', [AntrianController::class, 'recall'])->name('antrian.recall');
-    Route::get('/counter', [CounterController::class, 'index'])->name('counter.index');
-    Route::get('/service', [ServiceController::class, 'index'])->name('service.index');
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
-// Test route for debugging chart data
-Route::get('/test-chart-data', function() {
-    $component = new DashboardStats();
-    $component->loadData();
+    Route::get('/dashboard', \App\Livewire\DashboardStats::class)->name('dashboard');
+    Route::get('/antrian', \App\Livewire\AntrianIndex::class)->name('antrian.index');
+    Route::get('/antrians', \App\Livewire\AntrianIndex::class)->name('antrians.index');
+    Route::get('/counter', \App\Livewire\CounterManager::class)->name('counter.index');
+    Route::get('/counters', \App\Livewire\CounterManager::class)->name('counters.index');
+    Route::get('/services', \App\Livewire\ServiceManager::class)->name('services.index');
+    Route::get('/service', \App\Livewire\ServiceManager::class)->name('service.index');
+    Route::get('/profile', \App\Livewire\ProfilManager::class)->name('profile.edit');
+    Route::get('/profil', \App\Livewire\ProfilManager::class)->name('profil.index');
     
-    return response()->json([
-        'chartType' => $component->chartType,
-        'chartData' => $component->chartData,
-        'statistics' => $component->statistics,
-        'hasData' => !empty($component->chartData['data']) && count($component->chartData['data']) > 0
-    ]);
+    // Route untuk settings
+    Route::prefix('settings')->group(function () {
+        Route::get('/profile', \App\Livewire\Settings\Profile::class)->name('settings.profile');
+        Route::get('/password', \App\Livewire\Settings\Password::class)->name('settings.password');
+        Route::get('/appearance', \App\Livewire\Settings\Appearance::class)->name('settings.appearance');
+        Route::get('/delete-account', \App\Livewire\Settings\DeleteUserForm::class)->name('settings.delete-account');
+    });
 });
