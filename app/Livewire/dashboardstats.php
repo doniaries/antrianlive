@@ -21,6 +21,8 @@ class DashboardStats extends Component
     public $chartData = [];
     public $statistics = [];
 
+    protected $listeners = ['refreshData' => 'refreshDashboard'];
+
     public function mount()
     {
         $this->loadData();
@@ -30,30 +32,25 @@ class DashboardStats extends Component
     {
         $today = Carbon::today();
 
-        // Get today's queue statistics
-        $this->totalAntrianHariIni = Antrian::whereDate('created_at', $today)->count();
-        $this->antrianSelesai = Antrian::whereDate('created_at', $today)
-                                        ->where('status', 'selesai')
-                                        ->count();
-        $this->antrianDitunda = Antrian::whereDate('created_at', $today)
-                                        ->where('status', 'pending')
-                                        ->count();
-        $this->antrianDiproses = Antrian::whereDate('created_at', $today)
-                                        ->where('status', 'diproses')
-                                        ->count();
+        // Optimized query untuk statistik utama
+        $antrians = Antrian::selectRaw('status, COUNT(*) as count')
+                          ->whereDate('created_at', $today)
+                          ->groupBy('status')
+                          ->get()
+                          ->keyBy('status');
 
-        // Get active counters with services and current antrians
+        $this->totalAntrianHariIni = $antrians->sum('count');
+        $this->antrianSelesai = $antrians->get('selesai')->count ?? 0;
+        $this->antrianDitunda = $antrians->get('pending')->count ?? 0;
+        $this->antrianDiproses = $antrians->get('diproses')->count ?? 0;
+
+        // Get active counters with services and current antrians (only when needed)
         $this->counters = Counter::with(['services', 'antrians' => function($query) use ($today) {
             $query->whereDate('created_at', $today)
                   ->whereIn('status', ['diproses', 'pending']);
         }])->get();
 
-        // Get services with queue count
-        $this->services = Service::withCount(['antrians' => function($query) use ($today) {
-            $query->whereDate('created_at', $today);
-        }])->get();
-
-        // Get recent queue
+        // Get recent queue (limit to 5 latest)
         $this->recentAntrian = Antrian::with(['service', 'counter'])
                                     ->whereDate('created_at', $today)
                                     ->latest()
@@ -63,7 +60,7 @@ class DashboardStats extends Component
         // Prepare chart data
         $this->prepareChartData($today);
         
-        // Prepare statistics
+        // Prepare simplified statistics
         $this->prepareStatistics($today);
     }
 
@@ -72,71 +69,67 @@ class DashboardStats extends Component
         $labels = [];
         $data = [];
 
-        // Get data for the last 8 hours
-        for ($i = 7; $i >= 0; $i--) {
-            $hour = Carbon::now()->subHours($i);
-            $startHour = $hour->copy()->startOfHour();
-            $endHour = $hour->copy()->endOfHour();
+        // Get hourly data for today
+        $startOfDay = $today->copy()->startOfDay();
+        $endOfDay = $today->copy()->endOfDay();
+
+        // Generate labels for each hour (00:00 to 23:00)
+        for ($hour = 0; $hour < 24; $hour++) {
+            $startHour = $startOfDay->copy()->addHours($hour);
+            $endHour = $startHour->copy()->endOfHour();
             
-            $count = Antrian::whereBetween('created_at', [$startHour, $endHour])->count();
+            $count = Antrian::whereBetween('created_at', [$startHour, $endHour])
+                           ->whereDate('created_at', $today)
+                           ->count();
             
-            $labels[] = $hour->format('H:i');
+            $labels[] = str_pad($hour, 2, '0', STR_PAD_LEFT) . ':00';
             $data[] = $count;
         }
 
-        // Ensure arrays are not empty
-        if (empty($labels)) {
-            $labels = ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00'];
-            $data = [0, 0, 0, 0, 0, 0, 0, 0];
+        // Filter out hours with no data for cleaner display
+        $filteredLabels = [];
+        $filteredData = [];
+        
+        for ($i = 0; $i < count($labels); $i++) {
+            if ($data[$i] > 0 || $i % 3 === 0) { // Show every 3rd hour if no data
+                $filteredLabels[] = $labels[$i];
+                $filteredData[] = $data[$i];
+            }
+        }
+
+        // Ensure we have at least some data
+        if (empty($filteredLabels)) {
+            $filteredLabels = ['09:00', '12:00', '15:00', '18:00'];
+            $filteredData = [0, 0, 0, 0];
         }
 
         $this->chartData = [
-            'labels' => $labels,
-            'data' => $data
+            'labels' => $filteredLabels,
+            'data' => $filteredData
         ];
     }
 
     private function prepareStatistics($today)
     {
+        // Statistik yang hanya menampilkan data penting
         $this->statistics = [
             'total' => $this->totalAntrianHariIni,
             'completed' => $this->antrianSelesai,
             'pending' => $this->antrianDitunda,
-            'processing' => $this->antrianDiproses,
-            'average_wait_time' => $this->calculateAverageWaitTime($today),
-            'peak_hour' => $this->getPeakHour($today)
+            'processing' => $this->antrianDiproses
         ];
     }
 
-    private function calculateAverageWaitTime($today)
+
+
+    public function refreshDashboard()
     {
-        $completedAntrians = Antrian::whereDate('created_at', $today)
-                                   ->where('status', 'selesai')
-                                   ->whereNotNull('called_at')
-                                   ->whereNotNull('finished_at')
-                                   ->get();
-
-        if ($completedAntrians->isEmpty()) {
-            return 0;
-        }
-
-        $totalWaitTime = 0;
-        foreach ($completedAntrians as $antrian) {
-            $totalWaitTime += $antrian->finished_at->diffInMinutes($antrian->called_at);
-        }
-
-        return round($totalWaitTime / $completedAntrians->count());
+        $this->loadData();
     }
 
-    private function getPeakHour($today)
+    public function getPollingIntervalProperty()
     {
-        $peakHour = Antrian::selectRaw('HOUR(created_at) as hour, COUNT(*) as count')
-                          ->whereDate('created_at', $today)
-                          ->groupBy('hour')
-                          ->orderBy('count', 'desc')
-                          ->first();
-
-        return $peakHour ? str_pad($peakHour->hour, 2, '0', STR_PAD_LEFT) . ':00' : 'N/A';
+        return 3000; // 3 seconds
     }
 
     public function render()

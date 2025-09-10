@@ -1,4 +1,4 @@
-<div>
+<div wire:poll.3s="refreshDashboard">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <!-- Total Antrian -->
         <div class="bg-white rounded-lg shadow p-6">
@@ -49,24 +49,24 @@
             </div>
         </div>
 
-        <!-- Antrian Menunggu -->
+        <!-- Antrian Dipanggil -->
         <div class="bg-white rounded-lg shadow p-6">
             <div class="flex items-center">
-                <div class="p-3 rounded-full bg-red-100 text-red-500">
+                <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
                     </svg>
                 </div>
                 <div class="ml-4">
-                    <h3 class="text-lg font-semibold text-gray-700">Menunggu</h3>
-                    <p class="text-2xl font-bold text-gray-900">{{ $antrianDitunda }}</p>
+                    <h3 class="text-lg font-semibold text-gray-700">Dipanggil</h3>
+                    <p class="text-2xl font-bold text-gray-900">{{ $antrianDiproses }}</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Counters Section -->
+    {{-- <!-- Counters Section -->
     <div class="mb-8">
         <h3 class="text-lg font-semibold text-gray-700 mb-4">Status Loket</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -89,7 +89,7 @@
                 </div>
             @endforeach
         </div>
-    </div>
+    </div> --}}
     <!-- Charts Section -->
     <div class="grid grid-cols-1 gap-6 mb-8">
         <!-- Chart -->

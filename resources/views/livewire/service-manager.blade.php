@@ -34,6 +34,26 @@
         </div>
     </div>
 
+    <!-- Panduan Layanan -->
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-800 rounded-xl p-6 mb-6 border border-blue-200 dark:border-blue-700">
+        <div class="flex items-start">
+            <div class="flex-shrink-0">
+                <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <div class="ml-4">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Panduan Pengelolaan Layanan</h3>
+                <div class="text-sm text-gray-600 dark:text-gray-300 space-y-1">
+                    <p><strong>Kode Layanan:</strong> Gunakan huruf tunggal (A, B, C) atau singkatan (UMM, GIG, LAB)</p>
+                    <p><strong>Contoh Layanan:</strong> Poli Umum (A), Poli Gigi (B), Laboratorium (C)</p>
+                    <p><strong>Status Aktif:</strong> Hanya layanan aktif yang akan muncul di antrian</p>
+                    <p><strong>Penghapusan:</strong> Layanan yang sudah memiliki data antrian tidak dapat dihapus</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Flash Messages -->
     @if (session()->has('message'))
         <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
