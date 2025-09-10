@@ -14,6 +14,9 @@ class DashboardStats extends Component
     public $antrianSelesai = 0;
     public $antrianDitunda = 0;
     public $antrianDiproses = 0;
+    public $antrianMingguIni = 0;
+    public $antrianBulanIni = 0;
+    public $antrianTahunIni = 0;
     public $counters = [];
     public $services = [];
     public $recentAntrian = [];
@@ -31,6 +34,9 @@ class DashboardStats extends Component
     public function loadData()
     {
         $today = Carbon::today();
+        $startOfWeek = Carbon::now()->startOfWeek();
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $startOfYear = Carbon::now()->startOfYear();
 
         // Optimized query untuk statistik utama
         $antrians = Antrian::selectRaw('status, COUNT(*) as count')
@@ -43,6 +49,11 @@ class DashboardStats extends Component
         $this->antrianSelesai = $antrians->get('selesai')->count ?? 0;
         $this->antrianDitunda = $antrians->get('pending')->count ?? 0;
         $this->antrianDiproses = $antrians->get('diproses')->count ?? 0;
+
+        // Statistik periode lainnya
+        $this->antrianMingguIni = Antrian::whereBetween('created_at', [$startOfWeek, $today->copy()->endOfDay()])->count();
+        $this->antrianBulanIni = Antrian::whereBetween('created_at', [$startOfMonth, $today->copy()->endOfDay()])->count();
+        $this->antrianTahunIni = Antrian::whereBetween('created_at', [$startOfYear, $today->copy()->endOfDay()])->count();
 
         // Get active counters with services and current antrians (only when needed)
         $this->counters = Counter::with(['services', 'antrians' => function($query) use ($today) {
@@ -139,6 +150,9 @@ class DashboardStats extends Component
             'antrianSelesai' => $this->antrianSelesai,
             'antrianDiproses' => $this->antrianDiproses,
             'antrianDitunda' => $this->antrianDitunda,
+            'antrianMingguIni' => $this->antrianMingguIni,
+            'antrianBulanIni' => $this->antrianBulanIni,
+            'antrianTahunIni' => $this->antrianTahunIni,
             'counters' => $this->counters,
             'recentAntrian' => $this->recentAntrian,
             'chartData' => $this->chartData
