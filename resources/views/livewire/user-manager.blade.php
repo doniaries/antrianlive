@@ -6,34 +6,7 @@
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">User Management</h1>
                 <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Kelola pengguna sistem antrian</p>
             </div>
-
-@push('scripts')
-    <script>
-        // Auto-hide success message after 3 seconds
-        setTimeout(() => {
-            const successMessage = document.getElementById('success-message');
-            if (successMessage) {
-                successMessage.style.display = 'none';
-            }
-        }, 3000);
-
-        // Listen for modal open event
-        document.addEventListener('livewire:initialized', () => {
-            Livewire.on('modal-opened', () => {
-                console.log('Modal opened');
-                // Ensure modal is visible
-                const modal = document.getElementById('user-modal');
-                if (modal) {
-                    modal.style.display = 'block';
-                    modal.classList.add('show');
-                }
-            });
-        });
-
-        // Debug: Log when page loads
-        console.log('User Manager loaded');
-    </script>
-@endpush            <button wire:click="openModal" 
+            <button wire:click="openModal" 
                     class="mt-4 sm:mt-0 inline-flex items-center px-5 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -45,7 +18,7 @@
 
     <!-- Flash Messages -->
     @if (session()->has('message'))
-        <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-md">
+        <div id="success-message" class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-md">
             {{ session('message') }}
         </div>
     @endif
@@ -169,122 +142,153 @@
     </div>
 
     <!-- Modal -->
-    @if($showModal)
-        <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-            <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-                
-                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                
-                <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                    <form wire:submit.prevent="save">
-                        <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                            <div class="sm:flex sm:items-start">
-                                <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
-                                    <div class="flex items-center">
-                                        <div class="flex-shrink-0">
-                                        @if($isEditMode)
-                                            <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                            </svg>
-                                        @else
-                                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                            </svg>
-                                        @endif
-                                    </div>
-                                    <div class="ml-3">
-                                        <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modal-title">
-                                            {{ $isEditMode ? 'Edit User: ' . $name : 'Tambah User Baru' }}
-                                        </h3>
-                                        <p class="text-sm text-gray-500 dark:text-gray-400">
-                                            {{ $isEditMode ? 'Perbarui informasi user dan layanan yang ditangani' : 'Buat user baru dengan role dan layanan yang sesuai' }}
-                                        </p>
-                                    </div>
-                                    </div>
-                                    <div class="mt-4 space-y-4">
-                                        <div>
-                                            <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nama</label>
-                                            <input wire:model="name" type="text" id="name" 
-                                                   class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                                            @error('name') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                                        </div>
-                                        
-                                        <div>
-                                            <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
-                                            <input wire:model="email" type="email" id="email" 
-                                                   class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                                            @error('email') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                                        </div>
+    <div x-data="{ showModal: @entangle('showModal') }" x-show="showModal" x-cloak
+         x-on:keydown.escape.window="showModal = false; $wire.closeModal()"
+         class="fixed inset-0 z-40 overflow-y-auto" style="display: none;">
 
-                                        @if(!$isEditMode)
-                                        <div>
-                                            <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
-                                            <input wire:model="password" type="password" id="password" 
-                                                   class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                                            @error('password') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                                        </div>
-                                        @endif
-                                        
-                                        <div>
-                                            <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Role</label>
-                                            <select wire:model="role" id="role" 
-                                                    class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                                                <option value="petugas">Petugas</option>
-                                                <option value="superadmin">Super Admin</option>
-                                            </select>
-                                            @error('role') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                                        </div>
+        <!-- Background overlay -->
+        <div class="fixed inset-0 bg-black/50 transition-opacity" x-show="showModal"
+             x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200"
+             x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+             @click="showModal = false; $wire.closeModal()">
+        </div>
 
-                                        @if($role === 'petugas')
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Layanan yang Ditangani</label>
-                                            <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                @foreach($services as $service)
-                                                    <label class="flex items-center p-3 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors">
-                                                        <input type="checkbox" wire:model="selectedServices" value="{{ $service->id }}" 
-                                                               class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                                                        <div class="ml-3 flex-1">
-                                                            <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $service->name }}</span>
-                                                            <span class="text-xs text-gray-500 dark:text-gray-400 block">{{ $service->code }}</span>
-                                                        </div>
-                                                    </label>
-                                                @endforeach
-                                            </div>
-                                            @if(count($selectedServices) > 0)
-                                                <div class="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                                                    <p class="text-sm font-medium text-blue-800 dark:text-blue-200 mb-1">Layanan Dipilih:</p>
-                                                    <div class="flex flex-wrap gap-1">
-                                                        @foreach($services as $service)
-                                                            @if(in_array($service->id, $selectedServices))
-                                                                <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded">{{ $service->name }}</span>
-                                                            @endif
-                                                        @endforeach
-                                                    </div>
-                                                </div>
-                                            @endif
-                                            </div>
-                                            @error('selectedServices') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                                        </div>
-                                        @endif
-                                    </div>
-                                </div>
+        <!-- Modal panel -->
+        <div class="flex min-h-screen items-center justify-center p-4" x-show="showModal"
+             x-transition:enter="ease-out duration-300"
+             x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+             x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+             x-transition:leave="ease-in duration-200"
+             x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+             x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+            <div class="relative w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-2xl">
+
+                <!-- Close button -->
+                <button @click="showModal = false; $wire.closeModal()"
+                        class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-150"
+                        type="button">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+                        {{ $isEditMode ? 'Edit User' : 'Tambah User' }}
+                    </h2>
+
+                    <form wire:submit="store">
+                        <div class="space-y-4">
+                            <!-- Nama -->
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nama Lengkap</label>
+                                <input type="text" wire:model="name" id="name" 
+                                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                @error('name') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                             </div>
+
+                            <!-- Email -->
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                                <input type="email" wire:model="email" id="email" 
+                                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                @error('email') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+
+                            <!-- Password -->
+                        <div x-data="{ showPassword: false }">
+                            <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Password @if(!$isEditMode) <span class="text-red-500">*</span> @endif
+                            </label>
+                            <div class="relative">
+                                <input :type="showPassword ? 'text' : 'password'" wire:model="password" id="password"
+                                       class="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                       @if(!$isEditMode) required @endif>
+                                <button type="button" 
+                                        @click="showPassword = !showPassword"
+                                        class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+                                    <svg x-show="!showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                    <svg x-show="showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            @error('password') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            @if($isEditMode)
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Kosongkan jika tidak ingin mengubah password</p>
+                            @endif
                         </div>
-                        
-                        <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                            <button type="submit" 
-                                    class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
-                                {{ $isEditMode ? 'Update' : 'Simpan' }}
-                            </button>
-                            <button type="button" wire:click="closeModal" 
-                                    class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-600 text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+
+                            <!-- Role -->
+                            <div>
+                                <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Role</label>
+                                <select wire:model="role" id="role" 
+                                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option value="">Pilih Role</option>
+                                    <option value="superadmin">Super Admin</option>
+                                    <option value="petugas">Petugas</option>
+                                </select>
+                                @error('role') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+
+                            <!-- Layanan untuk Petugas -->
+                            @if($role === 'petugas')
+                                <div>
+                                    <label for="selectedService" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Layanan</label>
+                                    <select wire:model="selectedService" id="selectedService" 
+                                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                        <option value="">Pilih Layanan</option>
+                                        @foreach($services as $service)
+                                            <option value="{{ $service->id }}">{{ $service->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('selectedService') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                </div>
+                            @endif
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="mt-6 flex justify-end space-x-3">
+                            <button type="button"
+                                    @click="showModal = false; $wire.closeModal()"
+                                    class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors">
                                 Batal
+                            </button>
+                            <button type="submit"
+                                    class="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                {{ $isEditMode ? 'Perbarui' : 'Simpan' }}
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
-    @endif
+    </div>
+
+    @push('scripts')
+        <script>
+            // Auto-hide success message after 3 seconds
+            setTimeout(() => {
+                const successMessage = document.getElementById('success-message');
+                if (successMessage) {
+                    successMessage.style.display = 'none';
+                }
+            }, 3000);
+
+            // Listen for modal open event
+            document.addEventListener('livewire:initialized', () => {
+                Livewire.on('modal-opened', () => {
+                    console.log('Modal opened');
+                });
+            });
+
+            // Debug: Log when page loads
+            console.log('User Manager loaded');
+        </script>
+    @endpush
 </div>
+

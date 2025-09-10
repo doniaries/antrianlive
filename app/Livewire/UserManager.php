@@ -17,7 +17,7 @@ class UserManager extends Component
     public $email = '';
     public $password = '';
     public $role = 'petugas';
-    public $selectedServices = [];
+    public $selectedService = '';
     public $userId = null;
     public $search = '';
     public $showModal = false;
@@ -28,14 +28,14 @@ class UserManager extends Component
         'email' => 'required|email|unique:users,email',
         'password' => 'required|string|min:8',
         'role' => 'required|in:superadmin,petugas',
-        'selectedServices' => 'array',
+        'selectedService' => 'required_if:role,petugas|exists:services,id',
     ];
 
     protected $rulesUpdate = [
         'name' => 'required|string|max:255',
         'email' => 'required|email',
         'role' => 'required|in:superadmin,petugas',
-        'selectedServices' => 'array',
+        'selectedService' => 'required_if:role,petugas|exists:services,id',
     ];
 
     public function updatingSearch()
@@ -58,7 +58,7 @@ class UserManager extends Component
         $this->name = $user->name;
         $this->email = $user->email;
         $this->role = $user->role;
-        $this->selectedServices = $user->services->pluck('id')->toArray();
+        $this->selectedService = $user->services->first()->id ?? '';
         $this->password = ''; // Password tidak ditampilkan untuk update
         $this->isEditMode = true;
         $this->showModal = true;
@@ -66,9 +66,9 @@ class UserManager extends Component
 
     public function resetInputFields()
     {
-        $this->reset(['name', 'email', 'password', 'role', 'selectedServices', 'userId']);
+        $this->reset(['name', 'email', 'password', 'role', 'selectedService', 'userId']);
         $this->role = 'petugas';
-        $this->selectedServices = [];
+        $this->selectedService = '';
         $this->isEditMode = false;
         $this->resetValidation();
     }
@@ -76,78 +76,58 @@ class UserManager extends Component
     public function closeModal()
     {
         $this->showModal = false;
-        $this->reset(['name', 'email', 'password', 'role', 'selectedServices', 'userId']);
+        $this->reset(['name', 'email', 'password', 'role', 'selectedService', 'userId']);
     }
 
-    public function save()
+    public function store()
     {
-        if ($this->userId) {
-            $this->updateUser();
+        if ($this->isEditMode) {
+            $this->rules['email'] = 'required|email|unique:users,email,' . $this->userId;
+            $this->rules['password'] = 'nullable|string|min:8';
         } else {
-            $this->createUser();
+            $this->rules['email'] = 'required|email|unique:users,email';
+            $this->rules['password'] = 'required|string|min:8';
         }
-    }
-
-    public function createUser()
-    {
-        $rules = [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|string|min:8',
-            'role' => 'required|in:superadmin,petugas',
-        ];
 
         if ($this->role === 'petugas') {
-            $rules['selectedServices'] = 'required|array|min:1';
-            $rules['selectedServices.*'] = 'exists:services,id';
+            $this->rules['selectedService'] = 'required|exists:services,id';
+        } else {
+            unset($this->rules['selectedService']);
         }
 
-        $this->validate($rules);
+        $this->validate();
 
-        $user = User::create([
-            'name' => $this->name,
-            'email' => $this->email,
-            'password' => Hash::make($this->password),
-            'role' => $this->role,
-        ]);
-
-        if ($this->role === 'petugas') {
-            $user->services()->sync($this->selectedServices);
-        }
-
-        session()->flash('message', 'User berhasil ditambahkan!');
-        $this->closeModal();
-    }
-
-    public function updateUser()
-    {
-        $rules = [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $this->userId,
-            'role' => 'required|in:superadmin,petugas',
-        ];
-
-        if ($this->role === 'petugas') {
-            $rules['selectedServices'] = 'required|array|min:1';
-            $rules['selectedServices.*'] = 'exists:services,id';
-        }
-
-        $this->validate($rules);
-
-        $user = User::findOrFail($this->userId);
-        $user->update([
+        $data = [
             'name' => $this->name,
             'email' => $this->email,
             'role' => $this->role,
-        ]);
+        ];
 
-        if ($this->role === 'petugas') {
-            $user->services()->sync($this->selectedServices);
-        } else {
-            $user->services()->detach();
+        if (!$this->isEditMode || $this->password) {
+            $data['password'] = Hash::make($this->password);
         }
 
-        session()->flash('message', 'User berhasil diperbarui!');
+        if ($this->isEditMode) {
+            $user = User::findOrFail($this->userId);
+            $user->update($data);
+            
+            if ($this->role === 'petugas') {
+                $user->services()->sync([$this->selectedService]);
+            } else {
+                $user->services()->detach();
+            }
+            
+            session()->flash('message', 'User berhasil diperbarui!');
+        } else {
+            $user = User::create($data);
+            
+            if ($this->role === 'petugas') {
+                $user->services()->sync([$this->selectedService]);
+            }
+            
+            session()->flash('message', 'User berhasil ditambahkan!');
+        }
+
         $this->closeModal();
     }
 
