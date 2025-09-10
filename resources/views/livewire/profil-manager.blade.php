@@ -52,51 +52,51 @@
                 </div>
 
                 <!-- Kolom Kanan - Logo & Favicon -->
-                <div class="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6 shadow-sm">
-                    <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">Logo & Favicon</h2>
-                    <div class="space-y-4">
+                <div class="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-4 shadow-sm">
+                    <h2 class="text-md font-semibold text-zinc-900 dark:text-zinc-100 mb-3">Logo & Favicon</h2>
+                    <div class="space-y-3">
                         <div>
-                            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Logo Instansi</label>
-                            <div class="mt-2 space-y-3">
+                            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Logo Instansi</label>
+                            <div class="mt-1 space-y-2">
                                 @if ($existing_logo && !$logo)
                                     <div class="relative">
-                                        <img src="{{ asset('storage/' . $existing_logo) }}" alt="Logo" class="h-24 w-auto rounded border border-zinc-200 dark:border-zinc-600 mx-auto">
-                                        <p class="text-xs text-center text-zinc-500 dark:text-zinc-400 mt-2">Logo saat ini</p>
+                                        <img src="{{ asset('storage/' . $existing_logo) }}" alt="Logo" class="h-20 w-auto rounded border border-zinc-200 dark:border-zinc-600 mx-auto">
+                                        <p class="text-xs text-center text-zinc-500 dark:text-zinc-400 mt-1">Logo saat ini</p>
                                     </div>
                                 @endif
                                 @if ($logo)
                                     <div class="relative">
-                                        <img src="{{ $logo->temporaryUrl() }}" alt="Logo Preview" class="h-24 w-auto rounded border border-zinc-200 dark:border-zinc-600 mx-auto">
-                                        <p class="text-xs text-center text-zinc-500 dark:text-zinc-400 mt-2">Preview logo baru</p>
+                                        <img src="{{ $logo->temporaryUrl() }}" alt="Logo Preview" class="h-20 w-auto rounded border border-zinc-200 dark:border-zinc-600 mx-auto">
+                                        <p class="text-xs text-center text-zinc-500 dark:text-zinc-400 mt-1">Preview baru</p>
                                     </div>
                                 @endif
                                 <input type="file" wire:model="logo" accept="image/*"
-                                    class="w-full text-sm text-zinc-500 dark:text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-indigo-50 dark:file:bg-indigo-900 file:text-indigo-600 dark:file:text-indigo-300 hover:file:bg-indigo-100 dark:hover:file:bg-indigo-800">
+                                    class="w-full text-xs text-zinc-500 dark:text-zinc-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-medium file:bg-indigo-50 dark:file:bg-indigo-900 file:text-indigo-600 dark:file:text-indigo-300 hover:file:bg-indigo-100 dark:hover:file:bg-indigo-800">
                                 @error('logo')
-                                    <p class="text-sm text-red-600 dark:text-red-400 mt-1">{{ $message }}</p>
+                                    <p class="text-xs text-red-600 dark:text-red-400 mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Favicon</label>
-                            <div class="mt-2 space-y-3">
+                            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Favicon</label>
+                            <div class="mt-1 space-y-2">
                                 @if ($existing_favicon && !$favicon)
                                     <div class="relative">
-                                        <img src="{{ asset('storage/' . $existing_favicon) }}" alt="Favicon" class="h-16 w-auto rounded border border-zinc-200 dark:border-zinc-600 mx-auto">
-                                        <p class="text-xs text-center text-zinc-500 dark:text-zinc-400 mt-2">Favicon saat ini</p>
+                                        <img src="{{ asset('storage/' . $existing_favicon) }}" alt="Favicon" class="h-12 w-auto rounded border border-zinc-200 dark:border-zinc-600 mx-auto">
+                                        <p class="text-xs text-center text-zinc-500 dark:text-zinc-400 mt-1">Favicon saat ini</p>
                                     </div>
                                 @endif
                                 @if ($favicon)
                                     <div class="relative">
-                                        <img src="{{ $favicon->temporaryUrl() }}" alt="Favicon Preview" class="h-16 w-auto rounded border border-zinc-200 dark:border-zinc-600 mx-auto">
-                                        <p class="text-xs text-center text-zinc-500 dark:text-zinc-400 mt-2">Preview favicon baru</p>
+                                        <img src="{{ $favicon->temporaryUrl() }}" alt="Favicon Preview" class="h-12 w-auto rounded border border-zinc-200 dark:border-zinc-600 mx-auto">
+                                        <p class="text-xs text-center text-zinc-500 dark:text-zinc-400 mt-1">Preview baru</p>
                                     </div>
                                 @endif
                                 <input type="file" wire:model="favicon" accept="image/*"
-                                    class="w-full text-sm text-zinc-500 dark:text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-indigo-50 dark:file:bg-indigo-900 file:text-indigo-600 dark:file:text-indigo-300 hover:file:bg-indigo-100 dark:hover:file:bg-indigo-800">
+                                    class="w-full text-xs text-zinc-500 dark:text-zinc-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-medium file:bg-indigo-50 dark:file:bg-indigo-900 file:text-indigo-600 dark:file:text-indigo-300 hover:file:bg-indigo-100 dark:hover:file:bg-indigo-800">
                                 @error('favicon')
-                                    <p class="text-sm text-red-600 dark:text-red-400 mt-1">{{ $message }}</p>
+                                    <p class="text-xs text-red-600 dark:text-red-400 mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
                         </div>
