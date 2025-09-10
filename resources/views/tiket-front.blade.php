@@ -215,39 +215,28 @@
 <body>
     <div class="container">
         <header class="header">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
-                <div class="flex items-center gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <!-- Institution Card -->
+                <div class="bg-white shadow-lg rounded-xl p-4 flex items-center gap-4">
                     @if ($profil && $profil->logo)
-                        <img src="{{ asset('storage/' . $profil->logo) }}" alt="Logo" class="h-16 w-auto">
+                        <img src="{{ asset('storage/' . $profil->logo) }}" alt="Logo"
+                            class="h-16 w-auto rounded-lg">
                     @endif
                     <div>
-                        <h1 class="title text-left !text-2xl md:!text-3xl">
+                        <h1 class="text-xl font-bold text-gray-800">
                             {{ $profil->nama_instansi ?? 'Ambil Tiket Antrian' }}</h1>
                         @if (($profil && $profil->nama_aplikasi) || config('app.name') !== 'Laravel')
-                            <h2
-                                class="bg-indigo-800 text-white px-4 py-2 rounded-full inline-block shadow-lg font-semibold text-sm md:text-base tracking-wide mt-2">
+                            <p class="text-sm text-indigo-600 font-medium">
                                 {{ $profil->nama_aplikasi ?? config('app.name') }}
-                            </h2>
+                            </p>
                         @endif
                     </div>
                 </div>
 
-                <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-4 min-w-[200px]">
-                    <div class="text-center">
-                        <div class="text-4xl md:text-5xl font-['Rajdhani'] font-bold text-indigo-600 tracking-tight"
-                            id="digital-clock">00:00:00</div>
-                        <div class="text-sm md:text-base text-gray-600 font-medium mt-1" id="current-date">Senin, 1
-                            Januari 2023</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 mb-8">
-                <div class="text-center">
-                    <div class="text-4xl md:text-5xl font-bold text-indigo-600 mb-3" id="displayTicketNumber">-</div>
-                    <div class="mt-3 p-3 bg-blue-50 rounded-lg">
-                        <p class="text-sm text-blue-700" id="displayServiceInfo"></p>
-                    </div>
+                <!-- Clock Card -->
+                <div class="bg-white shadow-lg rounded-xl p-4 flex flex-col items-center justify-center">
+                    <div id="current-date" class="text-lg font-semibold text-gray-700 mb-1"></div>
+                    <div id="digital-clock" class="text-3xl font-bold text-indigo-600 font-mono"></div>
                 </div>
             </div>
         </header>
@@ -343,6 +332,9 @@
                     content.style.opacity = '1';
                 }
             }, 10);
+
+            // Play success sound
+            playSuccessSound();
         }
 
         // Close notification
@@ -366,6 +358,14 @@
                     content.style.opacity = '0';
                 }
             }, 300);
+        }
+
+
+        // Play success sound
+        function playSuccessSound() {
+            const audio = new Audio('{{ asset('sounds/bell.mp3') }}');
+            audio.volume = 0.5;
+            return audio.play().catch(e => console.log('Audio play failed:', e));
         }
 
         // Confetti effect
@@ -412,9 +412,6 @@
 
         // Handle form submission with AJAX
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize clock
-            initializeClock();
-
             const forms = document.querySelectorAll('.ticket-form');
 
             forms.forEach(form => {
@@ -445,12 +442,11 @@
 
                         if (data.success && data.ticket_number) {
                             console.log('Ticket response:', data);
-                            
-                            // Use ticket_number from response
-                            const ticketNum = data.ticket_number;
-                            
-                            // Show success message with confetti (no sound)
-                            await triggerConfetti();
+                            // Play sound and show success message
+                            await Promise.all([
+                                playSuccessSound(),
+                                triggerConfetti()
+                            ]);
 
                             // Show notification with ticket number and service info
                             const displayTicketNumber = document.getElementById(
@@ -463,8 +459,8 @@
                                 'notificationServiceInfo');
 
                             if (displayTicketNumber && ticketNumber) {
-                                displayTicketNumber.textContent = ticketNum;
-                                ticketNumber.textContent = ticketNum;
+                                displayTicketNumber.textContent = data.ticket_number;
+                                ticketNumber.textContent = data.ticket_number;
                             } else {
                                 console.error('Ticket number elements not found');
                             }
@@ -479,60 +475,25 @@
 
                             showNotification();
 
-                            // Trigger display update using localStorage event
-                            const eventData = {
-                                ticket_number: ticketNum,
-                                service_name: data.service_name,
-                                counter_name: data.counter_name,
-                                timestamp: new Date().toISOString()
-                            };
-                            
-                            // Try Livewire event first
-                            if (typeof Livewire !== 'undefined') {
-                                Livewire.dispatch('ticket-created', eventData);
-                            }
-                            
-                            // Force immediate refresh via localStorage with unique key
-                            const uniqueKey = 'ticket-created-' + Date.now();
-                            localStorage.setItem(uniqueKey, JSON.stringify(eventData));
-                            
-                            // Also use the old key for backward compatibility
-                            localStorage.setItem('ticket-created', JSON.stringify(eventData));
-                            
-                            // Clean up after a short delay
-                            setTimeout(() => {
-                                localStorage.removeItem(uniqueKey);
-                            }, 5000);
-                            
-                            // Force immediate refresh via fetch to ensure display updates
-                            fetch('/api/queue-data')
-                                .then(response => response.json())
-                                .then(queueData => {
-                                    console.log('Immediate refresh triggered:', queueData);
-                                })
-                                .catch(error => console.error('Immediate refresh failed:', error));
-
                             // Auto refresh after 30 seconds if still on the page
                             setTimeout(() => {
                                 location.reload();
                             }, 30000);
 
-                        } else if (!data.success) {
-                            console.error('Server error:', data);
-                            throw new Error(data.message || 'Terjadi kesalahan saat memproses tiket');
                         } else if (!data.ticket_number) {
                             console.error('Missing ticket number in response:', data);
-                            console.error('Available fields:', Object.keys(data));
                             throw new Error(
                                 'Nomor antrian tidak ditemukan dalam respons server');
+                        } else {
+                            console.error('Server error:', data);
+                            throw new Error(data.message || 'Terjadi kesalahan');
                         }
                     } catch (error) {
-                        console.error('Ticket generation error:', error);
                         Swal.fire({
                             icon: 'error',
-                            title: 'Gagal Mengambil Tiket',
+                            title: 'Oops...',
                             text: error.message ||
-                                'Terjadi kesalahan saat memproses tiket. Silakan coba lagi.',
+                                'Terjadi kesalahan saat memproses tiket',
                             confirmButtonColor: '#4f46e5',
                         });
                     } finally {
@@ -543,36 +504,6 @@
                 });
             });
         });
-
-        // Update clock function
-        function updateClock() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('id-ID', {
-                hour12: false,
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            });
-
-            const dateString = now.toLocaleDateString('id-ID', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-
-            const clockElement = document.getElementById('digital-clock');
-            const dateElement = document.getElementById('current-date');
-
-            if (clockElement) clockElement.textContent = timeString;
-            if (dateElement) dateElement.textContent = dateString;
-        }
-
-        // Initialize clock
-        function initializeClock() {
-            updateClock();
-            setInterval(updateClock, 1000);
-        }
 
         // Initialize Toast notifications
         const Toast = Swal.mixin({
@@ -590,19 +521,28 @@
         // Auto update time
         function updateTime() {
             const now = new Date();
-            const options = {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
-            };
-            const timeDisplay = document.querySelector('.time-display');
-            if (timeDisplay) {
-                timeDisplay.textContent = now.toLocaleDateString('id-ID', options);
+
+            // Format time
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const digitalClock = document.getElementById('digital-clock');
+            if (digitalClock) {
+                digitalClock.textContent = `${hours}:${minutes}:${seconds}`;
+            }
+
+            // Format date
+            const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September',
+                'Oktober', 'November', 'Desember'
+            ];
+            const dayName = days[now.getDay()];
+            const date = now.getDate();
+            const monthName = months[now.getMonth()];
+            const year = now.getFullYear();
+            const currentDate = document.getElementById('current-date');
+            if (currentDate) {
+                currentDate.textContent = `${dayName}, ${date} ${monthName} ${year}`;
             }
         }
 
