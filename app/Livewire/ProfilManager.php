@@ -75,14 +75,14 @@ class ProfilManager extends Component
 
             $profil->save();
             
-            // Reset file inputs
-            $this->logo = null;
-            $this->favicon = null;
-
-            session()->flash('message', 'Profil berhasil disimpan.');
+            // Reset file inputs tanpa refresh halaman
+            $this->reset(['logo', 'favicon']);
+            
+            // Dispatch browser event untuk notifikasi tanpa refresh
+            $this->dispatch('profile-saved', message: 'Profil berhasil disimpan.');
             
         } catch (\Exception $e) {
-            session()->flash('error', 'Error: ' . $e->getMessage());
+            $this->dispatch('profile-error', message: 'Error: ' . $e->getMessage());
         }
     }
 

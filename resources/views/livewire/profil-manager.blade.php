@@ -5,7 +5,7 @@
     </div>
 
     <main class="p-4 sm:p-6 space-y-6">
-        <form wire:submit="save" class="space-y-6" enctype="multipart/form-data">
+        <form wire:submit.prevent="save" class="space-y-6" enctype="multipart/form-data">
             <div class="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6 shadow-sm">
                 <div class="space-y-6">
                     <div>
@@ -104,20 +104,29 @@
             </div>
         </form>
 
-        @if (session()->has('message'))
-            <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)" 
-                 class="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-md shadow-lg transition-opacity duration-300" 
-                 x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
-                {{ session('message') }}
+        <div x-data="{ showSuccess: false, showError: false, message: '' }" 
+             @profile-saved.window="showSuccess = true; message = $event.detail.message; setTimeout(() => { showSuccess = false; window.location.reload(); }, 1500)"
+             @profile-error.window="showError = true; message = $event.detail.message; setTimeout(() => showError = false, 5000)">
+            
+            <div x-show="showSuccess" x-transition:enter="transition ease-out duration-300" 
+                 x-transition:enter-start="opacity-0 transform translate-x-4" 
+                 x-transition:enter-end="opacity-100 transform translate-x-0"
+                 x-transition:leave="transition ease-in duration-300" 
+                 x-transition:leave-start="opacity-100" 
+                 x-transition:leave-end="opacity-0"
+                 class="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-md shadow-lg z-50">
+                <span x-text="message"></span>
             </div>
-        @endif
 
-        @if (session()->has('error'))
-            <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)" 
-                 class="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-md shadow-lg transition-opacity duration-300" 
-                 x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
-                {{ session('error') }}
+            <div x-show="showError" x-transition:enter="transition ease-out duration-300" 
+                 x-transition:enter-start="opacity-0 transform translate-x-4" 
+                 x-transition:enter-end="opacity-100 transform translate-x-0"
+                 x-transition:leave="transition ease-in duration-300" 
+                 x-transition:leave-start="opacity-100" 
+                 x-transition:leave-end="opacity-0"
+                 class="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-md shadow-lg z-50">
+                <span x-text="message"></span>
             </div>
-        @endif
+        </div>
     </main>
 </div>
