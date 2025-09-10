@@ -55,12 +55,12 @@
                         <div class="mt-2">
                             @if ($existing_logo && !$logo)
                                 <div class="mb-4">
-                                    <img src="{{ Storage::url($existing_logo) }}" alt="Logo" class="h-20 w-auto rounded">
+                                    <img src="{{ asset('storage/' . $existing_logo) }}" alt="Logo" class="h-20 w-auto rounded border border-zinc-200 dark:border-zinc-600">
                                 </div>
                             @endif
                             @if ($logo)
                                 <div class="mb-4">
-                                    <img src="{{ $logo->temporaryUrl() }}" alt="Logo Preview" class="h-20 w-auto rounded">
+                                    <img src="{{ $logo->temporaryUrl() }}" alt="Logo Preview" class="h-20 w-auto rounded border border-zinc-200 dark:border-zinc-600">
                                 </div>
                             @endif
                             <input type="file" wire:model="logo" accept="image/*"
@@ -76,12 +76,12 @@
                         <div class="mt-2">
                             @if ($existing_favicon && !$favicon)
                                 <div class="mb-4">
-                                    <img src="{{ Storage::url($existing_favicon) }}" alt="Favicon" class="h-10 w-auto rounded">
+                                    <img src="{{ asset('storage/' . $existing_favicon) }}" alt="Favicon" class="h-10 w-auto rounded border border-zinc-200 dark:border-zinc-600">
                                 </div>
                             @endif
                             @if ($favicon)
                                 <div class="mb-4">
-                                    <img src="{{ $favicon->temporaryUrl() }}" alt="Favicon Preview" class="h-10 w-auto rounded">
+                                    <img src="{{ $favicon->temporaryUrl() }}" alt="Favicon Preview" class="h-10 w-auto rounded border border-zinc-200 dark:border-zinc-600">
                                 </div>
                             @endif
                             <input type="file" wire:model="favicon" accept="image/*"

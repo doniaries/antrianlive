@@ -52,12 +52,12 @@
 
             <flux:navlist.group :heading="__('Pengaturan')" class="grid">
                 <flux:navlist.item icon="cog" :href="route('profil.index')"
-                    :current="request()->routeIs('profil.*')" wire:navigate>{{ __('Profil') }}
+                    :current="request()->routeIs('profil.*')" wire:navigate>{{ __('Profil Instansi') }}
                 </flux:navlist.item>
-                @if(auth()->check() && auth()->user()->role === 'superadmin')
-                <flux:navlist.item icon="users" :href="route('users.index')"
-                    :current="request()->routeIs('users.*')" wire:navigate>{{ __('User Management') }}
-                </flux:navlist.item>
+                @if (auth()->check() && auth()->user()->role === 'superadmin')
+                    <flux:navlist.item icon="users" :href="route('users.index')"
+                        :current="request()->routeIs('users.*')" wire:navigate>{{ __('Manajemen user') }}
+                    </flux:navlist.item>
                 @endif
             </flux:navlist.group>
 
@@ -117,7 +117,8 @@
 
                             <div class="grid flex-1 text-start text-sm leading-tight">
                                 <span class="truncate font-semibold">{{ auth()->user()?->name ?? 'User' }}</span>
-                            <span class="truncate text-xs">{{ auth()->user()?->email ?? 'user@example.com' }}</span>
+                                <span
+                                    class="truncate text-xs">{{ auth()->user()?->email ?? 'user@example.com' }}</span>
                             </div>
                         </div>
                     </div>
@@ -164,7 +165,8 @@
 
                             <div class="grid flex-1 text-start text-sm leading-tight">
                                 <span class="truncate font-semibold">{{ auth()->user()?->name ?? 'User' }}</span>
-                            <span class="truncate text-xs">{{ auth()->user()?->email ?? 'user@example.com' }}</span>
+                                <span
+                                    class="truncate text-xs">{{ auth()->user()?->email ?? 'user@example.com' }}</span>
                             </div>
                         </div>
                     </div>

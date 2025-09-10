@@ -61,7 +61,7 @@ class ProfilManager extends Component
                 if ($this->existing_logo) {
                     Storage::disk('public')->delete($this->existing_logo);
                 }
-                $profil->logo = $this->logo->store('profil', 'public');
+                $profil->logo = $this->logo->store('logo', 'public');
                 $this->existing_logo = $profil->logo;
             }
 
@@ -69,7 +69,7 @@ class ProfilManager extends Component
                 if ($this->existing_favicon) {
                     Storage::disk('public')->delete($this->existing_favicon);
                 }
-                $profil->favicon = $this->favicon->store('profil', 'public');
+                $profil->favicon = $this->favicon->store('favicon', 'public');
                 $this->existing_favicon = $profil->favicon;
             }
 
