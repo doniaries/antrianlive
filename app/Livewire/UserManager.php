@@ -97,7 +97,7 @@ class UserManager extends Component
             'name.string' => 'Nama lengkap harus berupa teks.',
             'name.max' => 'Nama lengkap maksimal 25 karakter.',
             'email.required' => 'Email wajib diisi.',
-            'email.email' => 'Format email tidak valid.',
+            'email.email' => 'Format email tidak valid. Pastikan email mengandung @ dan domain yang benar (contoh: nama@domain.com).',
             'email.unique' => 'Email sudah digunakan oleh user lain.',
             'password.required' => 'Password wajib diisi.',
             'password.string' => 'Password harus berupa teks.',
