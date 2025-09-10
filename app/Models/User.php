@@ -22,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -55,7 +56,43 @@ class User extends Authenticatable
         return Str::of($this->name)
             ->explode(' ')
             ->take(2)
-            ->map(fn ($word) => Str::substr($word, 0, 1))
+            ->map(fn($word) => Str::substr($word, 0, 1))
             ->implode('');
+    }
+
+    /**
+     * Relasi dengan layanan untuk petugas
+     */
+    public function services()
+    {
+        return $this->belongsToMany(Service::class, 'user_services');
+    }
+
+    /**
+     * Cek apakah user adalah superadmin
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'superadmin';
+    }
+
+    /**
+     * Cek apakah user adalah petugas
+     */
+    public function isPetugas(): bool
+    {
+        return $this->role === 'petugas';
+    }
+
+    /**
+     * Cek apakah user memiliki akses ke layanan tertentu
+     */
+    public function hasServiceAccess(int $serviceId): bool
+    {
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        return $this->services()->where('service_id', $serviceId)->exists();
     }
 }

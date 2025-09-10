@@ -236,11 +236,26 @@ class AntrianManager extends Component
                 // Default: only show waiting and called queues
                 $q->whereIn('status', ['waiting', 'called']);
             })
+            ->when(!auth()->user()->isSuperAdmin(), function ($q) {
+                // Filter untuk petugas: hanya tampilkan antrian dari layanan yang dimiliki
+                $user = auth()->user();
+                $serviceIds = $user->services()->pluck('services.id');
+                $q->whereIn('service_id', $serviceIds);
+            })
             ->orderBy('created_at', 'asc');
+
+        // Filter services untuk dropdown berdasarkan role
+        $services = Service::where('is_active', true)
+            ->when(!auth()->user()->isSuperAdmin(), function ($q) {
+                $user = auth()->user();
+                $serviceIds = $user->services()->pluck('services.id');
+                $q->whereIn('id', $serviceIds);
+            })
+            ->get();
 
         return view('livewire.antrian-manager', [
             'antrians' => $query->paginate(10),
-            'services' => Service::where('is_active', true)->get(),
+            'services' => $services,
             'counters' => Counter::all(),
         ]);
     }

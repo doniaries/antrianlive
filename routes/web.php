@@ -22,7 +22,7 @@ Route::post('/queue/ticket/take', function () {
 
     $service = \App\Models\Service::findOrFail($validated['service_id']);
     $counter = $validated['counter_id'] ? \App\Models\Counter::find($validated['counter_id']) : null;
-    
+
     // Generate nomor antrian
     $today = now()->format('Y-m-d');
     $lastAntrian = \App\Models\Antrian::where('service_id', $validated['service_id'])
@@ -68,26 +68,26 @@ Route::middleware([
     'verified',
 ])->group(function () {
     Route::get('/dashboard', \App\Livewire\DashboardStats::class)->name('dashboard');
-    
+
     // Route untuk Antrian - dikelompokkan
     Route::prefix('antrian')->group(function () {
         Route::get('/', \App\Livewire\AntrianManager::class)->name('antrian.index');
         Route::get('/list', \App\Livewire\AntrianManager::class)->name('antrians.index');
         Route::get('/selesai', \App\Livewire\AntrianManager::class)->name('antrian.selesai');
     });
-    
+
     // Route untuk Counter - dikelompokkan
     Route::prefix('counter')->group(function () {
         Route::get('/', \App\Livewire\CounterManager::class)->name('counter.index');
         Route::get('/list', \App\Livewire\CounterManager::class)->name('counters.index');
     });
-    
+
     // Route untuk Service - dikelompokkan
     Route::prefix('service')->group(function () {
         Route::get('/', \App\Livewire\ServiceManager::class)->name('service.index');
         Route::get('/list', \App\Livewire\ServiceManager::class)->name('services.index');
     });
-    
+
     // Route untuk Profil
     Route::get('/profile', \App\Livewire\ProfilManager::class)->name('profile.edit');
     Route::get('/profil', \App\Livewire\ProfilManager::class)->name('profil.index');
@@ -98,5 +98,10 @@ Route::middleware([
         Route::get('/password', \App\Livewire\Settings\Password::class)->name('settings.password');
         Route::get('/appearance', \App\Livewire\Settings\Appearance::class)->name('settings.appearance');
         Route::get('/delete-account', \App\Livewire\Settings\DeleteUserForm::class)->name('settings.delete-account');
+    });
+
+    // Route untuk User Management (hanya untuk superadmin)
+    Route::middleware(['role:superadmin'])->group(function () {
+        Route::get('/users', \App\Livewire\UserManager::class)->name('users.index');
     });
 });
