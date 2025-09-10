@@ -106,6 +106,16 @@
                                         </svg>
                                         Edit
                                     </button>
+                                    <button wire:click="resetPassword({{ $user->id }})" 
+                                            wire:confirm="Apakah Anda yakin ingin reset password user ini menjadi 'password123'?" 
+                                            class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105"
+                                            title="Reset Password"
+                                            @if(auth()->id() === $user->id) disabled @endif>
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2l-2-2V9l2-2h2l2-2h2l2 2h2a2 2 0 012 2z"/>
+                                        </svg>
+                                        Reset
+                                    </button>
                                     <button wire:click="deleteUser({{ $user->id }})" 
                                             wire:confirm="Apakah Anda yakin ingin menghapus user ini?" 
                                             class="inline-flex items-center text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition duration-150 ease-in-out"

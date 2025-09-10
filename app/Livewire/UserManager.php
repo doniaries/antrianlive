@@ -145,6 +145,25 @@ class UserManager extends Component
         session()->flash('message', 'User berhasil dihapus!');
     }
 
+    public function resetPassword($userId)
+    {
+        $user = User::findOrFail($userId);
+        
+        // Cegah reset password untuk akun sendiri
+        if ($user->id === auth()->id()) {
+            session()->flash('error', 'Tidak dapat reset password akun sendiri!');
+            return;
+        }
+
+        // Generate password baru
+        $newPassword = 'password123'; // Password default
+        $user->update([
+            'password' => bcrypt($newPassword)
+        ]);
+
+        session()->flash('message', 'Password user ' . $user->name . ' berhasil direset menjadi: ' . $newPassword);
+    }
+
     public function render()
     {
         $users = User::query()
