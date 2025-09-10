@@ -41,7 +41,7 @@ return [
     'doesnt_contain'         => 'Bidang :attribute tidak boleh berisi salah satu dari yang berikut: :values.',
     'doesnt_end_with'        => ':Attribute tidak boleh diakhiri dengan salah satu dari berikut ini: :values.',
     'doesnt_start_with'      => ':Attribute tidak boleh dimulai dengan salah satu dari berikut ini: :values.',
-    'email'                  => ':Attribute harus berupa alamat email yang valid. Pastikan email mengandung @ dan domain yang benar (contoh: nama@domain.com).',
+    'email'                  => ':Attribute harus berupa alamat surel yang valid.',
     'ends_with'              => ':Attribute harus diakhiri salah satu dari berikut: :values',
     'enum'                   => ':Attribute yang dipilih tidak valid.',
     'exists'                 => ':Attribute yang dipilih tidak valid.',

@@ -185,9 +185,7 @@
                         </svg>
                     </button>
 
-                    <form wire:submit.prevent="{{ $isEditMode ? 'update' : 'store' }}" x-data="{ submitting: false }"
-                        x-on:submit.stop="submitting = true; $nextTick(() => { $wire.{{ $isEditMode ? 'update' : 'store' }}().then((success) => { if(success) { showModal = false; } submitting = false; })); })"
-                        class="p-6">
+                    <form wire:submit.prevent="{{ $isEditMode ? 'update' : 'store' }}" x-data="{ submitting: false }" class="p-6">
                         <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                             {{ $isEditMode ? 'Edit Loket' : 'Tambah Loket' }}
                         </h3>
