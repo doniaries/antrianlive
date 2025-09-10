@@ -423,6 +423,9 @@
 
         // Handle form submission with AJAX
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize clock
+            initializeClock();
+
             const forms = document.querySelectorAll('.ticket-form');
 
             forms.forEach(form => {
@@ -515,6 +518,36 @@
                 });
             });
         });
+
+        // Update clock function
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('id-ID', {
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+
+            const dateString = now.toLocaleDateString('id-ID', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            const clockElement = document.getElementById('digital-clock');
+            const dateElement = document.getElementById('current-date');
+
+            if (clockElement) clockElement.textContent = timeString;
+            if (dateElement) dateElement.textContent = dateString;
+        }
+
+        // Initialize clock
+        function initializeClock() {
+            updateClock();
+            setInterval(updateClock, 1000);
+        }
 
         // Initialize Toast notifications
         const Toast = Swal.mixin({

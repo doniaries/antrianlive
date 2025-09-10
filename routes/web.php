@@ -38,8 +38,10 @@ Route::post('/queue/ticket/take', function () {
         'counter_id' => $validated['counter_id'],
         'queue_number' => $nextNumber,
         'formatted_number' => $formattedNumber,
-        'status' => 'pending',
+        'status' => 'waiting',
     ]);
+
+
 
     return response()->json([
         'success' => true,

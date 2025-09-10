@@ -112,197 +112,198 @@
 
 
         <!-- Filter Buttons -->
-        <div class="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 shadow-sm p-4 mb-4">
+        <div
+            class="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 shadow-sm p-4 mb-4">
             <div class="flex flex-wrap gap-2 items-center">
                 <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Filter:</span>
-                <button wire:click="$set('filterStatus', '')" 
+                <button wire:click="$set('filterStatus', '')"
                     class="px-3 py-1.5 text-xs font-medium rounded-full transition-colors duration-150 {{ empty($filterStatus) ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600' }}">
                     Semua
                 </button>
-                <button wire:click="$set('filterStatus', 'waiting')" 
+                <button wire:click="$set('filterStatus', 'waiting')"
                     class="px-3 py-1.5 text-xs font-medium rounded-full transition-colors duration-150 {{ $filterStatus === 'waiting' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600' }}">
                     Menunggu
                 </button>
-                <button wire:click="$set('filterStatus', 'called')" 
+                <button wire:click="$set('filterStatus', 'called')"
                     class="px-3 py-1.5 text-xs font-medium rounded-full transition-colors duration-150 {{ $filterStatus === 'called' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600' }}">
                     Dipanggil
                 </button>
-                <button wire:click="$set('filterStatus', 'finished')" 
+                <button wire:click="$set('filterStatus', 'finished')"
                     class="px-3 py-1.5 text-xs font-medium rounded-full transition-colors duration-150 {{ $filterStatus === 'finished' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600' }}">
                     Selesai & Lewati
                 </button>
-                <div class="ml-auto">
-                    <a href="{{ route('antrian.selesai') }}" 
+                {{-- <div class="ml-auto">
+                    <a href="{{ route('antrian.selesai') }}"
                         class="px-3 py-1.5 text-xs font-medium bg-purple-500 text-white rounded-full hover:bg-purple-600 transition-colors duration-150">
                         Lihat Selesai →
                     </a>
-                </div>
+                </div> --}}
             </div>
             <div class="mt-3 flex items-center gap-2">
                 <label class="text-sm text-zinc-600 dark:text-zinc-400">Tanggal:</label>
-                <input type="date" wire:model.live="filterDate" 
+                <input type="date" wire:model.live="filterDate"
                     class="px-2 py-1 text-xs border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-blue-500">
             </div>
         </div>
 
-        <!-- Antrians Tables by Service -->
-        @if($services->isEmpty())
-            <div class="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 shadow-sm p-8 text-center">
-                <svg class="w-12 h-12 text-zinc-400 dark:text-zinc-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
-                </svg>
-                <div class="text-zinc-500 dark:text-zinc-400">Tidak ada layanan yang tersedia</div>
-            </div>
-        @else
-            <div class="space-y-6">
-                @foreach($services as $service)
-                    @php
-                        $serviceAntrians = $antriansByService[$service->id] ?? collect([]);
-                        $hasActiveQueue = $serviceAntrians->where('status', 'called')->count() > 0;
-                        $firstWaiting = $serviceAntrians->where('status', 'waiting')->sortBy('queue_number')->first();
-                    @endphp
-                    
-                    @if($serviceAntrians->isNotEmpty())
-                        <div class="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 shadow-sm">
-                            <div class="px-6 py-4 border-b border-zinc-200 dark:border-zinc-700">
-                                <div class="flex items-center justify-between">
+        <!-- Antrians Table -->
+        <div class="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 shadow-sm">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-zinc-200 dark:divide-zinc-700">
+                    <thead class="bg-zinc-50 dark:bg-zinc-700">
+                        <tr>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                                Nomor Antrian
+                            </th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                                Layanan
+                            </th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                                Loket
+                            </th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                                Status
+                            </th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                                Waktu
+                            </th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                                Aksi
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-zinc-800 divide-y divide-zinc-200 dark:divide-zinc-700">
+                        @forelse($antrians as $antrian)
+                            <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
+                                <td
+                                    class="px-6 py-4 whitespace-nowrap font-bold text-lg text-zinc-900 dark:text-zinc-100">
+                                    {{ $antrian->formatted_number }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
                                     <div>
-                                        <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{{ $service->name }}</h3>
-                                        <div class="flex items-center mt-1">
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                                @php
-                                                    $serviceCode = $service->code;
-                                                    $colorMap = [
-                                                        'PU' => 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
-                                                        'PS' => 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-                                                        'PA' => 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+                                        <div class="font-medium text-sm">{{ $antrian->service->name }}</div>
+                                        <div
+                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                            @php
+$serviceCode = $antrian->service->code;
+
+                                                // Dynamic color generation based on service code
+                                                $colorMap = [
+                                                    'PU' => 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+                                                    'PS' => 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
+                                                    'PA' => 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+                                                ];
+
+                                                if (isset($colorMap[$serviceCode])) {
+                                                    $colorClass = $colorMap[$serviceCode];
+                                                } else {
+                                                    // Generate consistent color for unknown service codes
+                                                    $hash = crc32($serviceCode);
+                                                    $colors = [
+                                                        'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
+                                                        'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+                                                        'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-300',
+                                                        'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300',
+                                                        'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300',
+                                                        'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-300',
+                                                        'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-300',
+                                                        'bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-300',
                                                     ];
-                                                    
-                                                    if (isset($colorMap[$serviceCode])) {
-                                                        $colorClass = $colorMap[$serviceCode];
-                                                    } else {
-                                                        $hash = crc32($serviceCode);
-                                                        $colors = [
-                                                            'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
-                                                            'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-                                                            'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-300',
-                                                            'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300',
-                                                            'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300',
-                                                            'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-300',
-                                                            'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-300',
-                                                            'bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-300',
-                                                        ];
-                                                        $colorClass = $colors[abs($hash) % count($colors)];
-                                                    }
-                                                @endphp
-                                                {{ $colorClass }}
-                                            ">{{ $service->code }}</span>
-                                            <span class="ml-2 text-sm text-zinc-500 dark:text-zinc-400">
-                                                {{ $serviceAntrians->count() }} antrian
-                                            </span>
-                                        </div>
+                                                    $colorClass = $colors[abs($hash) % count($colors)];
+                                                } @endphp
+                                            {{ $colorClass }}
+                                        ">
+                                            {{ $antrian->service->code }}</div>
                                     </div>
-                                    @if($hasActiveQueue)
-                                        <div class="text-sm text-amber-600 dark:text-amber-400">
-                                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                                            </svg>
-                                            Antrian aktif
-                                        </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-900 dark:text-zinc-100">
+                                    @if ($antrian->counter)
+                                        {{ $antrian->counter->name }}
+                                    @else
+                                        <span class="text-zinc-500 dark:text-zinc-400">-</span>
                                     @endif
-                                </div>
-                            </div>
-                            
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-zinc-200 dark:divide-zinc-700">
-                                    <thead class="bg-zinc-50 dark:bg-zinc-700">
-                                        <tr>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                                                Nomor Antrian
-                                            </th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                                                Loket
-                                            </th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                                                Status
-                                            </th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                                                Waktu
-                                            </th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                                                Aksi
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white dark:bg-zinc-800 divide-y divide-zinc-200 dark:divide-zinc-700">
-                                        @foreach($serviceAntrians as $antrian)
-                                            <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-700">
-                                                <td class="px-6 py-4 whitespace-nowrap font-bold text-lg text-zinc-900 dark:text-zinc-100">
-                                                    {{ $antrian->formatted_number }}
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-900 dark:text-zinc-100">
-                                                    @if ($antrian->counter)
-                                                        {{ $antrian->counter->name }}
-                                                    @else
-                                                        <span class="text-zinc-500 dark:text-zinc-400">-</span>
-                                                    @endif
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $antrian->status === 'waiting' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' : ($antrian->status === 'called' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' : ($antrian->status === 'finished' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-zinc-100 text-zinc-800 dark:bg-zinc-700 dark:text-zinc-300')) }}">
-                                                        {{ $antrian->status === 'waiting' ? 'Menunggu' : ($antrian->status === 'called' ? 'Dipanggil' : ($antrian->status === 'finished' ? 'Selesai' : 'Dilewati')) }}
-                                                    </span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400">
-                                                    <div class="text-sm">
-                                                        <div>{{ $antrian->created_at->format('d/m/Y') }}</div>
-                                                        <div>{{ $antrian->created_at->format('H:i:s') }}</div>
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                    <div class="flex flex-col gap-2">
-                                                        @if ($antrian->status === 'waiting')
-                                                            @php
-                                                                $isFirstWaiting = $antrian->id === $firstWaiting?->id;
-                                                            @endphp
-                                                            <button
-                                                                wire:click="callNext({{ $antrian->id }}, {{ $antrian->service_id }}, {{ $antrian->counter_id ?? 1 }})"
-                                                                class="w-full px-3 py-1.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-md hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-100 dark:disabled:hover:bg-blue-900"
-                                                                title="Panggil"
-                                                                @if($hasActiveQueue || !$isFirstWaiting) disabled @endif>
-                                                                Panggil
-                                                            </button>
-                                                        @elseif($antrian->status === 'called')
-                                                            <button wire:click="recall({{ $antrian->id }})"
-                                                                class="w-full px-3 py-1.5 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-md hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-200 dark:hover:bg-yellow-800 transition-colors"
-                                                                title="Panggil Ulang">
-                                                                Panggil Ulang
-                                                            </button>
-                                                            
-                                                            <div class="flex gap-2">
-                                                                <button wire:click="skip({{ $antrian->id }})"
-                                                                    class="flex-1 px-3 py-1.5 text-xs font-medium bg-orange-500 text-white rounded-md hover:bg-orange-600 dark:bg-orange-600 dark:hover:bg-orange-700 transition-colors"
-                                                                    title="Lewati">
-                                                                    Lewati
-                                                                </button>
-                                                                <button wire:click="finish({{ $antrian->id }})"
-                                                                    class="flex-1 px-3 py-1.5 text-xs font-medium bg-green-500 text-white rounded-md hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 transition-colors"
-                                                                    title="Selesai">
-                                                                    Selesai
-                                                                </button>
-                                                            </div>
-                                                        @endif
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    @endif
-                @endforeach
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $antrian->status === 'waiting' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' : ($antrian->status === 'called' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300' : ($antrian->status === 'finished' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-zinc-100 text-zinc-800 dark:bg-zinc-700 dark:text-zinc-300')) }}">
+                                        {{ $antrian->status === 'waiting' ? 'Menunggu' : ($antrian->status === 'called' ? 'Dipanggil' : ($antrian->status === 'finished' ? 'Selesai' : 'Dilewati')) }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400">
+                                    <div class="text-sm">
+                                        <div>{{ $antrian->created_at->format('d/m/Y') }}</div>
+                                        <div>{{ $antrian->created_at->format('H:i:s') }}</div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex flex-col gap-2">
+                                        @if ($antrian->status === 'waiting')
+                                            @php
+                                                $hasActiveQueue =
+                                                    $antrians
+                                                        ->where('service_id', $antrian->service_id)
+                                                        ->where('counter_id', $antrian->counter_id)
+                                                        ->where('status', 'called')
+                                                        ->where('id', '!=', $antrian->id)
+                                                        ->count() > 0;
+                                            @endphp
+                                            <button
+                                                wire:click="callNext({{ $antrian->id }}, {{ $antrian->service_id }}, {{ $antrian->counter_id ?? 1 }})"
+                                                class="w-full px-3 py-1.5 text-xs font-medium bg-blue-100 text-blue-800 rounded-md hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-100 dark:disabled:hover:bg-blue-900"
+                                                title="Panggil" @if ($hasActiveQueue) disabled @endif>
+                                                Panggil
+                                            </button>
+                                        @elseif($antrian->status === 'called')
+                                            <button wire:click="recall({{ $antrian->id }})"
+                                                class="w-full px-3 py-1.5 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-md hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-200 dark:hover:bg-yellow-800 transition-colors"
+                                                title="Panggil Ulang">
+                                                Panggil Ulang
+                                            </button>
+
+                                            <div class="flex gap-2">
+                                                <button wire:click="skip({{ $antrian->id }})"
+                                                    class="flex-1 px-3 py-1.5 text-xs font-medium bg-orange-500 text-white rounded-md hover:bg-orange-600 dark:bg-orange-600 dark:hover:bg-orange-700 transition-colors"
+                                                    title="Lewati">
+                                                    Lewati
+                                                </button>
+                                                <button wire:click="finish({{ $antrian->id }})"
+                                                    class="flex-1 px-3 py-1.5 text-xs font-medium bg-green-500 text-white rounded-md hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 transition-colors"
+                                                    title="Selesai">
+                                                    Selesai
+                                                </button>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="px-6 py-8 text-center">
+                                    <svg class="w-12 h-12 text-zinc-400 dark:text-zinc-500 mx-auto mb-2"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4">
+                                        </path>
+                                    </svg>
+                                    <div class="text-zinc-500 dark:text-zinc-400">Tidak ada antrian</div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
-        @endif
+
+            <!-- Pagination -->
+            <div class="mt-4">
+                {{ $antrians->links() }}
+            </div>
+        </div>
 
         <!-- Modal -->
         @if ($showModal)
