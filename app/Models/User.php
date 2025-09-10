@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
+use Lab404\Impersonate\Models\Impersonate;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, Impersonate;
 
     /**
      * The attributes that are mass assignable.
@@ -94,5 +95,10 @@ class User extends Authenticatable
         }
 
         return $this->services()->where('service_id', $serviceId)->exists();
+    }
+
+    public function canBeImpersonated(): bool
+    {
+        return ! $this->is_admin();
     }
 }

@@ -21,6 +21,7 @@ class UserManager extends Component
     public $userId = null;
     public $search = '';
     public $showModal = false;
+    public $isEditMode = false;
 
     protected $rules = [
         'name' => 'required|string|max:255',
@@ -42,24 +43,34 @@ class UserManager extends Component
         $this->resetPage();
     }
 
-    public function openModal($userId = null)
+    public function openModal()
+    {
+        $this->resetInputFields();
+        $this->isEditMode = false;
+        $this->showModal = true;
+    }
+
+    public function edit($userId)
     {
         $this->resetValidation();
+        $user = User::findOrFail($userId);
         $this->userId = $userId;
-        
-        if ($userId) {
-            $user = User::findOrFail($userId);
-            $this->name = $user->name;
-            $this->email = $user->email;
-            $this->role = $user->role;
-            $this->selectedServices = $user->services->pluck('id')->toArray();
-            $this->password = ''; // Password tidak ditampilkan untuk update
-        } else {
-            $this->reset(['name', 'email', 'password', 'role', 'selectedServices']);
-            $this->role = 'petugas';
-        }
-        
+        $this->name = $user->name;
+        $this->email = $user->email;
+        $this->role = $user->role;
+        $this->selectedServices = $user->services->pluck('id')->toArray();
+        $this->password = ''; // Password tidak ditampilkan untuk update
+        $this->isEditMode = true;
         $this->showModal = true;
+    }
+
+    public function resetInputFields()
+    {
+        $this->reset(['name', 'email', 'password', 'role', 'selectedServices', 'userId']);
+        $this->role = 'petugas';
+        $this->selectedServices = [];
+        $this->isEditMode = false;
+        $this->resetValidation();
     }
 
     public function closeModal()
@@ -79,7 +90,19 @@ class UserManager extends Component
 
     public function createUser()
     {
-        $this->validate();
+        $rules = [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|string|min:8',
+            'role' => 'required|in:superadmin,petugas',
+        ];
+
+        if ($this->role === 'petugas') {
+            $rules['selectedServices'] = 'required|array|min:1';
+            $rules['selectedServices.*'] = 'exists:services,id';
+        }
+
+        $this->validate($rules);
 
         $user = User::create([
             'name' => $this->name,
@@ -98,9 +121,17 @@ class UserManager extends Component
 
     public function updateUser()
     {
-        $rules = $this->rulesUpdate;
-        $rules['email'] = ['required', 'email', Rule::unique('users')->ignore($this->userId)];
-        
+        $rules = [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $this->userId,
+            'role' => 'required|in:superadmin,petugas',
+        ];
+
+        if ($this->role === 'petugas') {
+            $rules['selectedServices'] = 'required|array|min:1';
+            $rules['selectedServices.*'] = 'exists:services,id';
+        }
+
         $this->validate($rules);
 
         $user = User::findOrFail($this->userId);

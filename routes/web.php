@@ -10,6 +10,9 @@ Route::get('/welcome', function () {
     return view('welcome');
 })->name('welcome.original');
 
+Route::impersonate();
+
+
 // Route untuk ambil tiket (public access)
 Route::get('/ambil-tiket', \App\Livewire\AmbilTiket::class)->name('ambil.tiket');
 
