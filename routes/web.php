@@ -59,12 +59,14 @@ Route::post('/queue/ticket/take', function () {
 
 // Route untuk display antrian (public access)
 Route::get('/display', function () {
-    return view('display');
+    $profil = \App\Models\Profil::first();
+    return view('display', compact('profil'));
 })->name('display');
 
 // Route untuk tiket front (alternatif tampilan ambil tiket)
 Route::get('/tiket-front', function () {
-    return view('tiket-front');
+    $profil = \App\Models\Profil::first();
+    return view('tiket-front', compact('profil'));
 })->name('tiket.front');
 
 require __DIR__ . '/auth.php';

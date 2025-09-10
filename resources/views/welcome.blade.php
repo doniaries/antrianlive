@@ -17,9 +17,13 @@
         }
     </script>
 
-    <link rel="icon" href="/favicon.ico" sizes="any">
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    @php
+        $profil = \App\Models\Profil::first();
+        $faviconUrl = $profil && $profil->favicon ? asset('storage/' . $profil->favicon) : '/favicon.ico';
+    @endphp
+    <link rel="icon" href="{{ $faviconUrl }}" sizes="any">
+    <link rel="icon" href="{{ $faviconUrl }}" type="image/x-icon">
+    <link rel="apple-touch-icon" href="{{ $faviconUrl }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
