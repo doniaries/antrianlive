@@ -25,6 +25,9 @@ class AntrianManager extends Component
     public $filterStatus = '';
     public $filterDate = '';
 
+    // Properti untuk dashboard
+    public $currentDate;
+
     protected $rules = [
         'selectedService' => 'required|exists:services,id',
         'selectedCounter' => 'nullable|exists:counters,id',
@@ -42,6 +45,7 @@ class AntrianManager extends Component
     public function mount()
     {
         $this->filterDate = now()->format('Y-m-d');
+        $this->currentDate = Carbon::today()->format('Y-m-d');
     }
 
     public function openModal()
@@ -92,7 +96,121 @@ class AntrianManager extends Component
         $this->closeModal();
     }
 
+    // Method untuk fitur dashboard
+    public function getCountersProperty()
+    {
+        return Counter::with(['services'])
+            ->orderBy('name')
+            ->get();
+    }
 
+    public function getCurrentQueuesProperty()
+    {
+        return Antrian::query()
+            ->with(['service', 'counter'])
+            ->whereDate('created_at', $this->currentDate)
+            ->whereIn('status', ['waiting', 'called'])
+            ->orderBy('service_id')
+            ->orderBy('queue_number')
+            ->get()
+            ->groupBy('service_id');
+    }
+
+    public function getCalledQueuesProperty()
+    {
+        return Antrian::query()
+            ->with(['service', 'counter'])
+            ->whereDate('created_at', $this->currentDate)
+            ->where('status', 'called')
+            ->orderBy('called_at', 'desc')
+            ->limit(10)
+            ->get();
+    }
+
+    public function getWaitingQueuesProperty()
+    {
+        return Antrian::query()
+            ->with(['service', 'counter'])
+            ->whereDate('created_at', $this->currentDate)
+            ->where('status', 'waiting')
+            ->orderBy('service_id')
+            ->orderBy('queue_number')
+            ->limit(20)
+            ->get()
+            ->groupBy('service_id');
+    }
+
+    public function getStatisticsProperty()
+    {
+        $today = Carbon::today();
+        
+        return [
+            'total_today' => Antrian::whereDate('created_at', $today)->count(),
+            'waiting' => Antrian::whereDate('created_at', $today)->where('status', 'waiting')->count(),
+            'called' => Antrian::whereDate('created_at', $today)->where('status', 'called')->count(),
+            'finished' => Antrian::whereDate('created_at', $today)->where('status', 'finished')->count(),
+            'skipped' => Antrian::whereDate('created_at', $today)->where('status', 'skipped')->count(),
+        ];
+    }
+
+    public function getNextQueue($serviceId)
+    {
+        return Antrian::query()
+            ->with(['service', 'counter'])
+            ->where('service_id', $serviceId)
+            ->whereDate('created_at', $this->currentDate)
+            ->where('status', 'waiting')
+            ->orderBy('queue_number')
+            ->first();
+    }
+
+    public function callNextFromDashboard($serviceId, $counterId)
+    {
+        $nextAntrian = Antrian::query()
+            ->where('service_id', $serviceId)
+            ->whereDate('created_at', $this->currentDate)
+            ->where('status', 'waiting')
+            ->orderBy('queue_number')
+            ->first();
+
+        if ($nextAntrian) {
+            $nextAntrian->update([
+                'counter_id' => $counterId,
+                'status' => 'called',
+                'called_at' => now(),
+            ]);
+
+            $this->dispatch('refresh-dashboard');
+            
+            // Emit event for sound notification
+            $this->dispatch('queue-called', [
+                'number' => $nextAntrian->formatted_number,
+                'counter' => $nextAntrian->counter?->name ?? 'Loket',
+                'service' => $nextAntrian->service->name,
+            ]);
+        }
+    }
+
+    public function finishQueueFromDashboard($id)
+    {
+        $antrian = Antrian::findOrFail($id);
+        $antrian->update([
+            'status' => 'finished',
+            'finished_at' => now(),
+        ]);
+
+        $this->dispatch('refresh-dashboard');
+    }
+
+    public function skipQueueFromDashboard($id)
+    {
+        $antrian = Antrian::findOrFail($id);
+        $antrian->update([
+            'status' => 'skipped',
+        ]);
+
+        $this->dispatch('refresh-dashboard');
+    }
 
     public function getServicesProperty()
     {
@@ -257,6 +375,10 @@ class AntrianManager extends Component
             'antrians' => $query->paginate(10),
             'services' => $services,
             'counters' => Counter::all(),
+            'currentQueues' => $this->currentQueues,
+            'calledQueues' => $this->calledQueues,
+            'waitingQueues' => $this->waitingQueues,
+            'statistics' => $this->statistics,
         ]);
     }
 
@@ -301,13 +423,15 @@ class AntrianManager extends Component
     }
 
     #[\Livewire\Attributes\On('delete')]
-    public function handleDelete($antrianId)
+    public function delete($antrianId)
     {
-        try {
-            $this->delete($antrianId);
-        } catch (\Exception $e) {
-            $this->dispatch('error', message: $e->getMessage());
-        }
+        $antrian = Antrian::findOrFail($antrianId);
+        $antrian->delete();
+        
+        $this->dispatch('notify', [
+            'type' => 'success',
+            'message' => 'Antrian berhasil dihapus'
+        ]);
     }
 
     #[\Livewire\Attributes\On('ticket-created')]
@@ -315,5 +439,11 @@ class AntrianManager extends Component
     {
         // Refresh data when new ticket is created
         $this->render();
+    }
+
+    #[\Livewire\Attributes\On('refresh-dashboard')]
+    public function refreshDashboard()
+    {
+        // This method will trigger re-rendering for dashboard
     }
 }

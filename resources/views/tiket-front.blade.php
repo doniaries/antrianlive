@@ -383,6 +383,22 @@
             return audio.play().catch(e => console.log('Audio play failed:', e));
         }
 
+        // Global audio functions for consistency with antrian manager
+        window.playCallSound = function() {
+            return playSuccessSound();
+        };
+
+        window.speakNumber = function(number) {
+            // Text-to-speech for consistency
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(number);
+                utterance.lang = 'id-ID';
+                utterance.rate = 0.8;
+                utterance.pitch = 1;
+                speechSynthesis.speak(utterance);
+            }
+        };
+
         // Confetti effect
         function triggerConfetti() {
             const duration = 3 * 1000;

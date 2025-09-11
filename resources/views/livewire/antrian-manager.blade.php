@@ -81,7 +81,6 @@
     <!-- Auto refresh indicator -->
     <div wire:poll.3000ms class="hidden"></div>
 
-
     <main class="p-4 sm:p-6 space-y-6">
         <!-- Flash Messages -->
         @if (session()->has('message'))
@@ -140,8 +139,6 @@
             </div>
         </div>
 
-
-
         <!-- Filter Buttons -->
         <div
             class="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 shadow-sm p-4 mb-4">
@@ -163,12 +160,6 @@
                     class="px-3 py-1.5 text-xs font-medium rounded-full transition-colors duration-150 {{ $filterStatus === 'finished' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600' }}">
                     Selesai & Lewati
                 </button>
-                {{-- <div class="ml-auto">
-                    <a href="{{ route('antrian.selesai') }}"
-                        class="px-3 py-1.5 text-xs font-medium bg-purple-500 text-white rounded-full hover:bg-purple-600 transition-colors duration-150">
-                        Lihat Selesai →
-                    </a>
-                </div> --}}
             </div>
             <div class="mt-3 flex items-center gap-2">
                 <label class="text-sm text-zinc-600 dark:text-zinc-400">Tanggal:</label>
@@ -223,8 +214,6 @@
                                             class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                                             @php
 $serviceCode = $antrian->service->code;
-
-                                                // Dynamic color generation based on service code
                                                 $colorMap = [
                                                     'PU' => 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
                                                     'PS' => 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -234,7 +223,6 @@ $serviceCode = $antrian->service->code;
                                                 if (isset($colorMap[$serviceCode])) {
                                                     $colorClass = $colorMap[$serviceCode];
                                                 } else {
-                                                    // Generate consistent color for unknown service codes
                                                     $hash = crc32($serviceCode);
                                                     $colors = [
                                                         'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
@@ -336,78 +324,78 @@ $serviceCode = $antrian->service->code;
             </div>
         </div>
 
-        <!-- Modal -->
-        @if ($showModal)
-            <div class="fixed inset-0 z-50 overflow-hidden" x-cloak>
-                <div class="absolute inset-0 bg-black/50 transition-opacity duration-300" wire:click="closeModal">
-                </div>
-                <div class="fixed inset-0 flex items-center justify-center p-4">
-                    <div class="relative w-full max-w-md">
-                        <div class="transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-2xl">
+    </main>
 
-                            <!-- Close button -->
-                            <button wire:click="closeModal"
-                                class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-150">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12"></path>
-                                </svg>
-                            </button>
+    <!-- Modal -->
+    @if ($showModal)
+        <div class="fixed inset-0 z-50 overflow-hidden" x-cloak>
+            <div class="absolute inset-0 bg-black/50 transition-opacity duration-300" wire:click="closeModal">
+            </div>
+            <div class="fixed inset-0 flex items-center justify-center p-4">
+                <div class="relative w-full max-w-md">
+                    <div class="transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-2xl">
 
-                            <form wire:submit.prevent="create" class="p-6">
-                                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                                    Tambah Antrian
-                                </h3>
+                        <!-- Close button -->
+                        <button wire:click="closeModal"
+                            class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-150">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
 
-                                <div class="space-y-5">
-                                    <div>
-                                        <label
-                                            class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                            Layanan
-                                        </label>
-                                        <select wire:model="selectedService" required
-                                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-150">
-                                            <option value="">Pilih Layanan</option>
-                                            @foreach ($services as $service)
-                                                <option value="{{ $service->id }}">{{ $service->name }}
-                                                    ({{ $service->code }})
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
+                        <form wire:submit.prevent="create" class="p-6">
+                            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                                Tambah Antrian
+                            </h3>
 
-                                    <div>
-                                        <label
-                                            class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                            Loket (Opsional)
-                                        </label>
-                                        <select wire:model="selectedCounter"
-                                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-150">
-                                            <option value="">Pilih Loket</option>
-                                            @foreach ($counters as $counter)
-                                                <option value="{{ $counter->id }}">{{ $counter->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-
-
+                            <div class="space-y-5">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                        Layanan
+                                    </label>
+                                    <select wire:model="selectedService" required
+                                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-150">
+                                        <option value="">Pilih Layanan</option>
+                                        @foreach ($services as $service)
+                                            <option value="{{ $service->id }}">{{ $service->name }}
+                                                ({{ $service->code }})
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
 
-                                <div class="flex justify-end space-x-3 mt-8">
-                                    <button type="button" wire:click="closeModal"
-                                        class="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl transition-colors duration-150">
-                                        Batal
-                                    </button>
-                                    <button type="submit"
-                                        class="px-5 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
-                                        Simpan
-                                    </button>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                        Loket (Opsional)
+                                    </label>
+                                    <select wire:model="selectedCounter"
+                                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-150">
+                                        <option value="">Pilih Loket</option>
+                                        @foreach ($counters as $counter)
+                                            <option value="{{ $counter->id }}">{{ $counter->name }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
-                            </form>
-                        </div>
+
+                            </div>
+
+                            <div class="flex justify-end space-x-3 mt-8">
+                                <button type="button" wire:click="closeModal"
+                                    class="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl transition-colors duration-150">
+                                    Batal
+                                </button>
+                                <button type="submit"
+                                    class="px-5 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                                    Simpan
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
-        @endif
+            </div>
+        </div>
+    @endif
 </div>
 
 @push('scripts')
@@ -420,26 +408,25 @@ $serviceCode = $antrian->service->code;
         function showToast(type, message) {
             const toast = document.createElement('div');
             toast.className = `fixed top-4 right-4 px-6 py-4 rounded-lg shadow-lg text-white ${
-            type === 'success' ? 'bg-green-500' :
-            type === 'error' ? 'bg-red-500' :
-            type === 'warning' ? 'bg-amber-500' : 'bg-blue-500'
-        }`;
+                type === 'success' ? 'bg-green-500' :
+                type === 'error' ? 'bg-red-500' :
+                type === 'warning' ? 'bg-amber-500' : 'bg-blue-500'
+            }`;
 
             toast.innerHTML = `
-            <div class="flex items-center">
-                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    ${type === 'success' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>' : ''}
-                    ${type === 'error' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>' : ''}
-                    ${type === 'warning' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>' : ''}
-                    ${type === 'info' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>' : ''}
-                </svg>
-                <span>${message}</span>
-            </div>
-        `;
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        ${type === 'success' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>' : ''}
+                        ${type === 'error' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>' : ''}
+                        ${type === 'warning' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>' : ''}
+                        ${type === 'info' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>' : ''}
+                    </svg>
+                    <span>${message}</span>
+                </div>
+            `;
 
             document.body.appendChild(toast);
 
-            // Hapus toast setelah 5 detik
             setTimeout(() => {
                 toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
                 setTimeout(() => toast.remove(), 500);
@@ -449,7 +436,7 @@ $serviceCode = $antrian->service->code;
         // Fungsi untuk memainkan suara panggilan
         function playCallSound() {
             try {
-                callSound.currentTime = 0; // Reset audio ke awal
+                callSound.currentTime = 0;
                 return callSound.play();
             } catch (e) {
                 console.error('Error playing sound:', e);
@@ -463,7 +450,6 @@ $serviceCode = $antrian->service->code;
                 const currentCall = document.getElementById('currentCall');
                 if (!currentCall) return;
 
-                // Update UI
                 const numberEl = document.getElementById('currentNumber');
                 const serviceEl = document.getElementById('currentService');
                 const counterEl = document.getElementById('currentCounter');
@@ -472,19 +458,14 @@ $serviceCode = $antrian->service->code;
                 if (serviceEl) serviceEl.textContent = service;
                 if (counterEl) counterEl.textContent = counter;
 
-                // Tampilkan popup
                 currentCall.classList.remove('hidden');
 
-                // Mainkan suara bell dan baca nomor
                 playCallSound().then(() => {
-                    // Setelah bell selesai, baca nomor antrian
-                    // Gunakan setTimeout untuk memastikan audio sebelumnya selesai
                     setTimeout(() => {
                         speakNumber(number, service, counter);
                     }, 100);
                 }).catch(error => {
                     console.error('Error playing call sound:', error);
-                    // Tetap lanjutkan ke speakNumber meskipun ada error
                     setTimeout(() => {
                         speakNumber(number, service, counter);
                     }, 100);
@@ -502,25 +483,17 @@ $serviceCode = $antrian->service->code;
             }
         }
 
-        // Fungsi untuk memanggil nomor antrian
-        function callNumber(number, service, counter) {
-            showCurrentCall(number, service, counter);
-        }
-
         // Fungsi untuk membaca nomor antrian dengan Web Speech API
         function speakNumber(number, service, counter) {
             try {
                 if (!speechSynthesis) return;
 
-                // Hentikan semua ucapan yang sedang berlangsung
                 speechSynthesis.cancel();
 
-                // Format nomor untuk diucapkan (contoh: A-001 menjadi "A nol nol satu")
                 const numberParts = number.split('-');
                 const prefix = numberParts[0];
                 const queueNumber = numberParts[1] || '';
 
-                // Konversi angka ke kata-kata
                 const numberToWords = (num) => {
                     const ones = ['', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'delapan', 'sembilan'];
                     const tens = ['', 'sepuluh', 'dua puluh', 'tiga puluh', 'empat puluh', 'lima puluh',
@@ -539,14 +512,11 @@ $serviceCode = $antrian->service->code;
                     return tens[ten] + (one ? ' ' + ones[one] : '');
                 };
 
-                // Format teks yang akan diucapkan
                 let numberText = '';
                 if (prefix) {
-                    // Ucapkan huruf per huruf untuk prefix (misal: A, B, C)
                     numberText += prefix.split('').join(' ') + ' ';
                 }
 
-                // Ucapkan nomor antrian per digit
                 const digits = queueNumber.split('');
                 const digitWords = digits.map(d => {
                     const num = parseInt(d);
@@ -557,13 +527,11 @@ $serviceCode = $antrian->service->code;
 
                 const textToSpeak = `Nomor antrian ${numberText}, silakan menuju ${counter}`;
 
-                // Buat objek ucapan
                 const utterance = new SpeechSynthesisUtterance(textToSpeak);
                 utterance.lang = 'id-ID';
                 utterance.rate = 0.9;
                 utterance.pitch = 1.0;
 
-                // Handle voices loading
                 const speakWithVoice = () => {
                     try {
                         const voices = speechSynthesis.getVoices();
@@ -574,24 +542,20 @@ $serviceCode = $antrian->service->code;
                             utterance.voice = femaleVoice || voices[0];
                         }
 
-                        // Tambahkan event handler untuk error
                         utterance.onerror = (event) => {
                             console.error('Error in speech synthesis:', event);
                         };
 
-                        // Mainkan ucapan
                         speechSynthesis.speak(utterance);
                     } catch (error) {
                         console.error('Error in speakWithVoice:', error);
                     }
                 };
 
-                // Pastikan voices sudah dimuat
                 if (speechSynthesis.onvoiceschanged !== undefined) {
                     speechSynthesis.onvoiceschanged = speakWithVoice;
                 }
 
-                // Coba langsung dulu, jika voices belum siap, akan dihandle oleh onvoiceschanged
                 speakWithVoice();
 
             } catch (error) {
@@ -599,46 +563,60 @@ $serviceCode = $antrian->service->code;
             }
         }
 
+        // Fungsi baru untuk memainkan suara dari dashboard
+        function playQueueSound(number, service, counter) {
+            try {
+                playCallSound().then(() => {
+                    setTimeout(() => {
+                        speakNumber(number, service, counter);
+                    }, 100);
+                }).catch(error => {
+                    console.error('Error playing queue sound:', error);
+                    setTimeout(() => {
+                        speakNumber(number, service, counter);
+                    }, 100);
+                });
+            } catch (error) {
+                console.error('Error in playQueueSound:', error);
+            }
+        }
+
+        // Fungsi global untuk memanggil antrian dengan suara
+        window.handleQueueCall = function(number, service, counter) {
+            playQueueSound(number, service, counter);
+        };
+
         // Event listener untuk Livewire
         document.addEventListener('livewire:initialized', () => {
-            // Event untuk panggilan antrian
             Livewire.on('antrian-called', (event) => {
-                // Gunakan setTimeout untuk memastikan event loop selesai
                 setTimeout(() => {
                     showCurrentCall(event.detail.number, event.detail.service, event.detail
                         .counter);
                 }, 100);
             });
 
-            // Event untuk notifikasi
             Livewire.on('notify', (event) => {
-                // Gunakan setTimeout untuk memastikan event loop selesai
                 setTimeout(() => {
                     showToast(event.detail.type, event.detail.message);
                 }, 100);
             });
 
-            // Event untuk call-queue
             Livewire.on('call-queue', (event) => {
-                // Gunakan setTimeout untuk memastikan event loop selesai
                 setTimeout(() => {
                     showCurrentCall(event.detail.number, event.detail.service, event.detail
                         .counter);
                 }, 100);
             });
 
-            // Event untuk error
             Livewire.on('error', (event) => {
-                // Gunakan setTimeout untuk memastikan event loop selesai
                 setTimeout(() => {
                     showToast('error', event.detail.message);
                 }, 100);
             });
         });
 
-        // Inisialisasi voices saat dimuat
+        // Inisialisasi voices
         if (speechSynthesis) {
-            // Beberapa browser membutuhkan event voiceschanged
             if (speechSynthesis.onvoiceschanged !== undefined) {
                 speechSynthesis.onvoiceschanged = function() {
                     console.log('Voices loaded');
@@ -647,4 +625,3 @@ $serviceCode = $antrian->service->code;
         }
     </script>
 @endpush
-</div>
