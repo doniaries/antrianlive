@@ -403,6 +403,38 @@ $serviceCode = $antrian->service->code;
         // Inisialisasi audio element
         const callSound = document.getElementById('callSound');
         let speechSynthesis = window.speechSynthesis;
+        let audioInitialized = false;
+
+        // Fungsi untuk inisialisasi audio (untuk menghindari blokir autoplay)
+        function initializeAudio() {
+            if (audioInitialized) return Promise.resolve();
+
+            return new Promise((resolve, reject) => {
+                try {
+                    // Set volume ke 0 untuk inisialisasi
+                    callSound.volume = 0;
+                    callSound.play().then(() => {
+                        callSound.pause();
+                        callSound.currentTime = 0;
+                        callSound.volume = 1; // Kembalikan volume ke normal
+                        audioInitialized = true;
+                        console.log('Audio initialized successfully');
+                        resolve();
+                    }).catch(error => {
+                        console.log('Audio initialization failed, will try on user interaction:', error);
+                        resolve(); // Tetap resolve agar tidak block
+                    });
+                } catch (error) {
+                    console.log('Audio initialization error:', error);
+                    resolve();
+                }
+            });
+        }
+
+        // Inisialisasi audio saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeAudio();
+        });
 
         // Fungsi untuk menampilkan notifikasi toast
         function showToast(type, message) {
@@ -433,11 +465,54 @@ $serviceCode = $antrian->service->code;
             }, 5000);
         }
 
-        // Fungsi untuk memainkan suara panggilan
-        function playCallSound() {
+        // Fungsi untuk memainkan suara panggilan dengan penanganan error yang lebih baik
+        async function playCallSound() {
             try {
+                // Jika audio belum diinisialisasi, coba inisialisasi terlebih dahulu
+                if (!audioInitialized) {
+                    await initializeAudio();
+                }
+
+                // Reset audio ke awal
                 callSound.currentTime = 0;
-                return callSound.play();
+
+                // Coba mainkan audio
+                const playPromise = callSound.play();
+
+                if (playPromise !== undefined) {
+                    return playPromise.catch(error => {
+                        console.warn('Audio play failed:', error);
+                        // Jika gagal karena autoplay policy, coba lagi dengan user gesture
+                        return new Promise((resolve) => {
+                            // Tambahkan event listener untuk user interaction
+                            const playOnInteraction = () => {
+                                callSound.play().then(() => {
+                                    console.log('Audio played after user interaction');
+                                    resolve();
+                                }).catch(err => {
+                                    console.error('Audio still failed after interaction:',
+                                        err);
+                                    resolve(); // Tetap resolve agar tidak block
+                                });
+                                document.removeEventListener('click', playOnInteraction);
+                                document.removeEventListener('touchstart', playOnInteraction);
+                            };
+
+                            document.addEventListener('click', playOnInteraction, {
+                                once: true
+                            });
+                            document.addEventListener('touchstart', playOnInteraction, {
+                                once: true
+                            });
+
+                            // Tampilkan pesan ke user
+                            console.log('Click anywhere to enable audio');
+                            resolve();
+                        });
+                    });
+                }
+
+                return playPromise;
             } catch (e) {
                 console.error('Error playing sound:', e);
                 return Promise.resolve();
