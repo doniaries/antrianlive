@@ -428,6 +428,8 @@ $serviceCode = $antrian->service->code;
                     }
                 });
             }
+        } else {
+            console.log('Audio element not found');
         }
     }
 
@@ -475,13 +477,16 @@ $serviceCode = $antrian->service->code;
             console.log('Data type:', typeof data);
             console.log('Data keys:', Object.keys(data || {}));
             
-            if (data && data.number) {
-                console.log('✅ Playing sound for number:', data.number);
-                playAndSpeak(data.number, data.service, data.counter);
+            // Handle array format from Livewire
+            let eventData = Array.isArray(data) ? data[0] : data;
+            
+            if (eventData && eventData.number) {
+                console.log('✅ Playing sound for number:', eventData.number);
+                playAndSpeak(eventData.number, eventData.service, eventData.counter);
                 
                 // Also dispatch browser event for additional handling
                 window.dispatchEvent(new CustomEvent('antrian-called-browser', {
-                    detail: data
+                    detail: eventData
                 }));
             } else {
                 console.log('❌ Invalid data received:', data);
@@ -493,13 +498,16 @@ $serviceCode = $antrian->service->code;
             console.log('=== QUEUE-called EVENT RECEIVED ===');
             console.log('Event data:', data);
             
-            if (data && data.number) {
-                console.log('✅ Playing sound for queue:', data.number);
-                playAndSpeak(data.number, data.service, data.counter);
+            // Handle array format from Livewire
+            let eventData = Array.isArray(data) ? data[0] : data;
+            
+            if (eventData && eventData.number) {
+                console.log('✅ Playing sound for queue:', eventData.number);
+                playAndSpeak(eventData.number, eventData.service, eventData.counter);
                 
                 // Also dispatch browser event for additional handling
                 window.dispatchEvent(new CustomEvent('queue-called-browser', {
-                    detail: data
+                    detail: eventData
                 }));
             } else {
                 console.log('❌ Invalid queue data received:', data);

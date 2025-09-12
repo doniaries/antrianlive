@@ -206,7 +206,7 @@
 
         .services-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1rem;
         }
 
@@ -217,6 +217,11 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            transition: transform 0.3s ease;
+        }
+
+        .service-item:hover {
+            transform: translateY(-2px);
         }
 
         .service-name {
@@ -226,14 +231,34 @@
             color: #f8fafc;
         }
 
-        .service-range {
-            font-size: 1.25rem;
+        .service-current {
+            font-size: 2rem;
             font-weight: 700;
             color: #3b82f6;
+            margin: 0.5rem 0;
         }
 
-        .service-range.secondary {
+        .service-next {
+            font-size: 1.2rem;
+            font-weight: 600;
             color: #8b5cf6;
+            margin-bottom: 0.25rem;
+        }
+
+        .service-counter {
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+
+        .service-range {
+            font-size: 0.8rem;
+            color: #64748b;
+            font-family: 'Courier New', monospace;
+            margin-top: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 4px;
+            display: inline-block;
         }
 
         .running-text {
@@ -314,6 +339,27 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .no-data {
+            text-align: center;
+            color: #64748b;
+            font-style: italic;
+            padding: 2rem;
+        }
     </style>
 </head>
 
@@ -327,8 +373,8 @@
             <div class="logo-text">Sistem Antrian Digital</div>
         </div>
         <div class="datetime">
-            <div id="current-time" class="time">14:25:36</div>
-            <div id="current-date" class="date">Selasa, 12 Maret 2024</div>
+            <div id="current-time" class="time">--:--:--</div>
+            <div id="current-date" class="date">--</div>
         </div>
     </header>
 
@@ -342,10 +388,10 @@
                 </div>
                 Sedang Dipanggil
             </h2>
-            <div class="queue-number" id="current-number">B007</div>
+            <div class="queue-number" id="current-number">---</div>
             <div class="queue-counter">
                 <i class="fas fa-map-marker-alt counter-icon"></i>
-                <span id="current-counter">Loket 2</span>
+                <span id="current-counter">-</span>
             </div>
         </div>
 
@@ -376,14 +422,8 @@
                 </div>
                 Akan Dipanggil
             </h2>
-            <div class="next-queue">
-                <div class="next-item">
-                    <div class="next-number">B008</div>
-                    <div class="next-counter">
-                        <i class="fas fa-map-marker-alt counter-icon"></i>
-                        Loket 2
-                    </div>
-                </div>
+            <div class="next-queue" id="next-queue-container">
+                <div class="no-data">Memuat data antrian...</div>
             </div>
         </div>
 
@@ -395,24 +435,17 @@
                 </div>
                 Informasi Layanan
             </h2>
-            <div class="services-grid">
-                <div class="service-item">
-                    <div class="service-name">Layanan A</div>
-                    <div class="service-range">A001 – A050</div>
-                </div>
-                <div class="service-item">
-                    <div class="service-name">Layanan B</div>
-                    <div class="service-range secondary">B001 – B030</div>
-                </div>
+            <div class="services-grid" id="services-container">
+                <div class="no-data">Memuat data layanan...</div>
             </div>
         </div>
     </div>
 
     <!-- Running Text -->
     <div class="running-text">
-        <div class="marquee">
+        <div class="marquee" id="running-text">
             <i class="fas fa-info-circle"></i>
-            Sedang dipanggil: B007 di Loket 2. Silakan menunggu jika nomor Anda belum dipanggil.
+            Sistem Antrian Digital - Selamat datang di layanan kami
         </div>
     </div>
 
@@ -428,6 +461,9 @@
     <button id="testAudioBtn" style="position: fixed; top: 10px; right: 10px; z-index: 9999; background: #007bff; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer;">
         🔔 Test Audio
     </button>
+    
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <script>
         // Audio notification functions
@@ -561,6 +597,9 @@
                 Livewire.on('antrian-called', function(data) {
                     console.log('Received Livewire antrian-called event:', data);
                     
+                    // Fetch fresh data from API
+                    fetchQueueData();
+                    
                     // Create and dispatch browser event
                     const event = new CustomEvent('antrian-called', {
                         detail: data
@@ -570,6 +609,9 @@
 
                 Livewire.on('queue-called', function(data) {
                     console.log('Received Livewire queue-called event:', data);
+                    
+                    // Fetch fresh data from API
+                    fetchQueueData();
                     
                     // Create and dispatch browser event
                     const event = new CustomEvent('queue-called', {
@@ -589,27 +631,110 @@
         updateDateTime();
         setInterval(updateDateTime, 1000);
 
-        // Simulasi perubahan antrian (hanya untuk demo)
-        function simulateQueueChange() {
-            const numbers = ['B007', 'B008', 'B009', 'A012', 'A013'];
-            const counters = ['Loket 2', 'Loket 1', 'Loket 3'];
-
-            setInterval(() => {
-                const randomNumber = numbers[Math.floor(Math.random() * numbers.length)];
-                const randomCounter = counters[Math.floor(Math.random() * counters.length)];
-
-                document.getElementById('current-number').textContent = randomNumber;
-                document.getElementById('current-counter').textContent = randomCounter;
-
-                // Update running text
-                document.querySelector('.marquee').innerHTML =
-                    `<i class="fas fa-info-circle"></i> Sedang dipanggil: ${randomNumber} di ${randomCounter}. Silakan menunggu jika nomor Anda belum dipanggil.`;
-
-            }, 10000);
+        // Fetch queue data from server
+        async function fetchQueueData() {
+            try {
+                const response = await fetch('/api/display-data', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+                const data = await response.json();
+                updateDisplay(data);
+            } catch (error) {
+                console.error('Error fetching queue data:', error);
+            }
         }
 
-        // Jalankan simulasi (bisa dihapus di production)
-        simulateQueueChange();
+        // Update display with real data
+        function updateDisplay(data) {
+            // Update current calling queue
+            if (data.currentCalled && data.currentCalled.length > 0) {
+                const current = data.currentCalled[0];
+                document.getElementById('current-number').textContent = current.formatted_number;
+                document.getElementById('current-counter').textContent = current.counter_name || 'Loket';
+            } else {
+                document.getElementById('current-number').textContent = '---';
+                document.getElementById('current-counter').textContent = '-';
+            }
+
+            // Update next queues
+            const nextContainer = document.getElementById('next-queue-container');
+            if (data.nextQueues && data.nextQueues.length > 0) {
+                nextContainer.innerHTML = '';
+                data.nextQueues.slice(0, 3).forEach(queue => {
+                    const nextItem = document.createElement('div');
+                    nextItem.className = 'next-item';
+                    nextItem.innerHTML = `
+                        <div class="next-number">${queue.formatted_number}</div>
+                        <div class="next-counter">
+                            <i class="fas fa-map-marker-alt counter-icon"></i>
+                            ${queue.service_name}
+                        </div>
+                    `;
+                    nextContainer.appendChild(nextItem);
+                });
+            } else {
+                nextContainer.innerHTML = '<div class="no-data">Tidak ada antrian</div>';
+            }
+
+            // Update services info with range
+            const servicesContainer = document.getElementById('services-container');
+            if (data.services && data.services.length > 0) {
+                servicesContainer.innerHTML = '';
+                data.services.forEach(service => {
+                    const serviceItem = document.createElement('div');
+                    serviceItem.className = 'service-item';
+                    
+                    const currentCalled = data.currentCalled.find(q => q.service_id === service.id);
+                    const nextQueue = data.nextQueues.find(q => q.service_id === service.id);
+                    
+                    serviceItem.innerHTML = `
+                        <div class="service-name">${service.name}</div>
+                        <div class="service-current">${currentCalled ? currentCalled.formatted_number : '---'}</div>
+                        <div class="service-next">${nextQueue ? 'Next: ' + nextQueue.formatted_number : 'No queue'}</div>
+                        <div class="service-counter">${currentCalled ? (currentCalled.counter_name || 'Loket') : ''}</div>
+                        <div class="service-range" style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.25rem;">${service.range || ''}</div>
+                    `;
+                    servicesContainer.appendChild(serviceItem);
+                });
+            } else {
+                servicesContainer.innerHTML = '<div class="no-data">Tidak ada layanan aktif</div>';
+            }
+
+            // Update running text
+            const runningText = document.getElementById('running-text');
+            if (data.currentCalled && data.currentCalled.length > 0) {
+                const calls = data.currentCalled.map(q => 
+                    `${q.formatted_number} di ${q.counter_name || 'Loket'}`
+                ).join(', ');
+                runningText.innerHTML = `
+                    <i class="fas fa-info-circle"></i>
+                    Sedang dipanggil: ${calls}. Silakan menunggu jika nomor Anda belum dipanggil.
+                `;
+            } else {
+                runningText.innerHTML = `
+                    <i class="fas fa-info-circle"></i>
+                    Sistem Antrian Digital - Selamat datang di layanan kami
+                `;
+            }
+        }
+
+        // Poll for updates
+        function startPolling() {
+            fetchQueueData(); // Initial load
+            setInterval(fetchQueueData, 3000); // Poll every 3 seconds
+        }
+
+        // Start polling when page loads
+        document.addEventListener('DOMContentLoaded', startPolling);
     </script>
 </body>
 
