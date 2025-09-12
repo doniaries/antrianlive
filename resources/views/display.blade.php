@@ -421,7 +421,54 @@
         <p>© 2025 Sistem Antrian Digital. All rights reserved.</p>
     </footer>
 
+    <!-- Audio Element -->
+    <audio id="callSound" src="{{ asset('sounds/bell.mp3') }}" preload="auto"></audio>
+    
+    <!-- Audio Test Button -->
+    <button id="testAudioBtn" style="position: fixed; top: 10px; right: 10px; z-index: 9999; background: #007bff; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer;">
+        🔔 Test Audio
+    </button>
+
     <script>
+        // Audio notification functions
+        function playCallSound() {
+            const audio = document.getElementById('callSound');
+            if (audio) {
+                audio.currentTime = 0;
+                const playPromise = audio.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        console.log('Audio played successfully');
+                    }).catch(error => {
+                        console.log('Audio play failed:', error);
+                        // Try to show notification instead
+                        alert('Audio blocked by browser. Please click "Test Audio" button first to enable audio.');
+                    });
+                }
+            }
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'id-ID';
+                utterance.rate = 0.9;
+                utterance.pitch = 1;
+                speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Test audio button functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const testBtn = document.getElementById('testAudioBtn');
+            testBtn.addEventListener('click', function() {
+                console.log('Testing audio...');
+                playCallSound();
+                speakText('Testing audio sistem antrian');
+            });
+        });
+
         // Update waktu dan tanggal
         function updateDateTime() {
             const now = new Date();
@@ -448,6 +495,95 @@
 
             dateElement.textContent = `${dayName}, ${date} ${monthName} ${year}`;
         }
+
+        // Handle events for audio
+        document.addEventListener('DOMContentLoaded', function() {
+            // Listen for antrian-called event (browser event)
+            window.addEventListener('antrian-called', function(event) {
+                const data = event.detail;
+                console.log('Received antrian-called event:', data);
+                
+                // Update display immediately
+                if (data.number) {
+                    document.getElementById('current-number').textContent = data.number;
+                }
+                if (data.counter) {
+                    document.getElementById('current-counter').textContent = data.counter;
+                }
+                
+                // Update running text
+                const runningText = document.querySelector('.marquee');
+                if (runningText) {
+                    runningText.innerHTML = `<i class="fas fa-info-circle"></i> Sedang dipanggil: ${data.number} di ${data.counter}. Silakan menunggu jika nomor Anda belum dipanggil.`;
+                }
+                
+                // Play sound
+                playCallSound();
+                
+                // Speak the announcement
+                const textToSpeak = `Nomor antrian ${data.number}, silakan ke ${data.counter}`;
+                setTimeout(() => {
+                    speakText(textToSpeak);
+                }, 500);
+            });
+
+            // Listen for queue-called event (browser event)
+            window.addEventListener('queue-called', function(event) {
+                const data = event.detail;
+                console.log('Received queue-called event:', data);
+                
+                // Update display immediately
+                if (data.number) {
+                    document.getElementById('current-number').textContent = data.number;
+                }
+                if (data.counter) {
+                    document.getElementById('current-counter').textContent = data.counter;
+                }
+                
+                // Update running text
+                const runningText = document.querySelector('.marquee');
+                if (runningText) {
+                    runningText.innerHTML = `<i class="fas fa-info-circle"></i> Sedang dipanggil: ${data.number} di ${data.counter}. Silakan menunggu jika nomor Anda belum dipanggil.`;
+                }
+                
+                // Play sound
+                playCallSound();
+                
+                // Speak the announcement
+                const textToSpeak = `Nomor antrian ${data.number}, silakan ke ${data.counter}`;
+                setTimeout(() => {
+                    speakText(textToSpeak);
+                }, 500);
+            });
+
+            // Listen for Livewire events (for pages with Livewire)
+            if (typeof Livewire !== 'undefined') {
+                Livewire.on('antrian-called', function(data) {
+                    console.log('Received Livewire antrian-called event:', data);
+                    
+                    // Create and dispatch browser event
+                    const event = new CustomEvent('antrian-called', {
+                        detail: data
+                    });
+                    window.dispatchEvent(event);
+                });
+
+                Livewire.on('queue-called', function(data) {
+                    console.log('Received Livewire queue-called event:', data);
+                    
+                    // Create and dispatch browser event
+                    const event = new CustomEvent('queue-called', {
+                        detail: data
+                    });
+                    window.dispatchEvent(event);
+                });
+            }
+
+            // Listen for any global events
+            document.addEventListener('livewire:initialized', function() {
+                console.log('Livewire initialized on display page');
+            });
+        });
 
         // Inisialisasi
         updateDateTime();

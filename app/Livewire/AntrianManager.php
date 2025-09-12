@@ -143,7 +143,7 @@ class AntrianManager extends Component
     public function getStatisticsProperty()
     {
         $today = Carbon::today();
-        
+
         return [
             'total_today' => Antrian::whereDate('created_at', $today)->count(),
             'waiting' => Antrian::whereDate('created_at', $today)->where('status', 'waiting')->count(),
@@ -181,7 +181,7 @@ class AntrianManager extends Component
             ]);
 
             $this->dispatch('refresh-dashboard');
-            
+
             // Emit event for sound notification
             $this->dispatch('queue-called', [
                 'number' => $nextAntrian->formatted_number,
@@ -219,17 +219,22 @@ class AntrianManager extends Component
 
     public function callNext($antrianId, $serviceId, $counterId = 1)
     {
-        $antrian = Antrian::findOrFail($antrianId);
-        
-        // Cek apakah ada antrian yang sedang aktif untuk layan dan loket ini
-        $activeQueue = Antrian::where('service_id', $serviceId)
+        $antrian = Antrian::find($antrianId);
+
+        if (!$antrian) {
+            session()->flash('error', 'Antrian tidak ditemukan');
+            return;
+        }
+
+        // Check if there's already a called antrian for this service and counter
+        $existingCalled = Antrian::where('service_id', $serviceId)
             ->where('counter_id', $counterId)
             ->where('status', 'called')
             ->where('id', '!=', $antrianId)
             ->exists();
 
-        if ($activeQueue) {
-            session()->flash('message', 'Masih ada antrian yang belum selesai!');
+        if ($existingCalled) {
+            session()->flash('error', 'Masih ada antrian yang dipanggil untuk layan ini');
             return;
         }
 
@@ -237,39 +242,57 @@ class AntrianManager extends Component
             'status' => 'called',
             'called_at' => now(),
             'counter_id' => $counterId,
-            'called_by' => auth()->id(),
         ]);
 
         $service = $antrian->service;
         $counter = $antrian->counter;
 
-        // Dispatch event untuk memainkan suara
+        // Debug log
+        \Log::info('CallNext triggered', [
+            'number' => $antrian->formatted_number,
+            'service' => $service->name,
+            'counter' => $counter?->name,
+            'id' => $antrian->id
+        ]);
+
         $this->dispatch('antrian-called', [
             'number' => $antrian->formatted_number,
             'service' => $service->name,
-            'counter' => $counter ? $counter->name : 'Loket',
-            'id' => $antrian->id,
+            'counter' => $counter?->name ?? 'Loket',
+            'id' => $antrian->id
         ]);
 
-        session()->flash('message', 'Antrian ' . $antrian->formatted_number . ' telah dipanggil!');
+        session()->flash('message', 'Antrian ' . $antrian->formatted_number . ' telah dipanggil');
     }
 
     public function recall($antrianId)
     {
-        $antrian = Antrian::findOrFail($antrianId);
-        
+        $antrian = Antrian::find($antrianId);
+
+        if (!$antrian) {
+            session()->flash('error', 'Antrian tidak ditemukan');
+            return;
+        }
+
         $service = $antrian->service;
         $counter = $antrian->counter;
 
-        // Dispatch event untuk memainkan suara
+        // Debug log
+        \Log::info('Recall triggered', [
+            'number' => $antrian->formatted_number,
+            'service' => $service->name,
+            'counter' => $counter?->name,
+            'id' => $antrian->id
+        ]);
+
         $this->dispatch('antrian-called', [
             'number' => $antrian->formatted_number,
             'service' => $service->name,
-            'counter' => $counter ? $counter->name : 'Loket',
-            'id' => $antrian->id,
+            'counter' => $counter?->name ?? 'Loket',
+            'id' => $antrian->id
         ]);
 
-        session()->flash('message', 'Antrian ' . $antrian->formatted_number . ' dipanggil ulang!');
+        session()->flash('message', 'Antrian ' . $antrian->formatted_number . ' dipanggil ulang');
     }
 
     public function skip($antrianId)
@@ -428,7 +451,7 @@ class AntrianManager extends Component
     {
         $antrian = Antrian::findOrFail($antrianId);
         $antrian->delete();
-        
+
         $this->dispatch('notify', [
             'type' => 'success',
             'message' => 'Antrian berhasil dihapus'

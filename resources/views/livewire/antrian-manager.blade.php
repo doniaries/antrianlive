@@ -431,6 +431,121 @@ $serviceCode = $antrian->service->code;
         }
     }
 
+    // Text-to-speech function
+    function speakNumber(number, service = '', counter = '') {
+        if ('speechSynthesis' in window) {
+            // Check if speech is already speaking
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+            }
+            
+            const text = `Nomor antrian ${number}, silakan ke ${counter || 'loket'}`;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'id-ID';
+            utterance.rate = 0.8;
+            utterance.pitch = 1;
+            
+            utterance.onstart = () => console.log('Speech started');
+            utterance.onend = () => console.log('Speech ended');
+            utterance.onerror = (e) => console.log('Speech error:', e);
+            
+            speechSynthesis.speak(utterance);
+        } else {
+            console.log('Speech synthesis not supported');
+        }
+    }
+
+    // Function to play sound and speak number
+    function playAndSpeak(number, service, counter) {
+        console.log('Playing sound for:', number, service, counter);
+        playCallSound();
+        setTimeout(() => {
+            speakNumber(number, service, counter);
+        }, 500);
+    }
+
+    // Event listeners for Livewire events - Enhanced debugging
+    document.addEventListener('livewire:initialized', function() {
+        console.log('Livewire initialized, setting up event listeners');
+        
+        // Listen for antrian-called event with detailed debugging
+        Livewire.on('antrian-called', (data) => {
+            console.log('=== ANTrian-called EVENT RECEIVED ===');
+            console.log('Event data:', data);
+            console.log('Data type:', typeof data);
+            console.log('Data keys:', Object.keys(data || {}));
+            
+            if (data && data.number) {
+                console.log('✅ Playing sound for number:', data.number);
+                playAndSpeak(data.number, data.service, data.counter);
+                
+                // Also dispatch browser event for additional handling
+                window.dispatchEvent(new CustomEvent('antrian-called-browser', {
+                    detail: data
+                }));
+            } else {
+                console.log('❌ Invalid data received:', data);
+            }
+        });
+
+        // Listen for queue-called event from dashboard
+        Livewire.on('queue-called', (data) => {
+            console.log('=== QUEUE-called EVENT RECEIVED ===');
+            console.log('Event data:', data);
+            
+            if (data && data.number) {
+                console.log('✅ Playing sound for queue:', data.number);
+                playAndSpeak(data.number, data.service, data.counter);
+                
+                // Also dispatch browser event for additional handling
+                window.dispatchEvent(new CustomEvent('queue-called-browser', {
+                    detail: data
+                }));
+            } else {
+                console.log('❌ Invalid queue data received:', data);
+            }
+        });
+
+        // Listen for notify events
+        Livewire.on('notify', (data) => {
+            console.log('=== NOTIFY EVENT RECEIVED ===');
+            console.log('Notify data:', data);
+        });
+
+        // Test if Livewire is available
+        console.log('Livewire object:', typeof Livewire);
+        console.log('Livewire.on available:', typeof Livewire.on);
+    });
+
+    // Alternative event listener for debugging
+    window.addEventListener('antrian-called', function(event) {
+        console.log('=== DOM antrian-called EVENT RECEIVED ===');
+        console.log('DOM Event detail:', event.detail);
+    });
+
+    // Functions for current call display
+    function showCurrentCall(number, service, counter) {
+        const currentCall = document.getElementById('currentCall');
+        const currentNumber = document.getElementById('currentNumber');
+        const currentService = document.getElementById('currentService');
+        const currentCounter = document.getElementById('currentCounter');
+
+        if (currentNumber) currentNumber.textContent = number;
+        if (currentService) currentService.textContent = service;
+        if (currentCounter) currentCounter.textContent = counter;
+        if (currentCall) {
+            currentCall.classList.remove('hidden');
+            playAndSpeak(number, service, counter);
+        }
+    }
+
+    function closeCurrentCall() {
+        const currentCall = document.getElementById('currentCall');
+        if (currentCall) {
+            currentCall.classList.add('hidden');
+        }
+    }
+
     // Test audio function
     function testAudio() {
         console.log('Testing audio...');
@@ -473,83 +588,6 @@ $serviceCode = $antrian->service->code;
         } else {
             console.log('Speech synthesis not supported');
             alert('Speech synthesis not supported in this browser');
-        }
-    }
-
-    // Text-to-speech function
-    function speakNumber(number, service = '', counter = '') {
-        if ('speechSynthesis' in window) {
-            // Check if speech is already speaking
-            if (speechSynthesis.speaking) {
-                speechSynthesis.cancel();
-            }
-            
-            const text = `Nomor antrian ${number}, silakan ke ${counter || 'loket'}`;
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'id-ID';
-            utterance.rate = 0.8;
-            utterance.pitch = 1;
-            
-            utterance.onstart = () => console.log('Speech started');
-            utterance.onend = () => console.log('Speech ended');
-            utterance.onerror = (e) => console.log('Speech error:', e);
-            
-            speechSynthesis.speak(utterance);
-        } else {
-            console.log('Speech synthesis not supported');
-        }
-    }
-
-    // Function to play sound and speak number
-    function playAndSpeak(number, service, counter) {
-        console.log('Playing sound for:', number, service, counter);
-        playCallSound();
-        setTimeout(() => {
-            speakNumber(number, service, counter);
-        }, 500);
-    }
-
-    // Event listeners for Livewire events
-    document.addEventListener('livewire:initialized', function() {
-        console.log('Livewire initialized, setting up event listeners');
-        
-        // Listen for antrian-called event
-        Livewire.on('antrian-called', (data) => {
-            console.log('Antrian called event received:', data);
-            if (data && data.number) {
-                playAndSpeak(data.number, data.service, data.counter);
-            }
-        });
-
-        // Listen for queue-called event from dashboard
-        Livewire.on('queue-called', (data) => {
-            console.log('Queue called event received:', data);
-            if (data && data.number) {
-                playAndSpeak(data.number, data.service, data.counter);
-            }
-        });
-    });
-
-    // Functions for current call display
-    function showCurrentCall(number, service, counter) {
-        const currentCall = document.getElementById('currentCall');
-        const currentNumber = document.getElementById('currentNumber');
-        const currentService = document.getElementById('currentService');
-        const currentCounter = document.getElementById('currentCounter');
-
-        if (currentNumber) currentNumber.textContent = number;
-        if (currentService) currentService.textContent = service;
-        if (currentCounter) currentCounter.textContent = counter;
-        if (currentCall) {
-            currentCall.classList.remove('hidden');
-            playAndSpeak(number, service, counter);
-        }
-    }
-
-    function closeCurrentCall() {
-        const currentCall = document.getElementById('currentCall');
-        if (currentCall) {
-            currentCall.classList.add('hidden');
         }
     }
 </script>
