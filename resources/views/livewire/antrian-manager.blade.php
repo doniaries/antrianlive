@@ -46,6 +46,14 @@
             </div>
             <div class="mt-4 sm:mt-0">
                 <div class="flex items-center space-x-3">
+                    <!-- Test Audio Button -->
+                    <button onclick="testAudio()" 
+                        class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm">
+                        <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15.536a5 5 0 001.414 1.414">
+                        </svg>
+                        Test Audio
+                    </button>
                     <div class="text-right">
                         <p class="text-sm font-medium text-gray-900 dark:text-white">{{ auth()->user()->name }}</p>
                         <p class="text-xs text-gray-500 dark:text-gray-400">
@@ -398,305 +406,150 @@ $serviceCode = $antrian->service->code;
     @endif
 </div>
 
-@push('scripts')
-    <script>
-        // Inisialisasi audio element
-        const callSound = document.getElementById('callSound');
-        let speechSynthesis = window.speechSynthesis;
-        let audioInitialized = false;
-
-        // Fungsi untuk inisialisasi audio (untuk menghindari blokir autoplay)
-        function initializeAudio() {
-            if (audioInitialized) return Promise.resolve();
-
-            return new Promise((resolve, reject) => {
-                try {
-                    // Set volume ke 0 untuk inisialisasi
-                    callSound.volume = 0;
-                    callSound.play().then(() => {
-                        callSound.pause();
-                        callSound.currentTime = 0;
-                        callSound.volume = 1; // Kembalikan volume ke normal
-                        audioInitialized = true;
-                        console.log('Audio initialized successfully');
-                        resolve();
-                    }).catch(error => {
-                        console.log('Audio initialization failed, will try on user interaction:', error);
-                        resolve(); // Tetap resolve agar tidak block
-                    });
-                } catch (error) {
-                    console.log('Audio initialization error:', error);
-                    resolve();
-                }
-            });
-        }
-
-        // Inisialisasi audio saat halaman dimuat
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeAudio();
-        });
-
-        // Fungsi untuk menampilkan notifikasi toast
-        function showToast(type, message) {
-            const toast = document.createElement('div');
-            toast.className = `fixed top-4 right-4 px-6 py-4 rounded-lg shadow-lg text-white ${
-                type === 'success' ? 'bg-green-500' :
-                type === 'error' ? 'bg-red-500' :
-                type === 'warning' ? 'bg-amber-500' : 'bg-blue-500'
-            }`;
-
-            toast.innerHTML = `
-                <div class="flex items-center">
-                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        ${type === 'success' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>' : ''}
-                        ${type === 'error' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>' : ''}
-                        ${type === 'warning' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>' : ''}
-                        ${type === 'info' ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>' : ''}
-                    </svg>
-                    <span>${message}</span>
-                </div>
-            `;
-
-            document.body.appendChild(toast);
-
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'transition-opacity', 'duration-500');
-                setTimeout(() => toast.remove(), 500);
-            }, 5000);
-        }
-
-        // Fungsi untuk memainkan suara panggilan dengan penanganan error yang lebih baik
-        async function playCallSound() {
-            try {
-                // Jika audio belum diinisialisasi, coba inisialisasi terlebih dahulu
-                if (!audioInitialized) {
-                    await initializeAudio();
-                }
-
-                // Reset audio ke awal
-                callSound.currentTime = 0;
-
-                // Coba mainkan audio
-                const playPromise = callSound.play();
-
-                if (playPromise !== undefined) {
-                    return playPromise.catch(error => {
-                        console.warn('Audio play failed:', error);
-                        // Jika gagal karena autoplay policy, coba lagi dengan user gesture
-                        return new Promise((resolve) => {
-                            // Tambahkan event listener untuk user interaction
-                            const playOnInteraction = () => {
-                                callSound.play().then(() => {
-                                    console.log('Audio played after user interaction');
-                                    resolve();
-                                }).catch(err => {
-                                    console.error('Audio still failed after interaction:',
-                                        err);
-                                    resolve(); // Tetap resolve agar tidak block
-                                });
-                                document.removeEventListener('click', playOnInteraction);
-                                document.removeEventListener('touchstart', playOnInteraction);
-                            };
-
-                            document.addEventListener('click', playOnInteraction, {
-                                once: true
-                            });
-                            document.addEventListener('touchstart', playOnInteraction, {
-                                once: true
-                            });
-
-                            // Tampilkan pesan ke user
-                            console.log('Click anywhere to enable audio');
-                            resolve();
-                        });
-                    });
-                }
-
-                return playPromise;
-            } catch (e) {
-                console.error('Error playing sound:', e);
-                return Promise.resolve();
-            }
-        }
-
-        // Fungsi untuk menampilkan notifikasi panggilan
-        function showCurrentCall(number, service, counter) {
-            try {
-                const currentCall = document.getElementById('currentCall');
-                if (!currentCall) return;
-
-                const numberEl = document.getElementById('currentNumber');
-                const serviceEl = document.getElementById('currentService');
-                const counterEl = document.getElementById('currentCounter');
-
-                if (numberEl) numberEl.textContent = number;
-                if (serviceEl) serviceEl.textContent = service;
-                if (counterEl) counterEl.textContent = counter;
-
-                currentCall.classList.remove('hidden');
-
-                playCallSound().then(() => {
-                    setTimeout(() => {
-                        speakNumber(number, service, counter);
-                    }, 100);
+<script>
+    // Audio functions for bell sound
+    function playCallSound() {
+        const audio = document.getElementById('callSound');
+        if (audio) {
+            // Handle browser autoplay policy
+            audio.currentTime = 0;
+            
+            // Try to play with user interaction context
+            const playPromise = audio.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    console.log('Audio played successfully');
                 }).catch(error => {
-                    console.error('Error playing call sound:', error);
-                    setTimeout(() => {
-                        speakNumber(number, service, counter);
-                    }, 100);
-                });
-            } catch (error) {
-                console.error('Error in showCurrentCall:', error);
-            }
-        }
-
-        // Fungsi untuk menutup notifikasi panggilan
-        function closeCurrentCall() {
-            document.getElementById('currentCall').classList.add('hidden');
-            if (speechSynthesis) {
-                speechSynthesis.cancel();
-            }
-        }
-
-        // Fungsi untuk membaca nomor antrian dengan Web Speech API
-        function speakNumber(number, service, counter) {
-            try {
-                if (!speechSynthesis) return;
-
-                speechSynthesis.cancel();
-
-                const numberParts = number.split('-');
-                const prefix = numberParts[0];
-                const queueNumber = numberParts[1] || '';
-
-                const numberToWords = (num) => {
-                    const ones = ['', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'delapan', 'sembilan'];
-                    const tens = ['', 'sepuluh', 'dua puluh', 'tiga puluh', 'empat puluh', 'lima puluh',
-                        'enam puluh', 'tujuh puluh', 'delapan puluh', 'sembilan puluh'
-                    ];
-                    const teens = ['sepuluh', 'sebelas', 'dua belas', 'tiga belas', 'empat belas', 'lima belas',
-                        'enam belas', 'tujuh belas', 'delapan belas', 'sembilan belas'
-                    ];
-
-                    if (num === 0) return 'nol';
-                    if (num < 10) return ones[num];
-                    if (num < 20) return teens[num - 10];
-
-                    const ten = Math.floor(num / 10);
-                    const one = num % 10;
-                    return tens[ten] + (one ? ' ' + ones[one] : '');
-                };
-
-                let numberText = '';
-                if (prefix) {
-                    numberText += prefix.split('').join(' ') + ' ';
-                }
-
-                const digits = queueNumber.split('');
-                const digitWords = digits.map(d => {
-                    const num = parseInt(d);
-                    return isNaN(num) ? d : numberToWords(num);
-                });
-
-                numberText += digitWords.join(' ');
-
-                const textToSpeak = `Nomor antrian ${numberText}, silakan menuju ${counter}`;
-
-                const utterance = new SpeechSynthesisUtterance(textToSpeak);
-                utterance.lang = 'id-ID';
-                utterance.rate = 0.9;
-                utterance.pitch = 1.0;
-
-                const speakWithVoice = () => {
-                    try {
-                        const voices = speechSynthesis.getVoices();
-                        if (voices.length > 0) {
-                            const femaleVoice = voices.find(voice =>
-                                voice.lang === 'id-ID' && voice.name.includes('female')
-                            );
-                            utterance.voice = femaleVoice || voices[0];
-                        }
-
-                        utterance.onerror = (event) => {
-                            console.error('Error in speech synthesis:', event);
-                        };
-
-                        speechSynthesis.speak(utterance);
-                    } catch (error) {
-                        console.error('Error in speakWithVoice:', error);
+                    console.log('Audio play failed:', error);
+                    // Fallback: show notification to enable audio
+                    if (error.name === 'NotAllowedError') {
+                        console.log('Audio autoplay blocked. Please enable audio permissions.');
                     }
-                };
-
-                if (speechSynthesis.onvoiceschanged !== undefined) {
-                    speechSynthesis.onvoiceschanged = speakWithVoice;
-                }
-
-                speakWithVoice();
-
-            } catch (error) {
-                console.error('Error in speakNumber:', error);
-            }
-        }
-
-        // Fungsi baru untuk memainkan suara dari dashboard
-        function playQueueSound(number, service, counter) {
-            try {
-                playCallSound().then(() => {
-                    setTimeout(() => {
-                        speakNumber(number, service, counter);
-                    }, 100);
-                }).catch(error => {
-                    console.error('Error playing queue sound:', error);
-                    setTimeout(() => {
-                        speakNumber(number, service, counter);
-                    }, 100);
                 });
-            } catch (error) {
-                console.error('Error in playQueueSound:', error);
             }
         }
+    }
 
-        // Fungsi global untuk memanggil antrian dengan suara
-        window.handleQueueCall = function(number, service, counter) {
-            playQueueSound(number, service, counter);
-        };
+    // Test audio function
+    function testAudio() {
+        console.log('Testing audio...');
+        
+        // Test bell sound
+        const audio = document.getElementById('callSound');
+        if (audio) {
+            console.log('Audio element found, src:', audio.src);
+            console.log('Audio duration:', audio.duration);
+            
+            // Try to play
+            audio.currentTime = 0;
+            const playPromise = audio.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    console.log('Test audio played successfully');
+                }).catch(error => {
+                    console.log('Test audio failed:', error);
+                    alert('Audio test failed: ' + error.message);
+                });
+            }
+        } else {
+            console.log('Audio element not found');
+            alert('Audio element not found');
+        }
+        
+        // Test speech synthesis
+        if ('speechSynthesis' in window) {
+            const text = 'Test audio berhasil, nomor antrian A001, silakan ke loket 1';
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'id-ID';
+            utterance.rate = 0.8;
+            
+            utterance.onstart = () => console.log('Speech test started');
+            utterance.onend = () => console.log('Speech test ended');
+            utterance.onerror = (e) => console.log('Speech test error:', e);
+            
+            speechSynthesis.speak(utterance);
+        } else {
+            console.log('Speech synthesis not supported');
+            alert('Speech synthesis not supported in this browser');
+        }
+    }
 
-        // Event listener untuk Livewire
-        document.addEventListener('livewire:initialized', () => {
-            Livewire.on('antrian-called', (event) => {
-                setTimeout(() => {
-                    showCurrentCall(event.detail.number, event.detail.service, event.detail
-                        .counter);
-                }, 100);
-            });
+    // Text-to-speech function
+    function speakNumber(number, service = '', counter = '') {
+        if ('speechSynthesis' in window) {
+            // Check if speech is already speaking
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+            }
+            
+            const text = `Nomor antrian ${number}, silakan ke ${counter || 'loket'}`;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'id-ID';
+            utterance.rate = 0.8;
+            utterance.pitch = 1;
+            
+            utterance.onstart = () => console.log('Speech started');
+            utterance.onend = () => console.log('Speech ended');
+            utterance.onerror = (e) => console.log('Speech error:', e);
+            
+            speechSynthesis.speak(utterance);
+        } else {
+            console.log('Speech synthesis not supported');
+        }
+    }
 
-            Livewire.on('notify', (event) => {
-                setTimeout(() => {
-                    showToast(event.detail.type, event.detail.message);
-                }, 100);
-            });
+    // Function to play sound and speak number
+    function playAndSpeak(number, service, counter) {
+        console.log('Playing sound for:', number, service, counter);
+        playCallSound();
+        setTimeout(() => {
+            speakNumber(number, service, counter);
+        }, 500);
+    }
 
-            Livewire.on('call-queue', (event) => {
-                setTimeout(() => {
-                    showCurrentCall(event.detail.number, event.detail.service, event.detail
-                        .counter);
-                }, 100);
-            });
-
-            Livewire.on('error', (event) => {
-                setTimeout(() => {
-                    showToast('error', event.detail.message);
-                }, 100);
-            });
+    // Event listeners for Livewire events
+    document.addEventListener('livewire:initialized', function() {
+        console.log('Livewire initialized, setting up event listeners');
+        
+        // Listen for antrian-called event
+        Livewire.on('antrian-called', (data) => {
+            console.log('Antrian called event received:', data);
+            if (data && data.number) {
+                playAndSpeak(data.number, data.service, data.counter);
+            }
         });
 
-        // Inisialisasi voices
-        if (speechSynthesis) {
-            if (speechSynthesis.onvoiceschanged !== undefined) {
-                speechSynthesis.onvoiceschanged = function() {
-                    console.log('Voices loaded');
-                };
+        // Listen for queue-called event from dashboard
+        Livewire.on('queue-called', (data) => {
+            console.log('Queue called event received:', data);
+            if (data && data.number) {
+                playAndSpeak(data.number, data.service, data.counter);
             }
+        });
+    });
+
+    // Functions for current call display
+    function showCurrentCall(number, service, counter) {
+        const currentCall = document.getElementById('currentCall');
+        const currentNumber = document.getElementById('currentNumber');
+        const currentService = document.getElementById('currentService');
+        const currentCounter = document.getElementById('currentCounter');
+
+        if (currentNumber) currentNumber.textContent = number;
+        if (currentService) currentService.textContent = service;
+        if (currentCounter) currentCounter.textContent = counter;
+        if (currentCall) {
+            currentCall.classList.remove('hidden');
+            playAndSpeak(number, service, counter);
         }
-    </script>
-@endpush
+    }
+
+    function closeCurrentCall() {
+        const currentCall = document.getElementById('currentCall');
+        if (currentCall) {
+            currentCall.classList.add('hidden');
+        }
+    }
+</script>
