@@ -1918,7 +1918,7 @@
                     </svg>
                     Lihat Display Antrian
                 </a>
-                <a href="{{ route('ambil.tiket') }}"
+                <a href="{{ route('tiket.front') }}"
                     class="inline-flex items-center px-6 py-3 text-base font-medium text-white bg-emerald-600 border border-transparent rounded-md shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors duration-200">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
