@@ -322,7 +322,7 @@
             border-radius: 50% !important;
             background: linear-gradient(135deg, #3b82f6, #8b5cf6) !important;
             color: white !important;
-            border: 2px solid rgba(255,255,255,0.3) !important;
+            border: 2px solid rgba(255, 255, 255, 0.3) !important;
             box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4) !important;
             cursor: pointer !important;
             z-index: 9999 !important;
@@ -339,6 +339,20 @@
 
         #fullscreen-btn:active {
             transform: scale(0.95) !important;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+            }
         }
 
         .service-item[data-service-id="1"] {
@@ -799,7 +813,8 @@
     <!-- Floating Fullscreen Toggle Button - Super Visible -->
     <button id="fullscreen-btn"
         class="fixed bottom-6 right-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full p-4 shadow-2xl transition-all duration-300 ease-in-out transform hover:scale-110 z-[99999] border-4 border-white/30 backdrop-blur-sm"
-        title="Toggle Fullscreen" style="display: flex !important; align-items: center; justify-content: center; width: 70px !important; height: 70px !important; min-width: 70px !important; min-height: 70px !important; position: fixed !important; bottom: 30px !important; right: 30px !important;">
+        title="Toggle Fullscreen"
+        style="display: flex !important; align-items: center; justify-content: center; width: 70px !important; height: 70px !important; min-width: 70px !important; min-height: 70px !important; position: fixed !important; bottom: 30px !important; right: 30px !important;">
         <i class="fas fa-expand-arrows-alt text-2xl"></i>
     </button>
 
@@ -1021,7 +1036,7 @@
 
             // Update current calling queue - only show if it's a recent call
             let validCurrentCall = null;
-            
+
             if (data.currentCalled && data.currentCalled.length > 0) {
                 validCurrentCall = data.currentCalled[0];
             }
@@ -1076,7 +1091,8 @@
                 if (data.services && data.services.length > 0) {
                     servicesContainer.innerHTML = '';
                     data.services.forEach(service => {
-                        const serviceCurrentCalled = validCurrentCall && validCurrentCall.service_id === service.id ? validCurrentCall : null;
+                        const serviceCurrentCalled = validCurrentCall && validCurrentCall.service_id === service
+                            .id ? validCurrentCall : null;
                         const nextQueue = data.nextQueues?.find(q => q.service_id === service.id);
 
                         const serviceItem = document.createElement('div');
@@ -1281,23 +1297,23 @@
                 });
 
             // Keyboard shortcut (F11 or F key)
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'F11' || e.key === 'f' || e.key === 'F') {
-                e.preventDefault();
-                toggleFullscreen();
-            }
-        });
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'F11' || e.key === 'f' || e.key === 'F') {
+                    e.preventDefault();
+                    toggleFullscreen();
+                }
+            });
 
-        // Tambahkan efek pulse pada tombol fullscreen saat pertama kali load
-        setTimeout(() => {
-            const btn = safeGetElementById('fullscreen-btn');
-            if (btn) {
-                btn.style.animation = 'pulse 2s infinite';
-                setTimeout(() => {
-                    btn.style.animation = '';
-                }, 6000);
-            }
-        }, 2000);
+            // Tambahkan efek pulse pada tombol fullscreen saat pertama kali load
+            setTimeout(() => {
+                const btn = safeGetElementById('fullscreen-btn');
+                if (btn) {
+                    btn.style.animation = 'pulse 2s infinite';
+                    setTimeout(() => {
+                        btn.style.animation = '';
+                    }, 6000);
+                }
+            }, 2000);
 
             // Always show fullscreen button regardless of support
             // Modern browsers all support fullscreen API
