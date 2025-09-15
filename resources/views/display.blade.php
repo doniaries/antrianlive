@@ -433,31 +433,12 @@
             }
 
             .logo {
-                <header class="header">
-                    <div class="logo">
-                        @if ($logoUrl)
-                            <img src="{{ $logoUrl }}" alt="Logo Instansi"
-                                style="height: 40px; width: auto; border-radius: 8px; background: none;">
-                        @else
-                            <div class="logo-icon">
-                                <i class="fas fa-list-ol text-white text-xl"></i>
-                            </div>
-                        @endif
-                        <div class="logo-text">{{ $namaInstansi }}</div>
-                    </div>
-                    
-                    <div class="text-center">
-                        <div class="text-xl font-bold text-white">{{ env('APP_NAME', 'Sistem Antrian Digital') }}</div>
-                    </div>
-                
-                    <div class="datetime">
-                        <button id="fullscreen-btn" class="text-white hover:text-blue-300 transition-colors mr-4" title="Toggle Fullscreen">
-                            <i class="fas fa-expand"></i>
-                        </button>
-                        <div id="current-time" class="time">--:--:--</div>
-                        <div id="current-date" class="date">--</div>
-                    </div>
-                </header>.logo-text {
+                <header class="header"><div class="logo">@if ($logoUrl)
+                    <img src="{{ $logoUrl }}" alt="Logo Instansi" style="height: 40px; width: auto; border-radius: 8px; background: none;">
+                @else
+                    <div class="logo-icon"><i class="fas fa-list-ol text-white text-xl"></i></div>
+                @endif
+                <div class="logo-text">{{ $namaInstansi }}</div></div><div class="text-center"><div class="text-xl font-bold text-white">{{ env('APP_NAME', 'Sistem Antrian Digital') }}</div></div><div class="datetime">< !-- Floating Fullscreen Toggle Button --><button id="fullscreen-btn" class="fixed bottom-8 right-8 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg transition-all duration-300 ease-in-out transform hover:scale-110 z-50" title="Toggle Fullscreen"><i class="fas fa-expand-arrows-alt text-xl"></i></button><div id="current-time" class="time">--:--:--</div><div id="current-date" class="date">--</div></div></header>.logo-text {
                     font-size: 1rem;
                 }
 
@@ -584,24 +565,21 @@
             @endif
             <div class="logo-text">{{ $namaInstansi }}</div>
         </div>
-        
+
         <div class="text-center">
             <div class="text-xl font-bold text-white">{{ env('APP_NAME', 'Sistem Antrian Digital') }}</div>
         </div>
 
         <div class="datetime">
-            <button id="fullscreen-btn" class="text-white hover:text-blue-300 transition-colors mr-4" title="Toggle Fullscreen">
-                <i class="fas fa-expand"></i>
-            </button>
             <div id="current-time" class="time">--:--:--</div>
             <div id="current-date" class="date">--</div>
         </div>
     </header>
 
     <!-- Main Content -->
-    <div class="main-container">
+    <div class="main-container" style="grid-template-columns: 1fr 1fr; grid-template-rows: 1.5fr 1fr; gap: 1rem; height: calc(100vh - 70px); padding: 1rem; overflow: hidden;">
         <!-- Sedang Dipanggil Card -->
-        <div class="card calling-card">
+        <div class="card calling-card" style="grid-column: 1 / 2; grid-row: 1 / 2; height: 100%;">
             <h2 class="card-title">
                 <div class="card-icon" style="background-color: #3b82f6;">
                     <i class="fas fa-volume-up text-white"></i>
@@ -618,14 +596,14 @@
         </div>
 
         <!-- Video Informasi Card -->
-        <div class="card video-card">
+        <div class="card video-card" style="grid-column: 2 / 3; grid-row: 1 / 2; height: 100%; min-height: 200px;">
             <h2 class="card-title">
                 <div class="card-icon" style="background-color: #ef4444;">
                     <i class="fab fa-youtube text-white"></i>
                 </div>
                 Video Informasi
             </h2>
-            <div class="video-container">
+            <div class="video-container" style="min-height: 120px; height: 100%;">
                 <div class="video-placeholder">
                     <i class="fas fa-play-circle"></i>
                     <div>IoTI hip hop radio</div>
@@ -636,21 +614,8 @@
             </div>
         </div>
 
-        <!-- Akan Dipanggil Card -->
-        <div class="card next-card">
-            <h2 class="card-title">
-                <div class="card-icon" style="background-color: #8b5cf6;">
-                    <i class="fas fa-forward text-white"></i>
-                </div>
-                Akan Dipanggil
-            </h2>
-            <div class="next-queue" id="next-queue-container">
-                <div class="no-data">Memuat data antrian...</div>
-            </div>
-        </div>
-
         <!-- Informasi Layanan Card -->
-        <div class="card services-card">
+        <div class="card services-card" style="grid-column: 1 / 3; grid-row: 2 / 3; height: 100%; max-height: 250px; overflow-y: auto;">
             <h2 class="card-title">
                 <div class="card-icon" style="background-color: #10b981;">
                     <i class="fas fa-info-circle text-white"></i>
@@ -676,6 +641,11 @@
         <p>© 2025 Sistem Antrian Digital. All rights reserved.</p>
     </footer>
 
+    <!-- Floating Fullscreen Toggle Button -->
+    <button id="fullscreen-btn" class="fixed bottom-8 right-8 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg transition-all duration-300 ease-in-out transform hover:scale-110 z-50" title="Toggle Fullscreen">
+        <i class="fas fa-expand-arrows-alt text-xl"></i>
+    </button>
+
     <!-- Audio Element -->
     {{-- <audio id="callSound" src="{{ asset('sounds/bell.mp3') }}" preload="auto"></audio> --}}
 
@@ -683,48 +653,30 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <script>
-        // Audio notification functions
-        // function playCallSound() {
-        //     const audio = document.getElementById('callSound');
-        //     if (audio) {
-        //         audio.currentTime = 0;
-        //         const playPromise = audio.play();
+        // Safe DOM element selection with null checks
+        function safeQuerySelector(selector) {
+            const element = document.querySelector(selector);
+            if (!element) {
+                console.warn(`Element not found: ${selector}`);
+            }
+            return element;
+        }
 
-        //         if (playPromise !== undefined) {
-        //             playPromise.then(() => {
-        //                 console.log('Audio played successfully');
-        //             }).catch(error => {
-        //                 console.log('Audio play failed:', error);
-        //             });
-        //         }
-        //     }
-        // }
-
-        // function speakText(text) {
-        //     if ('speechSynthesis' in window) {
-        //         const utterance = new SpeechSynthesisUtterance(text);
-        //         utterance.lang = 'id-ID';
-        //         utterance.rate = 0.9;
-        //         utterance.pitch = 1;
-        //         speechSynthesis.speak(utterance);
-        //     }
-        // }
-
-        // Test audio button functionality
-        // document.addEventListener('DOMContentLoaded', function() {
-        //     const testBtn = document.getElementById('testAudioBtn');
-        //     testBtn.addEventListener('click', function() {
-        //         console.log('Testing audio...');
-        //         playCallSound();
-        //         speakText('Testing audio sistem antrian');
-        //     });
-        // });
+        function safeGetElementById(id) {
+            const element = document.getElementById(id);
+            if (!element) {
+                console.warn(`Element not found: ${id}`);
+            }
+            return element;
+        }
 
         // Update waktu dan tanggal
         function updateDateTime() {
             const now = new Date();
-            const timeElement = document.getElementById('current-time');
-            const dateElement = document.getElementById('current-date');
+            const timeElement = safeGetElementById('current-time');
+            const dateElement = safeGetElementById('current-date');
+
+            if (!timeElement || !dateElement) return;
 
             // Format waktu
             const hours = String(now.getHours()).padStart(2, '0');
@@ -749,149 +701,49 @@
 
         // Handle events for audio
         document.addEventListener('DOMContentLoaded', function() {
-            // Listen for antrian-called event (browser event)
+            // Safe event listeners with null checks
+            const currentNumberEl = safeGetElementById('current-number');
+            const currentCounterEl = safeGetElementById('current-counter');
+            const currentServiceEl = safeGetElementById('current-service');
+            const nextContainer = safeGetElementById('next-queue-container');
+            const servicesContainer = safeGetElementById('services-container');
+            const runningText = safeGetElementById('running-text');
+
+            // Listen for antrian-called event
             window.addEventListener('antrian-called', function(event) {
                 const data = event.detail;
                 console.log('Received antrian-called event:', data);
 
-                // Update display immediately
-                if (data.number) {
-                    document.getElementById('current-number').textContent = data.number;
+                // Update display elements safely
+                if (currentNumberEl && data.number) {
+                    currentNumberEl.textContent = data.number;
                 }
-                if (data.counter) {
-                    document.getElementById('current-counter').textContent = data.counter;
+                if (currentCounterEl && data.counter) {
+                    currentCounterEl.textContent = data.counter;
                 }
-                if (data.service) {
-                    document.getElementById('current-service').textContent = data.service;
+                if (currentServiceEl && data.service) {
+                    currentServiceEl.textContent = data.service;
                 }
 
-                // Update running text
-                const runningText = document.querySelector('.marquee');
+                // Update running text safely
                 if (runningText) {
                     const serviceName = data.service || 'layanan';
                     runningText.innerHTML =
                         `<i class="fas fa-info-circle"></i> Sedang dipanggil: Nomor ${data.number} untuk ${serviceName} di ${data.counter}.`;
                 }
-
-                // Play sound
-                playCallSound();
-
-                // Speak the announcement
-                const serviceName = data.service || 'layanan';
-                const textToSpeak =
-                    `Nomor antrian ${data.number}, silakan ke ${data.counter} untuk ${serviceName}`;
-                setTimeout(() => {
-                    speakText(textToSpeak);
-                }, 500);
 
                 // Refresh data from API
                 fetchQueueData();
             });
 
-            // Listen for queue-called event (browser event)
-            window.addEventListener('queue-called', function(event) {
-                const data = event.detail;
-                console.log('Received queue-called event:', data);
-
-                // Update display immediately with smooth transition
-                updateDisplayWithAnimation(data);
-
-                // Update running text
-                const runningText = document.querySelector('.marquee');
-                if (runningText) {
-                    const serviceName = data.service || 'layanan';
-                    runningText.innerHTML =
-                        `<i class="fas fa-info-circle"></i> Sedang dipanggil: Nomor ${data.number} untuk ${serviceName} di ${data.counter}.`;
-                }
-
-                // Play sound
-                playCallSound();
-
-                // Speak the announcement
-                const serviceName = data.service || 'layanan';
-                const textToSpeak =
-                    `Nomor antrian ${data.number}, silakan ke ${data.counter} untuk ${serviceName}`;
-                setTimeout(() => {
-                    speakText(textToSpeak);
-                }, 500);
-
-                // Force immediate refresh
+            // Start polling when page loads
+            if (typeof fetchQueueData === 'function') {
                 fetchQueueData();
-            });
-
-            // Enhanced update function with animation
-            function updateDisplayWithAnimation(data) {
-                const currentNumberEl = document.getElementById('current-number');
-                const currentCounterEl = document.getElementById('current-counter');
-                const currentServiceEl = document.getElementById('current-service');
-
-                // Add animation class
-                [currentNumberEl, currentCounterEl, currentServiceEl].forEach(el => {
-                    if (el) el.classList.add('updating');
-                });
-
-                // Update content
-                setTimeout(() => {
-                    if (data.number) currentNumberEl.textContent = data.number;
-                    if (data.counter) currentCounterEl.textContent = data.counter;
-                    if (data.service) currentServiceEl.textContent = data.service;
-
-                    // Remove animation class
-                    [currentNumberEl, currentCounterEl, currentServiceEl].forEach(el => {
-                        if (el) el.classList.remove('updating');
-                    });
-                }, 100);
+                // Set up polling with error handling
+                setInterval(() => {
+                    fetchQueueData().catch(console.error);
+                }, 5000); // Poll every 5 seconds
             }
-
-            // Listen for Livewire events (for pages with Livewire)
-            if (typeof Livewire !== 'undefined') {
-                Livewire.on('antrian-called', function(data) {
-                    console.log('Received Livewire antrian-called event:', data);
-
-                    // Force immediate refresh
-                    fetchQueueData();
-
-                    // Create and dispatch browser event
-                    const event = new CustomEvent('antrian-called', {
-                        detail: data
-                    });
-                    window.dispatchEvent(event);
-                });
-
-                Livewire.on('queue-called', function(data) {
-                    console.log('Received Livewire queue-called event:', data);
-
-                    // Force immediate refresh
-                    fetchQueueData();
-
-                    // Create and dispatch browser event
-                    const event = new CustomEvent('queue-called', {
-                        detail: data
-                    });
-                    window.dispatchEvent(event);
-                });
-            }
-
-            // Listen for any global events
-            document.addEventListener('livewire:initialized', function() {
-                console.log('Livewire initialized on display page');
-            });
-
-            // Start aggressive polling for real-time updates
-            fetchQueueData(); // Initial load
-            setInterval(fetchQueueData, pollingInterval);
-
-            // Also poll on visibility change
-            document.addEventListener('visibilitychange', function() {
-                if (!document.hidden) {
-                    fetchQueueData(); // Refresh when tab becomes visible
-                }
-            });
-
-            // Force refresh on window focus
-            window.addEventListener('focus', function() {
-                fetchQueueData();
-            });
         });
 
         // Inisialisasi
@@ -900,57 +752,41 @@
 
         // Real-time polling configuration
         let lastUpdateTime = Date.now();
-        let pollingInterval = 1000; // Poll every 1 second for real-time updates
+        let pollingInterval = 3000; // Poll every 3 seconds
         let pollingActive = true;
 
-        // Enhanced fetch function with immediate update
+        // Enhanced fetch function with better error handling
         async function fetchQueueData() {
             if (!pollingActive) return;
 
             try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+                
                 const response = await fetch('/api/display-data', {
-                    method: 'GET',
+                    signal: controller.signal,
                     headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    cache: 'no-cache'
+                        'Accept': 'application/json',
+                        'Cache-Control': 'no-cache'
+                    }
                 });
-
+                
+                clearTimeout(timeoutId);
+                
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
-
+                
                 const data = await response.json();
-
-                // Check if data has changed
-                const hasChanges = checkDataChanges(data);
-                if (hasChanges) {
-                    updateDisplay(data);
-                    lastUpdateTime = Date.now();
-                    console.log('Display updated with new data:', new Date().toLocaleTimeString());
-                }
+                updateDisplay(data);
+                lastUpdateTime = Date.now();
 
             } catch (error) {
-                console.error('Error fetching queue data:', error);
+                // Only log if it's not a network abort error
+                if (!error.message.includes('aborted')) {
+                    console.error('Error fetching queue data:', error.message);
+                }
             }
-        }
-
-        // Check if queue data has changed
-        function checkDataChanges(newData) {
-            // Simple change detection - compare current display with new data
-            const currentNumber = document.getElementById('current-number').textContent;
-            const currentCounter = document.getElementById('current-counter').textContent;
-            const currentService = document.getElementById('current-service').textContent;
-
-            if (newData.currentCalled && newData.currentCalled.length > 0) {
-                const current = newData.currentCalled[0];
-                return current.formatted_number !== currentNumber ||
-                    current.counter_name !== currentCounter ||
-                    current.service_name !== currentService;
-            }
-
-            return false;
         }
 
         // Helper function to get service icon
@@ -966,7 +802,7 @@
                 'Informasi': 'fas fa-info-circle'
             };
 
-            const normalizedName = serviceName.toLowerCase();
+            const normalizedName = serviceName?.toLowerCase() || '';
             for (const [key, icon] of Object.entries(icons)) {
                 if (normalizedName.includes(key.toLowerCase())) {
                     return icon;
@@ -977,125 +813,136 @@
 
         // Update display with real data
         function updateDisplay(data) {
+            const currentNumberEl = safeGetElementById('current-number');
+            const currentCounterEl = safeGetElementById('current-counter');
+            const currentServiceEl = safeGetElementById('current-service');
+            const nextContainer = safeGetElementById('next-queue-container');
+            const servicesContainer = safeGetElementById('services-container');
+            const runningText = safeGetElementById('running-text');
+
+            if (!data) return;
+
             // Update current calling queue
             if (data.currentCalled && data.currentCalled.length > 0) {
                 const current = data.currentCalled[0];
-                document.getElementById('current-number').textContent = current.formatted_number;
-                document.getElementById('current-counter').textContent = current.counter_name || 'Loket';
-                document.getElementById('current-service').textContent = current.service_name || '-';
+                if (currentNumberEl) currentNumberEl.textContent = current.formatted_number || '---';
+                if (currentCounterEl) currentCounterEl.textContent = current.counter_name || 'Loket';
+                if (currentServiceEl) currentServiceEl.textContent = current.service_name || '-';
             } else {
-                document.getElementById('current-number').textContent = '---';
-                document.getElementById('current-counter').textContent = '-';
-                document.getElementById('current-service').textContent = '-';
+                if (currentNumberEl) currentNumberEl.textContent = '---';
+                if (currentCounterEl) currentCounterEl.textContent = '-';
+                if (currentServiceEl) currentServiceEl.textContent = '-';
             }
 
-            // Update next queues - group by service
-            const nextContainer = document.getElementById('next-queue-container');
-            if (data.nextQueues && data.nextQueues.length > 0) {
-                nextContainer.innerHTML = '';
+            // Update next queues
+            if (nextContainer) {
+                if (data.nextQueues && data.nextQueues.length > 0) {
+                    nextContainer.innerHTML = '';
+                    
+                    // Group by service
+                    const services = {};
+                    data.nextQueues.forEach(queue => {
+                        if (!services[queue.service_name]) {
+                            services[queue.service_name] = [];
+                        }
+                        if (services[queue.service_name].length < 2) {
+                            services[queue.service_name].push(queue);
+                        }
+                    });
 
-                // Group by service
-                const services = {};
-                data.nextQueues.forEach(queue => {
-                    if (!services[queue.service_name]) {
-                        services[queue.service_name] = [];
-                    }
-                    if (services[queue.service_name].length < 2) { // Max 2 per service
-                        services[queue.service_name].push(queue);
-                    }
-                });
+                    Object.entries(services).forEach(([serviceName, queues]) => {
+                        queues.forEach(queue => {
+                            const nextItem = document.createElement('div');
+                            nextItem.className = 'next-item';
+                            nextItem.innerHTML = `
+                                <div class="next-number">${queue.formatted_number}</div>
+                                <div class="next-counter">
+                                    <i class="fas fa-list-ol counter-icon"></i>
+                                    ${serviceName}
+                                </div>
+                            `;
+                            nextContainer.appendChild(nextItem);
+                        });
+                    });
+                } else {
+                    nextContainer.innerHTML = '<div class="no-data">Tidak ada antrian</div>';
+                }
+            }
 
-                // Display next queues
-                Object.entries(services).forEach(([serviceName, queues]) => {
-                    queues.forEach(queue => {
-                        const nextItem = document.createElement('div');
-                        nextItem.className = 'next-item';
-                        nextItem.innerHTML = `
-                            <div class="next-number">${queue.formatted_number}</div>
-                            <div class="next-counter">
-                                <i class="fas fa-list-ol counter-icon"></i>
-                                ${serviceName}
+            // Update services info
+            if (servicesContainer) {
+                if (data.services && data.services.length > 0) {
+                    servicesContainer.innerHTML = '';
+                    data.services.forEach(service => {
+                        const currentCalled = data.currentCalled?.find(q => q.service_id === service.id);
+                        const nextQueue = data.nextQueues?.find(q => q.service_id === service.id);
+
+                        const serviceItem = document.createElement('div');
+                        serviceItem.className = 'service-item';
+                        if (currentCalled && currentCalled.service_id === service.id) {
+                            serviceItem.classList.add('active');
+                        }
+
+                        const iconClass = getServiceIcon(service.name);
+
+                        serviceItem.innerHTML = `
+                            <div class="service-header">
+                                <div class="service-icon" style="background: ${currentCalled && currentCalled.service_id === service.id ? '#3b82f6' : '#475569'}">
+                                    <i class="${iconClass} text-white"></i>
+                                </div>
+                                <div class="service-name">${service.name}</div>
+                            </div>
+                            <div class="service-info">
+                                <div class="service-current">${currentCalled ? currentCalled.formatted_number : '---'}</div>
+                                <div class="service-next">${nextQueue ? nextQueue.formatted_number : '-'}</div>
+                                <div class="service-counter">${currentCalled ? (currentCalled.counter_name || 'Loket') : ''}</div>
+                                <div class="service-range">${service.range || ''}</div>
                             </div>
                         `;
-                        nextContainer.appendChild(nextItem);
+                        servicesContainer.appendChild(serviceItem);
                     });
-                });
-            } else {
-                nextContainer.innerHTML = '<div class="no-data">Tidak ada antrian</div>';
+                } else {
+                    servicesContainer.innerHTML = '<div class="no-data">Tidak ada layanan aktif</div>';
+                }
             }
 
-            // Update services info with range
-            const servicesContainer = document.getElementById('services-container');
-            if (data.services && data.services.length > 0) {
-                servicesContainer.innerHTML = '';
-                data.services.forEach(service => {
-                    const serviceItem = document.createElement('div');
-                    serviceItem.className = 'service-item';
-
-                    const currentCalled = data.currentCalled.find(q => q.service_id === service.id);
-                    const nextQueue = data.nextQueues.find(q => q.service_id === service.id);
-
-                    // Check if this service has current call
-                    const isActive = currentCalled && currentCalled.service_id === service.id;
-                    if (isActive) {
-                        serviceItem.classList.add('active');
-                    }
-
-                    const iconClass = getServiceIcon(service.name);
-
-                    serviceItem.innerHTML = `
-                        <div class="service-header">
-                            <div class="service-icon" style="background: ${isActive ? '#3b82f6' : '#475569'}">
-                                <i class="${iconClass} text-white"></i>
-                            </div>
-                            <div class="service-name">${service.name}</div>
-                        </div>
-                        <div class="service-info">
-                            <div class="service-current">${currentCalled ? currentCalled.formatted_number : '---'}</div>
-                            <div class="service-next">${nextQueue ? nextQueue.formatted_number : '-'}</div>
-                            <div class="service-counter">${currentCalled ? (currentCalled.counter_name || 'Loket') : ''}</div>
-                            <div class="service-range">${service.range || ''}</div>
-                        </div>
+            // Update running text safely
+            if (runningText) {
+                if (data.currentCalled && data.currentCalled.length > 0) {
+                    const calls = data.currentCalled.map(q =>
+                        `Nomor ${q.formatted_number} untuk ${q.service_name} di ${q.counter_name || 'Loket'}`
+                    ).join(' • ');
+                    runningText.innerHTML = `
+                        <i class="fas fa-info-circle"></i>
+                        ${calls}. Silakan menunggu jika nomor Anda belum dipanggil.
                     `;
-                    servicesContainer.appendChild(serviceItem);
-                });
-            } else {
-                servicesContainer.innerHTML = '<div class="no-data">Tidak ada layanan aktif</div>';
-            }
-
-            // Update running text
-            const runningText = document.getElementById('running-text');
-            if (data.currentCalled && data.currentCalled.length > 0) {
-                const calls = data.currentCalled.map(q =>
-                    `Nomor ${q.formatted_number} untuk ${q.service_name} di ${q.counter_name || 'Loket'}`
-                ).join(' • ');
-                runningText.innerHTML = `
-                    <i class="fas fa-info-circle"></i>
-                    ${calls}. Silakan menunggu jika nomor Anda belum dipanggil.
-                `;
-            } else {
-                runningText.innerHTML = `
-                    <i class="fas fa-info-circle"></i>
-                    Sistem Antrian Digital - Selamat datang di layanan kami
-                `;
+                } else {
+                    runningText.innerHTML = `
+                        <i class="fas fa-info-circle"></i>
+                        Sistem Antrian Digital - Selamat datang di layanan kami
+                    `;
+                }
             }
         }
 
-        // Poll for updates
+        // Start polling
         function startPolling() {
-            fetchQueueData(); // Initial load
-            setInterval(fetchQueueData, 3000); // Poll every 3 seconds
+            if (typeof fetchQueueData === 'function') {
+                fetchQueueData(); // Initial load
+                setInterval(fetchQueueData, pollingInterval);
+            }
         }
 
         // Start polling when page loads
         document.addEventListener('DOMContentLoaded', startPolling);
-    </script>
-    <script>
+
         // Fullscreen toggle functionality
         document.addEventListener('DOMContentLoaded', function() {
-            const fullscreenBtn = document.getElementById('fullscreen-btn');
+            const fullscreenBtn = safeGetElementById('fullscreen-btn');
+            if (!fullscreenBtn) return;
+
             const icon = fullscreenBtn.querySelector('i');
-    
+
             // Check if fullscreen is supported
             function isFullscreenSupported() {
                 return document.fullscreenEnabled || 
@@ -1103,7 +950,7 @@
                        document.mozFullScreenEnabled || 
                        document.msFullscreenEnabled;
             }
-    
+
             // Check if currently in fullscreen
             function isInFullscreen() {
                 return !!(document.fullscreenElement || 
@@ -1111,7 +958,7 @@
                           document.mozFullScreenElement || 
                           document.msFullscreenElement);
             }
-    
+
             // Enter fullscreen
             function enterFullscreen() {
                 const element = document.documentElement;
@@ -1125,7 +972,7 @@
                     element.msRequestFullscreen();
                 }
             }
-    
+
             // Exit fullscreen
             function exitFullscreen() {
                 if (document.exitFullscreen) {
@@ -1138,7 +985,7 @@
                     document.msExitFullscreen();
                 }
             }
-    
+
             // Toggle fullscreen
             function toggleFullscreen() {
                 if (isInFullscreen()) {
@@ -1147,26 +994,27 @@
                     enterFullscreen();
                 }
             }
-    
+
             // Update button icon based on fullscreen state
             function updateFullscreenIcon() {
+                if (!icon) return;
                 if (isInFullscreen()) {
                     icon.className = 'fas fa-compress';
                     fullscreenBtn.title = 'Keluar Fullscreen';
                 } else {
-                    icon.className = 'fas fa-expand';
+                    icon.className = 'fas fa-expand-arrows-alt';
                     fullscreenBtn.title = 'Masuk Fullscreen';
                 }
             }
-    
+
             // Add click event listener
             fullscreenBtn.addEventListener('click', toggleFullscreen);
-    
+
             // Listen for fullscreen changes
             ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(event => {
                 document.addEventListener(event, updateFullscreenIcon);
             });
-    
+
             // Keyboard shortcut (F11 or F key)
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'F11' || e.key === 'f' || e.key === 'F') {
@@ -1174,12 +1022,12 @@
                     toggleFullscreen();
                 }
             });
-    
+
             // Hide/show fullscreen button based on support
             if (!isFullscreenSupported()) {
                 fullscreenBtn.style.display = 'none';
             }
-    
+
             // Initial icon update
             updateFullscreenIcon();
         });
@@ -1187,3 +1035,722 @@
 </body>
 
 </html>
+
+// Perbaikan untuk error fetching data
+let retryCount = 0;
+const maxRetries = 3;
+
+async function fetchQueueData() {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    
+    try {
+        const timestamp = new Date().getTime();
+        const response = await fetch(`/api/display-data?t=${timestamp}`, {
+            method: 'GET',
+            headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0'
+            },
+            signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        updateDisplayData(data);
+        retryCount = 0; // Reset retry count on success
+        
+    } catch (error) {
+        clearTimeout(timeoutId);
+        console.error('Error fetching queue data:', error.message);
+        
+        // Retry mechanism
+        if (retryCount < maxRetries) {
+            retryCount++;
+            console.log(`Retrying... (${retryCount}/${maxRetries})`);
+            setTimeout(fetchQueueData, 2000 * retryCount);
+        } else {
+            // Show offline indicator
+            const offlineIndicator = document.getElementById('offline-indicator');
+            if (offlineIndicator) {
+                offlineIndicator.style.display = 'block';
+            }
+        }
+    }
+}
+
+// Tambahkan offline indicator di bagian atas body
+const offlineIndicator = document.createElement('div');
+offlineIndicator.id = 'offline-indicator';
+offlineIndicator.style.cssText = `
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ef4444;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    z-index: 9999;
+    display: none;
+`;
+offlineIndicator.textContent = 'Koneksi terputus - Menghubungkan ulang...';
+document.body.appendChild(offlineIndicator);
+
+// Polling dengan interval yang lebih fleksibel
+let pollingInterval = 3000;
+
+function startPolling() {
+    fetchQueueData();
+    setInterval(() => {
+        if (document.visibilityState === 'visible') {
+            fetchQueueData();
+        }
+    }, pollingInterval);
+}
+
+// Event listener untuk visibility change
+if (typeof document !== 'undefined') {
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            retryCount = 0;
+            fetchQueueData();
+        }
+    });
+}
+
+// Helper function to get service icon
+function getServiceIcon(serviceName) {
+    const icons = {
+        'Pendaftaran': 'fas fa-user-plus',
+        'Pembayaran': 'fas fa-money-bill',
+        'Poliklinik': 'fas fa-user-md',
+        'Apotek': 'fas fa-pills',
+        'Laboratorium': 'fas fa-flask',
+        'Radiologi': 'fas fa-x-ray',
+        'Administrasi': 'fas fa-file-alt',
+        'Informasi': 'fas fa-info-circle'
+    };
+
+    const normalizedName = serviceName?.toLowerCase() || '';
+    for (const [key, icon] of Object.entries(icons)) {
+        if (normalizedName.includes(key.toLowerCase())) {
+            return icon;
+        }
+    }
+    return 'fas fa-list-ol';
+}
+
+// Update display with real data
+function updateDisplay(data) {
+    const currentNumberEl = safeGetElementById('current-number');
+    const currentCounterEl = safeGetElementById('current-counter');
+    const currentServiceEl = safeGetElementById('current-service');
+    const nextContainer = safeGetElementById('next-queue-container');
+    const servicesContainer = safeGetElementById('services-container');
+    const runningText = safeGetElementById('running-text');
+
+    if (!data) return;
+
+    // Update current calling queue
+    if (data.currentCalled && data.currentCalled.length > 0) {
+        const current = data.currentCalled[0];
+        if (currentNumberEl) currentNumberEl.textContent = current.formatted_number || '---';
+        if (currentCounterEl) currentCounterEl.textContent = current.counter_name || 'Loket';
+        if (currentServiceEl) currentServiceEl.textContent = current.service_name || '-';
+    } else {
+        if (currentNumberEl) currentNumberEl.textContent = '---';
+        if (currentCounterEl) currentCounterEl.textContent = '-';
+        if (currentServiceEl) currentServiceEl.textContent = '-';
+    }
+
+    // Update next queues
+    if (nextContainer) {
+        if (data.nextQueues && data.nextQueues.length > 0) {
+            nextContainer.innerHTML = '';
+            
+            // Group by service
+            const services = {};
+            data.nextQueues.forEach(queue => {
+                if (!services[queue.service_name]) {
+                    services[queue.service_name] = [];
+                }
+                if (services[queue.service_name].length < 2) {
+                    services[queue.service_name].push(queue);
+                }
+            });
+
+            Object.entries(services).forEach(([serviceName, queues]) => {
+                queues.forEach(queue => {
+                    const nextItem = document.createElement('div');
+                    nextItem.className = 'next-item';
+                    nextItem.innerHTML = `
+                        <div class="next-number">${queue.formatted_number}</div>
+                        <div class="next-counter">
+                            <i class="fas fa-list-ol counter-icon"></i>
+                            ${serviceName}
+                        </div>
+                    `;
+                    nextContainer.appendChild(nextItem);
+                });
+            });
+        } else {
+            nextContainer.innerHTML = '<div class="no-data">Tidak ada antrian</div>';
+        }
+    }
+
+    // Update services info
+    if (servicesContainer) {
+        if (data.services && data.services.length > 0) {
+            servicesContainer.innerHTML = '';
+            data.services.forEach(service => {
+                const currentCalled = data.currentCalled?.find(q => q.service_id === service.id);
+                const nextQueue = data.nextQueues?.find(q => q.service_id === service.id);
+
+                const serviceItem = document.createElement('div');
+                serviceItem.className = 'service-item';
+                if (currentCalled && currentCalled.service_id === service.id) {
+                    serviceItem.classList.add('active');
+                }
+
+                const iconClass = getServiceIcon(service.name);
+
+                serviceItem.innerHTML = `
+                    <div class="service-header">
+                        <div class="service-icon" style="background: ${currentCalled && currentCalled.service_id === service.id ? '#3b82f6' : '#475569'}">
+                            <i class="${iconClass} text-white"></i>
+                        </div>
+                        <div class="service-name">${service.name}</div>
+                    </div>
+                    <div class="service-info">
+                        <div class="service-current">${currentCalled ? currentCalled.formatted_number : '---'}</div>
+                        <div class="service-next">${nextQueue ? nextQueue.formatted_number : '-'}</div>
+                        <div class="service-counter">${currentCalled ? (currentCalled.counter_name || 'Loket') : ''}</div>
+                        <div class="service-range">${service.range || ''}</div>
+                    </div>
+                `;
+                servicesContainer.appendChild(serviceItem);
+            });
+        } else {
+            servicesContainer.innerHTML = '<div class="no-data">Tidak ada layanan aktif</div>';
+        }
+    }
+
+    // Update running text safely
+    if (runningText) {
+        if (data.currentCalled && data.currentCalled.length > 0) {
+            const calls = data.currentCalled.map(q =>
+                `Nomor ${q.formatted_number} untuk ${q.service_name} di ${q.counter_name || 'Loket'}`
+            ).join(' • ');
+            runningText.innerHTML = `
+                <i class="fas fa-info-circle"></i>
+                ${calls}. Silakan menunggu jika nomor Anda belum dipanggil.
+            `;
+        } else {
+            runningText.innerHTML = `
+                <i class="fas fa-info-circle"></i>
+                Sistem Antrian Digital - Selamat datang di layanan kami
+            `;
+        }
+    }
+}
+
+// Helper function to get service icon
+function getServiceIcon(serviceName) {
+    const icons = {
+        'Pendaftaran': 'fas fa-user-plus',
+        'Pembayaran': 'fas fa-money-bill',
+        'Poliklinik': 'fas fa-user-md',
+        'Apotek': 'fas fa-pills',
+        'Laboratorium': 'fas fa-flask',
+        'Radiologi': 'fas fa-x-ray',
+        'Administrasi': 'fas fa-file-alt',
+        'Informasi': 'fas fa-info-circle'
+    };
+
+    const normalizedName = serviceName?.toLowerCase() || '';
+    for (const [key, icon] of Object.entries(icons)) {
+        if (normalizedName.includes(key.toLowerCase())) {
+            return icon;
+        }
+    }
+    return 'fas fa-list-ol';
+}
+
+// Update display with real data
+function updateDisplay(data) {
+    const currentNumberEl = safeGetElementById('current-number');
+    const currentCounterEl = safeGetElementById('current-counter');
+    const currentServiceEl = safeGetElementById('current-service');
+    const nextContainer = safeGetElementById('next-queue-container');
+    const servicesContainer = safeGetElementById('services-container');
+    const runningText = safeGetElementById('running-text');
+
+    if (!data) return;
+
+    // Update current calling queue
+    if (data.currentCalled && data.currentCalled.length > 0) {
+        const current = data.currentCalled[0];
+        if (currentNumberEl) currentNumberEl.textContent = current.formatted_number || '---';
+        if (currentCounterEl) currentCounterEl.textContent = current.counter_name || 'Loket';
+        if (currentServiceEl) currentServiceEl.textContent = current.service_name || '-';
+    } else {
+        if (currentNumberEl) currentNumberEl.textContent = '---';
+        if (currentCounterEl) currentCounterEl.textContent = '-';
+        if (currentServiceEl) currentServiceEl.textContent = '-';
+    }
+
+    // Update next queues
+    if (nextContainer) {
+        if (data.nextQueues && data.nextQueues.length > 0) {
+            nextContainer.innerHTML = '';
+            
+            // Group by service
+            const services = {};
+            data.nextQueues.forEach(queue => {
+                if (!services[queue.service_name]) {
+                    services[queue.service_name] = [];
+                }
+                if (services[queue.service_name].length < 2) {
+                    services[queue.service_name].push(queue);
+                }
+            });
+
+            Object.entries(services).forEach(([serviceName, queues]) => {
+                queues.forEach(queue => {
+                    const nextItem = document.createElement('div');
+                    nextItem.className = 'next-item';
+                    nextItem.innerHTML = `
+                        <div class="next-number">${queue.formatted_number}</div>
+                        <div class="next-counter">
+                            <i class="fas fa-list-ol counter-icon"></i>
+                            ${serviceName}
+                        </div>
+                    `;
+                    nextContainer.appendChild(nextItem);
+                });
+            });
+        } else {
+            nextContainer.innerHTML = '<div class="no-data">Tidak ada antrian</div>';
+        }
+    }
+
+    // Update services info
+    if (servicesContainer) {
+        if (data.services && data.services.length > 0) {
+            servicesContainer.innerHTML = '';
+            data.services.forEach(service => {
+                const currentCalled = data.currentCalled?.find(q => q.service_id === service.id);
+                const nextQueue = data.nextQueues?.find(q => q.service_id === service.id);
+
+                const serviceItem = document.createElement('div');
+                serviceItem.className = 'service-item';
+                if (currentCalled && currentCalled.service_id === service.id) {
+                    serviceItem.classList.add('active');
+                }
+
+                const iconClass = getServiceIcon(service.name);
+
+                serviceItem.innerHTML = `
+                    <div class="service-header">
+                        <div class="service-icon" style="background: ${currentCalled && currentCalled.service_id === service.id ? '#3b82f6' : '#475569'}">
+                            <i class="${iconClass} text-white"></i>
+                        </div>
+                        <div class="service-name">${service.name}</div>
+                    </div>
+                    <div class="service-info">
+                        <div class="service-current">${currentCalled ? currentCalled.formatted_number : '---'}</div>
+                        <div class="service-next">${nextQueue ? nextQueue.formatted_number : '-'}</div>
+                        <div class="service-counter">${currentCalled ? (currentCalled.counter_name || 'Loket') : ''}</div>
+                        <div class="service-range">${service.range || ''}</div>
+                    </div>
+                `;
+                servicesContainer.appendChild(serviceItem);
+            });
+        } else {
+            servicesContainer.innerHTML = '<div class="no-data">Tidak ada layanan aktif</div>';
+        }
+    }
+
+    // Update running text safely
+    if (runningText) {
+        if (data.currentCalled && data.currentCalled.length > 0) {
+            const calls = data.currentCalled.map(q =>
+                `Nomor ${q.formatted_number} untuk ${q.service_name} di ${q.counter_name || 'Loket'}`
+            ).join(' • ');
+            runningText.innerHTML = `
+                <i class="fas fa-info-circle"></i>
+                ${calls}. Silakan menunggu jika nomor Anda belum dipanggil.
+            `;
+        } else {
+            runningText.innerHTML = `
+                <i class="fas fa-info-circle"></i>
+                Sistem Antrian Digital - Selamat datang di layanan kami
+            `;
+        }
+    }
+}
+
+// Helper function to get service icon
+function getServiceIcon(serviceName) {
+    const icons = {
+        'Pendaftaran': 'fas fa-user-plus',
+        'Pembayaran': 'fas fa-money-bill',
+        'Poliklinik': 'fas fa-user-md',
+        'Apotek': 'fas fa-pills',
+        'Laboratorium': 'fas fa-flask',
+        'Radiologi': 'fas fa-x-ray',
+        'Administrasi': 'fas fa-file-alt',
+        'Informasi': 'fas fa-info-circle'
+    };
+
+    const normalizedName = serviceName?.toLowerCase() || '';
+    for (const [key, icon] of Object.entries(icons)) {
+        if (normalizedName.includes(key.toLowerCase())) {
+            return icon;
+        }
+    }
+    return 'fas fa-list-ol';
+}
+
+// Update display with real data
+function updateDisplay(data) {
+    const currentNumberEl = safeGetElementById('current-number');
+    const currentCounterEl = safeGetElementById('current-counter');
+    const currentServiceEl = safeGetElementById('current-service');
+    const nextContainer = safeGetElementById('next-queue-container');
+    const servicesContainer = safeGetElementById('services-container');
+    const runningText = safeGetElementById('running-text');
+
+    if (!data) return;
+
+    // Update current calling queue
+    if (data.currentCalled && data.currentCalled.length > 0) {
+        const current = data.currentCalled[0];
+        if (currentNumberEl) currentNumberEl.textContent = current.formatted_number || '---';
+        if (currentCounterEl) currentCounterEl.textContent = current.counter_name || 'Loket';
+        if (currentServiceEl) currentServiceEl.textContent = current.service_name || '-';
+    } else {
+        if (currentNumberEl) currentNumberEl.textContent = '---';
+        if (currentCounterEl) currentCounterEl.textContent = '-';
+        if (currentServiceEl) currentServiceEl.textContent = '-';
+    }
+
+    // Update next queues
+    if (nextContainer) {
+        if (data.nextQueues && data.nextQueues.length > 0) {
+            nextContainer.innerHTML = '';
+            
+            // Group by service
+            const services = {};
+            data.nextQueues.forEach(queue => {
+                if (!services[queue.service_name]) {
+                    services[queue.service_name] = [];
+                }
+                if (services[queue.service_name].length < 2) {
+                    services[queue.service_name].push(queue);
+                }
+            });
+
+            Object.entries(services).forEach(([serviceName, queues]) => {
+                queues.forEach(queue => {
+                    const nextItem = document.createElement('div');
+                    nextItem.className = 'next-item';
+                    nextItem.innerHTML = `
+                        <div class="next-number">${queue.formatted_number}</div>
+                        <div class="next-counter">
+                            <i class="fas fa-list-ol counter-icon"></i>
+                            ${serviceName}
+                        </div>
+                    `;
+                    nextContainer.appendChild(nextItem);
+                });
+            });
+        } else {
+            nextContainer.innerHTML = '<div class="no-data">Tidak ada antrian</div>';
+        }
+    }
+
+    // Update services info
+    if (servicesContainer) {
+        if (data.services && data.services.length > 0) {
+            servicesContainer.innerHTML = '';
+            data.services.forEach(service => {
+                const currentCalled = data.currentCalled?.find(q => q.service_id === service.id);
+                const nextQueue = data.nextQueues?.find(q => q.service_id === service.id);
+
+                const serviceItem = document.createElement('div');
+                serviceItem.className = 'service-item';
+                if (currentCalled && currentCalled.service_id === service.id) {
+                    serviceItem.classList.add('active');
+                }
+
+                const iconClass = getServiceIcon(service.name);
+
+                serviceItem.innerHTML = `
+                    <div class="service-header">
+                        <div class="service-icon" style="background: ${currentCalled && currentCalled.service_id === service.id ? '#3b82f6' : '#475569'}">
+                            <i class="${iconClass} text-white"></i>
+                        </div>
+                        <div class="service-name">${service.name}</div>
+                    </div>
+                    <div class="service-info">
+                        <div class="service-current">${currentCalled ? currentCalled.formatted_number : '---'}</div>
+                        <div class="service-next">${nextQueue ? nextQueue.formatted_number : '-'}</div>
+                        <div class="service-counter">${currentCalled ? (currentCalled.counter_name || 'Loket') : ''}</div>
+                        <div class="service-range">${service.range || ''}</div>
+                    </div>
+                `;
+                servicesContainer.appendChild(serviceItem);
+            });
+        } else {
+            servicesContainer.innerHTML = '<div class="no-data">Tidak ada layanan aktif</div>';
+        }
+    }
+
+    // Update running text safely
+    if (runningText) {
+        if (data.currentCalled && data.currentCalled.length > 0) {
+            const calls = data.currentCalled.map(q =>
+                `Nomor ${q.formatted_number} untuk ${q.service_name} di ${q.counter_name || 'Loket'}`
+            ).join(' • ');
+            runningText.innerHTML = `
+                <i class="fas fa-info-circle"></i>
+                ${calls}. Silakan menunggu jika nomor Anda belum dipanggil.
+            `;
+        } else {
+            runningText.innerHTML = `
+                <i class="fas fa-info-circle"></i>
+                Sistem Antrian Digital - Selamat datang di layanan kami
+            `;
+        }
+    }
+}
+
+// Helper function to get service icon
+function getServiceIcon(serviceName) {
+    const icons = {
+        'Pendaftaran': 'fas fa-user-plus',
+        'Pembayaran': 'fas fa-money-bill',
+        'Poliklinik': 'fas fa-user-md',
+        'Apotek': 'fas fa-pills',
+        'Laboratorium': 'fas fa-flask',
+        'Radiologi': 'fas fa-x-ray',
+        'Administrasi': 'fas fa-file-alt',
+        'Informasi': 'fas fa-info-circle'
+    };
+
+    const normalizedName = serviceName?.toLowerCase() || '';
+    for (const [key, icon] of Object.entries(icons)) {
+        if (normalizedName.includes(key.toLowerCase())) {
+            return icon;
+        }
+    }
+    return 'fas fa-list-ol';
+}
+
+// Update display with real data
+function updateDisplay(data) {
+    const currentNumberEl = safeGetElementById('current-number');
+    const currentCounterEl = safeGetElementById('current-counter');
+    const currentServiceEl = safeGetElementById('current-service');
+    const nextContainer = safeGetElementById('next-queue-container');
+    const servicesContainer = safeGetElementById('services-container');
+    const runningText = safeGetElementById('running-text');
+
+    if (!data) return;
+
+    // Update current calling queue
+    if (data.currentCalled && data.currentCalled.length > 0) {
+        const current = data.currentCalled[0];
+        if (currentNumberEl) currentNumberEl.textContent = current.formatted_number || '---';
+        if (currentCounterEl) currentCounterEl.textContent = current.counter_name || 'Loket';
+        if (currentServiceEl) currentServiceEl.textContent = current.service_name || '-';
+    } else {
+        if (currentNumberEl) currentNumberEl.textContent = '---';
+        if (currentCounterEl) currentCounterEl.textContent = '-';
+        if (currentServiceEl) currentServiceEl.textContent = '-';
+    }
+
+    // Update next queues
+    if (nextContainer) {
+        if (data.nextQueues && data.nextQueues.length > 0) {
+            nextContainer.innerHTML = '';
+            
+            // Group by service
+            const services = {};
+            data.nextQueues.forEach(queue => {
+                if (!services[queue.service_name]) {
+                    services[queue.service_name] = [];
+                }
+                if (services[queue.service_name].length < 2) {
+                    services[queue.service_name].push(queue);
+                }
+            });
+
+            Object.entries(services).forEach(([serviceName, queues]) => {
+                queues.forEach(queue => {
+                    const nextItem = document.createElement('div');
+                    nextItem.className = 'next-item';
+                    nextItem.innerHTML = `
+                        <div class="next-number">${queue.formatted_number}</div>
+                        <div class="next-counter">
+                            <i class="fas fa-list-ol counter-icon"></i>
+                            ${serviceName}
+                        </div>
+                    `;
+                    nextContainer.appendChild(nextItem);
+                });
+            });
+        } else {
+            nextContainer.innerHTML = '<div class="no-data">Tidak ada antrian</div>';
+        }
+    }
+
+    // Update services info
+    if (servicesContainer) {
+        if (data.services && data.services.length > 0) {
+            servicesContainer.innerHTML = '';
+            data.services.forEach(service => {
+                const currentCalled = data.currentCalled?.find(q => q.service_id === service.id);
+                const nextQueue = data.nextQueues?.find(q => q.service_id === service.id);
+
+                const serviceItem = document.createElement('div');
+                serviceItem.className = 'service-item';
+                if (currentCalled && currentCalled.service_id === service.id) {
+                    serviceItem.classList.add('active');
+                }
+
+                const iconClass = getServiceIcon(service.name);
+
+                serviceItem.innerHTML = `
+                    <div class="service-header">
+                        <div class="service-icon" style="background: ${currentCalled && currentCalled.service_id === service.id ? '#3b82f6' : '#475569'}">
+                            <i class="${iconClass} text-white"></i>
+                        </div>
+                        <div class="service-name">${service.name}</div>
+                    </div>
+                    <div class="service-info">
+                        <div class="service-current">${currentCalled ? currentCalled.formatted_number : '---'}</div>
+                        <div class="service-next">${nextQueue ? nextQueue.formatted_number : '-'}</div>
+                        <div class="service-counter">${currentCalled ? (currentCalled.counter_name || 'Loket') : ''}</div>
+                        <div class="service-range">${service.range || ''}</div>
+                    </div>
+                `;
+                servicesContainer.appendChild(serviceItem);
+            });
+        } else {
+            servicesContainer.innerHTML = '<div class="no-data">Tidak ada layanan aktif</div>';
+        }
+    }
+
+    // Update running text safely
+    if (runningText) {
+        if (data.currentCalled && data.currentCalled.length > 0) {
+            const calls = data.currentCalled.map(q =>
+                `Nomor ${q.formatted_number} untuk ${q.service_name} di ${q.counter_name || 'Loket'}`
+            ).join(' • ');
+            runningText.innerHTML = `
+                <i class="fas fa-info-circle"></i>
+                ${calls}. Silakan menunggu jika nomor Anda belum dipanggil.
+            `;
+        } else {
+            runningText.innerHTML = `
+                <i class="fas fa-info-circle"></i>
+                Sistem Antrian Digital - Selamat datang di layanan kami
+            `;
+        }
+    }
+}
+
+// Helper function to get service icon
+function getServiceIcon(serviceName) {
+    const icons = {
+        'Pendaftaran': 'fas fa-user-plus',
+        'Pembayaran': 'fas fa-money-bill',
+        'Poliklinik': 'fas fa-user-md',
+        'Apotek': 'fas fa-pills',
+        'Laboratorium': 'fas fa-flask',
+        'Radiologi': 'fas fa-x-ray',
+        'Administrasi': 'fas fa-file-alt',
+        'Informasi': 'fas fa-info-circle'
+    };
+
+    const normalizedName = serviceName?.toLowerCase() || '';
+    for (const [key, icon] of Object.entries(icons)) {
+        if (normalizedName.includes(key.toLowerCase())) {
+            return icon;
+        }
+    }
+    return 'fas fa-list-ol';
+}
+
+// Update display with real data
+function updateDisplay(data) {
+    const currentNumberEl = safeGetElementById('current-number');
+    const currentCounterEl = safeGetElementById('current-counter');
+    const currentServiceEl = safeGetElementById('current-service');
+    const nextContainer = safeGetElementById('next-queue-container');
+    const servicesContainer = safeGetElementById('services-container');
+    const runningText = safeGetElementById('running-text');
+
+    if (!data) return;
+
+    // Update current calling queue
+    if (data.currentCalled && data.currentCalled.length > 0) {
+        const current = data.currentCalled[0];
+        if (currentNumberEl) currentNumberEl.textContent = current.formatted_number || '---';
+        if (currentCounterEl) currentCounterEl.textContent = current.counter_name || 'Loket';
+        if (currentServiceEl) currentServiceEl.textContent = current.service_name || '-';
+    } else {
+        if (currentNumberEl) currentNumberEl.textContent = '---';
+        if (currentCounterEl) currentCounterEl.textContent = '-';
+        if (currentServiceEl) currentServiceEl.textContent = '-';
+    }
+
+    // Update next queues
+    if (nextContainer) {
+        if (data.nextQueues && data.nextQueues.length > 0) {
+            nextContainer.innerHTML = '';
+            
+            // Group by service
+            const services = {};
+            data.nextQueues.forEach(queue => {
+                if (!services[queue.service_name]) {
+                    services[queue.service_name] = [];
+                }
+                if (services[queue.service_name].length < 2) {
+                    services[queue.service_name].push(queue);
+                }
+            });
+
+            Object.entries(services).forEach(([serviceName, queues]) => {
+                queues.forEach(queue => {
+                    const nextItem = document.createElement('div');
+                    nextItem.className = 'next-item';
+                    nextItem.innerHTML = `
+                        <div class="next-number">${queue.formatted_number}</div>
+                        <div class="next-counter">
+                            <i class="fas fa-list-ol counter-icon"></i>
+                            ${serviceName}
+                        </div>
+                    `;
+                    nextContainer.appendChild(nextItem);
+                });
+            });
+        } else {
+            nextContainer.innerHTML = '<div class="no-data">Tidak ada antrian</div>';
+        }
+    }
+
+    // Update services info
+    if (servicesContainer) {
+        if (data.services && data.services.length > 0) {
+            services
