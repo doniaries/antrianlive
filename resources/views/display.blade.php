@@ -309,6 +309,85 @@
         .service-item[data-service-id="10"] {
             background: linear-gradient(135deg, #881337 0%, #f43f5e 100%);
             border-color: #f43f5e;
+            color: white;
+        }
+
+        /* Enhanced Fullscreen Button Styles */
+        #fullscreen-btn {
+            position: fixed !important;
+            bottom: 20px !important;
+            right: 20px !important;
+            width: 60px !important;
+            height: 60px !important;
+            border-radius: 50% !important;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6) !important;
+            color: white !important;
+            border: 2px solid rgba(255,255,255,0.3) !important;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4) !important;
+            cursor: pointer !important;
+            z-index: 9999 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transition: all 0.3s ease !important;
+        }
+
+        #fullscreen-btn:hover {
+            transform: scale(1.1) !important;
+            box-shadow: 0 6px 25px rgba(59, 130, 246, 0.6) !important;
+        }
+
+        #fullscreen-btn:active {
+            transform: scale(0.95) !important;
+        }
+
+        .service-item[data-service-id="1"] {
+            color: white;
+        }
+
+        .service-item[data-service-id="2"] {
+            color: white;
+        }
+
+        .service-item[data-service-id="3"] {
+            color: white;
+        }
+
+        .service-item[data-service-id="4"] {
+            color: white;
+        }
+
+        .service-item[data-service-id="5"] {
+            color: white;
+        }
+
+        .service-item[data-service-id="6"] {
+            color: white;
+        }
+
+        .service-item[data-service-id="7"] {
+            color: white;
+        }
+
+        .service-item[data-service-id="8"] {
+            color: white;
+        }
+
+        .service-item[data-service-id="9"] {
+            color: white;
+        }
+
+        .service-item .service-name,
+        .service-item .service-current,
+        .service-item .service-next,
+        .service-item .service-counter,
+        .service-item .service-range {
+            color: white !important;
+        }
+
+        .service-item .service-range {
+            background: rgba(255, 255, 255, 0.2) !important;
+            color: white !important;
         }
 
         .service-item:hover {
@@ -339,11 +418,13 @@
         }
 
         .service-name {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #f8fafc;
+            font-size: 1rem;
+            font-weight: 700;
+            color: white !important;
             text-align: center;
             line-height: 1.2;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .service-info {
@@ -352,35 +433,56 @@
         }
 
         .service-current {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #3b82f6;
-            margin: 0.25rem 0;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #ffffff !important;
+            margin: 0.5rem 0;
             line-height: 1;
+            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+            background: rgba(255, 255, 255, 0.25);
+            padding: 0.5rem;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
         }
 
         .service-next {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #8b5cf6;
-            margin-bottom: 0.125rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #f0f9ff !important;
+            margin-bottom: 0.25rem;
             line-height: 1;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+        }
+
+        .service-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9) !important;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .service-counter {
-            font-size: 0.75rem;
-            color: #94a3b8;
-            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.95) !important;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
         }
 
         .service-range {
-            font-size: 0.7rem;
-            color: #64748b;
+            font-size: 0.8rem;
+            color: white !important;
             font-family: 'Courier New', monospace;
-            padding: 0.125rem 0.25rem;
-            background: rgba(30, 41, 59, 0.7);
-            border-radius: 3px;
+            padding: 0.25rem 0.5rem;
+            background: rgba(255, 255, 255, 0.25) !important;
+            border-radius: 4px;
             display: inline-block;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .running-text {
@@ -694,11 +796,11 @@
         <p>© 2025 Sistem Antrian Digital. All rights reserved.</p>
     </footer>
 
-    <!-- Floating Fullscreen Toggle Button -->
+    <!-- Floating Fullscreen Toggle Button - Super Visible -->
     <button id="fullscreen-btn"
-        class="fixed bottom-8 right-8 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg transition-all duration-300 ease-in-out transform hover:scale-110 z-50"
-        title="Toggle Fullscreen">
-        <i class="fas fa-expand-arrows-alt text-xl"></i>
+        class="fixed bottom-6 right-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full p-4 shadow-2xl transition-all duration-300 ease-in-out transform hover:scale-110 z-[99999] border-4 border-white/30 backdrop-blur-sm"
+        title="Toggle Fullscreen" style="display: flex !important; align-items: center; justify-content: center; width: 70px !important; height: 70px !important; min-width: 70px !important; min-height: 70px !important; position: fixed !important; bottom: 30px !important; right: 30px !important;">
+        <i class="fas fa-expand-arrows-alt text-2xl"></i>
     </button>
 
     <!-- Audio Element -->
@@ -921,15 +1023,7 @@
             let validCurrentCall = null;
             
             if (data.currentCalled && data.currentCalled.length > 0) {
-                const current = data.currentCalled[0];
-                const now = new Date();
-                const calledAt = new Date(current.called_at);
-                const timeDiff = (now - calledAt) / 1000 / 60; // in minutes
-                
-                // Only show if called within last 2 minutes
-                if (timeDiff <= 2) {
-                    validCurrentCall = current;
-                }
+                validCurrentCall = data.currentCalled[0];
             }
 
             if (validCurrentCall) {
@@ -1187,17 +1281,29 @@
                 });
 
             // Keyboard shortcut (F11 or F key)
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'F11' || e.key === 'f' || e.key === 'F') {
-                    e.preventDefault();
-                    toggleFullscreen();
-                }
-            });
-
-            // Hide/show fullscreen button based on support
-            if (!isFullscreenSupported()) {
-                fullscreenBtn.style.display = 'none';
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F11' || e.key === 'f' || e.key === 'F') {
+                e.preventDefault();
+                toggleFullscreen();
             }
+        });
+
+        // Tambahkan efek pulse pada tombol fullscreen saat pertama kali load
+        setTimeout(() => {
+            const btn = safeGetElementById('fullscreen-btn');
+            if (btn) {
+                btn.style.animation = 'pulse 2s infinite';
+                setTimeout(() => {
+                    btn.style.animation = '';
+                }, 6000);
+            }
+        }, 2000);
+
+            // Always show fullscreen button regardless of support
+            // Modern browsers all support fullscreen API
+            fullscreenBtn.style.display = 'flex';
+            fullscreenBtn.style.alignItems = 'center';
+            fullscreenBtn.style.justifyContent = 'center';
 
             // Initial icon update
             updateFullscreenIcon();
@@ -1391,7 +1497,9 @@ if (services[queue.service_name].length < 2) { services[queue.service_name].push
         <div class="service-name">${service.name}</div>
     </div>
     <div class="service-info">
+        <div class="service-label">SEDANG DIPANGGIL</div>
         <div class="service-current">${currentCalled ? currentCalled.formatted_number : '---'}</div>
+        <div class="service-label">NOMOR BERIKUTNYA</div>
         <div class="service-next">${nextQueue ? nextQueue.formatted_number : '-'}</div>
         <div class="service-counter">${currentCalled ? (currentCalled.counter_name || 'Loket') : ''}</div>
         <div class="service-range">${service.range || ''}</div>
@@ -1525,7 +1633,9 @@ if (services[queue.service_name].length < 2) { services[queue.service_name].push
             <div class="service-name">${service.name}</div>
         </div>
         <div class="service-info">
+            <div class="service-label">SEDANG DIPANGGIL</div>
             <div class="service-current">${currentCalled ? currentCalled.formatted_number : '---'}</div>
+            <div class="service-label">NOMOR BERIKUTNYA</div>
             <div class="service-next">${nextQueue ? nextQueue.formatted_number : '-'}</div>
             <div class="service-counter">${currentCalled ? (currentCalled.counter_name || 'Loket') : ''}</div>
             <div class="service-range">${service.range || ''}</div>
@@ -1793,7 +1903,9 @@ if (services[queue.service_name].length < 2) { services[queue.service_name].push
                     <div class="service-name">${service.name}</div>
                 </div>
                 <div class="service-info">
+                    <div class="service-label">SEDANG DIPANGGIL</div>
                     <div class="service-current">${currentCalled ? currentCalled.formatted_number : '---'}</div>
+                    <div class="service-label">NOMOR BERIKUTNYA</div>
                     <div class="service-next">${nextQueue ? nextQueue.formatted_number : '-'}</div>
                     <div class="service-counter">${currentCalled ? (currentCalled.counter_name || 'Loket') : ''}</div>
                     <div class="service-range">${service.range || ''}</div>
