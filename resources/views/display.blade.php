@@ -42,8 +42,14 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 70px;
+            height: 60px !important;
             flex-shrink: 0;
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            width: 100%;
         }
 
         .logo {
@@ -93,8 +99,9 @@
             grid-template-columns: 1fr 1fr;
             grid-template-rows: auto 1fr auto;
             gap: 1rem;
-            height: calc(100vh - 70px);
+            height: calc(100vh - 60px);
             padding: 1rem;
+            padding-top: 70px;
             overflow: hidden;
         }
 
@@ -131,7 +138,7 @@
 
         .calling-card {
             grid-column: 1 / 2;
-            grid-row: 1 / 2;
+            grid-row: 1 / 3;
         }
 
         .video-card {
@@ -151,7 +158,7 @@
         .running-teks-card {
             grid-column: 1 / 3;
             grid-row: 3 / 4;
-            min-height: 60px;
+            min-height: 80px;
             display: flex;
             align-items: center;
             overflow: hidden;
@@ -159,17 +166,21 @@
             margin-top: 0.5rem;
             background-color: #1e293b;
             border-radius: 12px;
-            padding: 1rem;
+            padding: 1.5rem 1rem;
             border: 1px solid #334155;
         }
 
         .running-teks-container {
             position: absolute;
             white-space: nowrap;
-            animation: scroll-left 20s linear infinite;
             display: flex;
             align-items: center;
             gap: 2rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            width: 100%;
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out;
         }
 
         @keyframes scroll-left {
@@ -671,6 +682,8 @@
                 grid-template-columns: 1fr 1fr;
                 gap: 0.75rem;
                 padding: 0.75rem;
+                height: calc(100vh - 60px);
+                padding-top: 70px;
             }
 
             .queue-number {
@@ -688,6 +701,8 @@
                 grid-template-rows: auto auto auto auto;
                 gap: 0.5rem;
                 padding: 0.5rem;
+                height: calc(100vh - 60px);
+                padding-top: 70px;
             }
 
             .calling-card,
@@ -698,27 +713,32 @@
             }
 
             .header {
-                padding: 0.5rem 1rem;
-                height: 60px;
+                padding: 0.25rem 0.5rem !important;
+                height: 50px !important;
+                position: fixed !important;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+                width: 100%;
             }
 
-            .logo {
-                <header class="header"><div class="logo">@if ($logoUrl)
-                    <img src="{{ $logoUrl }}" alt="Logo Instansi" style="height: 40px; width: auto; border-radius: 8px; background: none;">
-                @else
-                    <div class="logo-icon"><i class="fas fa-list-ol text-white text-xl"></i></div>
-                @endif
-                <div class="logo-text">{{ $namaInstansi }}</div></div><div class="text-center"><div class="text-xl font-bold text-white">{{ env('APP_NAME', 'Sistem Antrian Digital') }}</div></div><div class="datetime">< !-- Floating Fullscreen Toggle Button --><button id="fullscreen-btn" class="fixed bottom-8 right-8 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg transition-all duration-300 ease-in-out transform hover:scale-110 z-50" title="Toggle Fullscreen"><i class="fas fa-expand-arrows-alt text-xl"></i></button><div id="current-time" class="time">--:--:--</div><div id="current-date" class="date">--</div></div></header>.logo-text {
-                    font-size: 1rem;
-                }
+            .logo-text {
+                font-size: 0.875rem !important;
+            }
 
-                .time {
-                    font-size: 1.25rem;
-                }
+            .time {
+                font-size: 1rem !important;
+            }
 
-                .date {
-                    font-size: 0.75rem;
-                }
+            .date {
+                font-size: 0.7rem !important;
+            }
+
+            .logo-icon {
+                width: 25px !important;
+                height: 25px !important;
+            }
 
                 .queue-number {
                     font-size: 2.5rem;
@@ -765,7 +785,8 @@
                 padding: 0.375rem;
                 grid-template-columns: 1fr !important;
                 grid-template-rows: auto auto auto auto !important;
-                height: calc(100vh - 60px) !important;
+                height: calc(100vh - 50px) !important;
+                padding-top: 60px;
             }
             
             .calling-card,
@@ -849,14 +870,15 @@
             }
 
             /* Layout untuk mode 1920x1080 */
-            @media screen and (min-width: 1920px) {
-                .main-container {
-                    grid-template-columns: 1fr 1fr !important;
-                    grid-template-rows: 1.5fr 1fr auto !important;
-                    gap: 1rem !important;
-                    height: calc(100vh - 70px) !important;
-                    padding: 0.75rem !important;
-                }
+        @media screen and (min-width: 1920px) {
+            .main-container {
+                grid-template-columns: 1fr 1fr !important;
+                grid-template-rows: 1.5fr 1fr auto !important;
+                gap: 1rem !important;
+                height: calc(100vh - 60px) !important;
+                padding: 0.75rem !important;
+                padding-top: 70px !important;
+            }
 
                 .calling-card {
                     grid-column: 1 / 2 !important;
@@ -882,15 +904,16 @@
             }
 
             /* Layout untuk fullscreen - header tetap terlihat */
-        :fullscreen .main-container,
-        :-webkit-full-screen .main-container,
-        :-moz-full-screen .main-container {
-            grid-template-columns: 1fr 1fr !important;
-            grid-template-rows: 1.5fr 1fr auto !important;
-            height: calc(100vh - 70px) !important;
-            gap: 0.75rem !important;
-            padding: 0.5rem !important;
-        }
+         :fullscreen .main-container,
+         :-webkit-full-screen .main-container,
+         :-moz-full-screen .main-container {
+             grid-template-columns: 1fr 1fr !important;
+             grid-template-rows: 1.5fr 1fr auto !important;
+             height: calc(100vh - 60px) !important;
+             gap: 0.75rem !important;
+             padding: 0.5rem !important;
+             padding-top: 70px !important;
+         }
 
             /* Running teks dengan tabel */
             .running-text-table {
@@ -974,7 +997,27 @@
                 font-size: 1.1rem;
                 padding: 10px 18px;
             }
-    </style>
+    /* Running Text Fade Animation Styles */
+        .running-text-fade {
+            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: opacity, transform;
+        }
+        
+        .running-text-fade.fade-out {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        
+        .running-text-fade.fade-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .running-text-content {
+            transition: opacity 1.2s ease-in-out, transform 1.2s ease-in-out;
+            will-change: opacity, transform;
+        }
+        </style>
 </head>
 
 <body>
@@ -1060,7 +1103,7 @@
             style="grid-column: 1 / 3; grid-row: 3 / 4; padding: 0.5rem 1rem; text-align: center; margin-top: 0.25rem;">
             <div class="running-text-content">
                 <i class="fas fa-info-circle text-blue-400 mr-2"></i>
-                <span class="text-sm">Sistem Antrian Digital - Selamat datang di layanan kami</span>
+                <span>Memuat running text...</span>
             </div>
         </div>
     </div>
@@ -1273,7 +1316,10 @@
                 videoPlayer.innerHTML = `
                     <div class="video-placeholder">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <div>Gagal memuat video</div>
+                        <div>Error loading video: ${error.message || 'HTTP 500'}</div>
+                        <div style="font-size: 0.875rem; margin-top: 0.5rem; opacity: 0.7;">
+                            Silakan cek koneksi internet atau hubungi admin
+                        </div>
                     </div>
                 `;
             }
@@ -1285,7 +1331,7 @@
             return (match && match[2].length === 11) ? match[2] : null;
         }
 
-        // Running teks functionality dengan fade animation
+        // Running teks functionality dengan fade animation yang lebih mulus
         async function loadRunningTeks() {
             try {
                 const response = await fetch('/api/running-teks', {
@@ -1307,40 +1353,75 @@
                     runningTextContainer.innerHTML = `
                         <div class="running-text-content">
                             <i class="fas fa-info-circle text-blue-400 mr-2"></i>
-                            <span class="text-sm">Sistem Antrian Digital - Selamat datang di layanan kami</span>
+                            <span>Sistem Antrian Digital - Selamat datang di layanan kami</span>
                         </div>
                     `;
                     return;
                 }
 
-                // Filter hanya yang aktif
-                const activeItems = data.running_teks.filter(item => item.is_active);
+                const activeItems = data.running_teks;
 
                 if (activeItems.length === 0) {
                     runningTextContainer.innerHTML = `
                         <div class="running-text-content">
                             <i class="fas fa-info-circle text-blue-400 mr-2"></i>
-                            <span class="text-sm">Sistem Antrian Digital - Selamat datang di layanan kami</span>
+                            <span>Sistem Antrian Digital - Selamat datang di layanan kami</span>
                         </div>
                     `;
                     return;
                 }
 
-                // Rotasi teks dengan fade animation
+                // Setup CSS untuk transisi yang lebih mulus
+                runningTextContainer.style.transition = 'opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1)';
+                runningTextContainer.style.willChange = 'opacity';
+                runningTextContainer.style.opacity = '1';
+                
                 let currentIndex = 0;
-                const updateText = () => {
-                    const item = activeItems[currentIndex];
-                    runningTextContainer.innerHTML = `
-                        <div class="running-text-content">
-                            <i class="fas fa-info-circle text-blue-400 mr-2"></i>
-                            <span class="text-sm">${item.text}</span>
-                        </div>
-                    `;
-                    currentIndex = (currentIndex + 1) % activeItems.length;
+                let isTransitioning = false;
+
+                const createContent = (text) => `
+                    <div class="running-text-content" style="display: flex; align-items: center; justify-content: center; width: 100%; min-height: 2.5rem;">
+                        <i class="fas fa-info-circle text-blue-400 mr-3" style="font-size: 1.1rem;"></i>
+                        <span style="font-size: 1.25rem; font-weight: 600;">${text}</span>
+                    </div>
+                `;
+
+                const smoothTransition = (newText) => {
+                    if (isTransitioning) return;
+                    
+                    isTransitioning = true;
+                    
+                    // Fade out dengan easing yang lebih halus
+                    runningTextContainer.style.opacity = '0';
+                    
+                    setTimeout(() => {
+                        runningTextContainer.innerHTML = createContent(newText);
+                        
+                        // Force reflow untuk transisi yang smooth
+                        runningTextContainer.offsetHeight;
+                        
+                        // Fade in dengan easing yang lebih halus
+                        runningTextContainer.style.opacity = '1';
+                        
+                        setTimeout(() => {
+                            isTransitioning = false;
+                        }, 1200);
+                    }, 1200);
                 };
 
-                updateText();
-                setInterval(updateText, 4000); // Ganti teks setiap 4 detik
+                // Tampilkan teks pertama
+                runningTextContainer.innerHTML = createContent(activeItems[0].text);
+                
+                // Rotasi teks dengan timing yang lebih baik
+                const updateText = () => {
+                    currentIndex = (currentIndex + 1) % activeItems.length;
+                    smoothTransition(activeItems[currentIndex].text);
+                };
+
+                // Mulai rotasi setelah delay awal
+                setTimeout(() => {
+                    setInterval(updateText, 8000); // 8 detik per teks (1.2s fade + 6.8s tampil)
+                }, 2000);
 
             } catch (error) {
                 // Silent fail - tampilkan default text tanpa error
@@ -1348,7 +1429,7 @@
                 runningTextContainer.innerHTML = `
                     <div class="running-text-content">
                         <i class="fas fa-info-circle text-blue-400 mr-2"></i>
-                        <span class="text-sm">Sistem Antrian Digital - Selamat datang di layanan kami</span>
+                        <span>Sistem Antrian Digital - Selamat datang di layanan kami</span>
                     </div>
                 `;
             }

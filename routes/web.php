@@ -152,9 +152,8 @@ Route::get('/display', function () {
 
     // API endpoint untuk running teks
     Route::get('/api/running-teks', function () {
-        $runningTeks = \App\Models\RunningTeks::where('is_active', true)
-            ->orderBy('order', 'asc')
-            ->get(['id', 'text', 'is_active', 'order']);
+        $runningTeks = \App\Models\RunningTeks::orderBy('id', 'asc')
+            ->get(['id', 'text']);
 
         return response()->json([
             'running_teks' => $runningTeks,

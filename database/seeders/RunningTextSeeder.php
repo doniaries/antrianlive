@@ -13,26 +13,11 @@ class RunningTextSeeder extends Seeder
     public function run(): void
     {
         $texts = [
-            [
-                'text' => 'Selamat datang di Sistem Antrian Digital kami',
-                'is_active' => true,
-            ],
-            [
-                'text' => 'Silakan ambil nomor antrian sesuai layanan yang Anda butuhkan',
-                'is_active' => true,
-            ],
-            [
-                'text' => 'Pastikan Anda menunggu di area yang telah ditentukan',
-                'is_active' => true,
-            ],
-            [
-                'text' => 'Terima kasih atas kesabaran Anda dalam menunggu',
-                'is_active' => true,
-            ],
-            [
-                'text' => 'Sistem antrian ini dirancang untuk kenyamanan Anda',
-                'is_active' => true,
-            ],
+            ['text' => 'Selamat datang di Sistem Antrian Digital kami!!!'],
+            ['text' => 'Silakan ambil nomor antrian sesuai layanan yang Anda butuhkan'],
+            ['text' => 'Pastikan Anda menunggu di area yang telah ditentukan'],
+            ['text' => 'Terima kasih atas kesabaran Anda dalam menunggu'],
+            ['text' => 'Sistem antrian ini dirancang untuk kenyamanan Anda'],
         ];
 
         foreach ($texts as $text) {

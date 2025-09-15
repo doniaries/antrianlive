@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('videos', function (Blueprint $table) {
-            $table->string('title')->after('url');
-            $table->enum('type', ['youtube', 'file'])->default('youtube')->after('title');
+            $table->enum('type', ['youtube', 'file'])->default('youtube')->after('url');
         });
     }
 

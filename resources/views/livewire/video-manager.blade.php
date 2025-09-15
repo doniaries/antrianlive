@@ -84,9 +84,9 @@
                                 class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white text-center">
                                 {{ $index + 1 }}
                             </td>
-                            <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 max-w-xs break-words">
+                            {{-- <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 max-w-xs break-words">
                                 {{ $video->title }}
-                            </td>
+                            </td> --}}
                             <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <span
                                     class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r
@@ -202,7 +202,7 @@
             <div class="p-6">
                 <form wire:submit.prevent="store" class="space-y-5">
                     <!-- Judul Video -->
-                    <div>
+                    {{-- <div>
                         <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Judul Video
                         </label>
@@ -212,7 +212,7 @@
                         @error('title')
                             <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                         @enderror
-                    </div>
+                    </div> --}}
 
                     <!-- URL Video -->
                     <div>
