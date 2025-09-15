@@ -451,6 +451,9 @@
                     </div>
                 
                     <div class="datetime">
+                        <button id="fullscreen-btn" class="text-white hover:text-blue-300 transition-colors mr-4" title="Toggle Fullscreen">
+                            <i class="fas fa-expand"></i>
+                        </button>
                         <div id="current-time" class="time">--:--:--</div>
                         <div id="current-date" class="date">--</div>
                     </div>
@@ -587,6 +590,9 @@
         </div>
 
         <div class="datetime">
+            <button id="fullscreen-btn" class="text-white hover:text-blue-300 transition-colors mr-4" title="Toggle Fullscreen">
+                <i class="fas fa-expand"></i>
+            </button>
             <div id="current-time" class="time">--:--:--</div>
             <div id="current-date" class="date">--</div>
         </div>
@@ -1083,6 +1089,100 @@
 
         // Start polling when page loads
         document.addEventListener('DOMContentLoaded', startPolling);
+    </script>
+    <script>
+        // Fullscreen toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const fullscreenBtn = document.getElementById('fullscreen-btn');
+            const icon = fullscreenBtn.querySelector('i');
+    
+            // Check if fullscreen is supported
+            function isFullscreenSupported() {
+                return document.fullscreenEnabled || 
+                       document.webkitFullscreenEnabled || 
+                       document.mozFullScreenEnabled || 
+                       document.msFullscreenEnabled;
+            }
+    
+            // Check if currently in fullscreen
+            function isInFullscreen() {
+                return !!(document.fullscreenElement || 
+                          document.webkitFullscreenElement || 
+                          document.mozFullScreenElement || 
+                          document.msFullscreenElement);
+            }
+    
+            // Enter fullscreen
+            function enterFullscreen() {
+                const element = document.documentElement;
+                if (element.requestFullscreen) {
+                    element.requestFullscreen();
+                } else if (element.webkitRequestFullscreen) {
+                    element.webkitRequestFullscreen();
+                } else if (element.mozRequestFullScreen) {
+                    element.mozRequestFullScreen();
+                } else if (element.msRequestFullscreen) {
+                    element.msRequestFullscreen();
+                }
+            }
+    
+            // Exit fullscreen
+            function exitFullscreen() {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+    
+            // Toggle fullscreen
+            function toggleFullscreen() {
+                if (isInFullscreen()) {
+                    exitFullscreen();
+                } else {
+                    enterFullscreen();
+                }
+            }
+    
+            // Update button icon based on fullscreen state
+            function updateFullscreenIcon() {
+                if (isInFullscreen()) {
+                    icon.className = 'fas fa-compress';
+                    fullscreenBtn.title = 'Keluar Fullscreen';
+                } else {
+                    icon.className = 'fas fa-expand';
+                    fullscreenBtn.title = 'Masuk Fullscreen';
+                }
+            }
+    
+            // Add click event listener
+            fullscreenBtn.addEventListener('click', toggleFullscreen);
+    
+            // Listen for fullscreen changes
+            ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(event => {
+                document.addEventListener(event, updateFullscreenIcon);
+            });
+    
+            // Keyboard shortcut (F11 or F key)
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'F11' || e.key === 'f' || e.key === 'F') {
+                    e.preventDefault();
+                    toggleFullscreen();
+                }
+            });
+    
+            // Hide/show fullscreen button based on support
+            if (!isFullscreenSupported()) {
+                fullscreenBtn.style.display = 'none';
+            }
+    
+            // Initial icon update
+            updateFullscreenIcon();
+        });
     </script>
 </body>
 
