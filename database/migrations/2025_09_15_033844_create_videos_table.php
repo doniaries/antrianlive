@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('videos', function (Blueprint $table) {
             $table->id();
             $table->string('url');
+            $table->enum('type', ['youtube', 'file'])->default('youtube');
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

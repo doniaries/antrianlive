@@ -56,10 +56,6 @@
                             No
                         </th>
                         <th
-                            class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                            Judul
-                        </th>
-                        <th
                             class="px-6 py-4 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                             Tipe
                         </th>
@@ -95,26 +91,35 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-center">
-                                @if ($video->type === 'youtube')
+                                @php
+                                    $type = $video->type ?? 'youtube';
+                                    $url = $video->url ?? '';
+                                @endphp
+                                @if ($type === 'youtube' && !empty($url))
                                     @php
                                         $youtubeId = '';
-                                        if (
-                                            preg_match(
-                                                '/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/',
-                                                $video->url,
-                                                $matches,
-                                            )
-                                        ) {
+                                        if (preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/', $url, $matches)) {
                                             $youtubeId = $matches[1];
                                         }
                                     @endphp
-                                    @if ($youtubeId)
+                                    @if (!empty($youtubeId))
                                         <img src="https://img.youtube.com/vi/{{ $youtubeId }}/default.jpg"
-                                            alt="{{ $video->title }}"
-                                            class="w-20 h-15 object-cover rounded border border-gray-300 dark:border-gray-600 mx-auto">
+                                            alt="YouTube Thumbnail"
+                                            class="w-20 h-15 object-cover rounded border border-gray-300 dark:border-gray-600 mx-auto"
+                                            onerror="this.onerror=null; this.src='data:image/svg+xml;charset=UTF-8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 20 20\' fill=\'%23ccc\'><path d=\'M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12z\'/><path d=\'M12 10l-4 2V8l4 2z\'/></svg>'">
+                                    @else
+                                        <div class="w-20 h-15 flex items-center justify-center mx-auto bg-gray-100 dark:bg-gray-700 rounded">
+                                            <i class="fas fa-youtube text-red-500 text-2xl"></i>
+                                        </div>
                                     @endif
+                                @elseif($type === 'file' && !empty($url))
+                                    <div class="w-20 h-15 flex items-center justify-center mx-auto bg-gray-100 dark:bg-gray-700 rounded">
+                                        <i class="fas fa-video text-blue-500 text-2xl"></i>
+                                    </div>
                                 @else
-                                    <i class="fas fa-video text-gray-400 text-2xl"></i>
+                                    <div class="w-20 h-15 flex items-center justify-center mx-auto bg-gray-100 dark:bg-gray-700 rounded">
+                                        <i class="fas fa-question-circle text-gray-400 text-2xl"></i>
+                                    </div>
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
@@ -169,27 +174,29 @@
     </div>
 
     <!-- Modal -->
-    <div x-data="{ showModal: @entangle('isOpen') }" x-show="showModal" x-cloak x-transition:enter="ease-out duration-300"
+    <div x-data="{}" x-show="$wire.isOpen" x-cloak x-transition:enter="ease-out duration-300"
         x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
         x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100"
-        x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 flex items-center justify-center">
+        x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 flex items-center justify-center"
+        @keydown.escape.window="$wire.set('isOpen', false)">
 
         <!-- Backdrop -->
-        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" @click="showModal = false"></div>
+        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" @click="$wire.set('isOpen', false)"></div>
 
         <!-- Modal Content -->
-        <div x-show="showModal" x-transition:enter="ease-out duration-300"
+        <div x-show="$wire.isOpen" x-transition:enter="ease-out duration-300"
             x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
             x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 scale-100"
             x-transition:leave-end="opacity-0 scale-95"
-            class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg mx-4 transform transition-all">
+            class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg mx-4 transform transition-all"
+            @click.away="$wire.set('isOpen', false)">
 
             <!-- Modal Header -->
             <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
                 <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
                     {{ $editId ? 'Edit Video' : 'Tambah Video Baru' }}
                 </h3>
-                <button @click="showModal = false"
+                <button @click="$wire.set('isOpen', false)"
                     class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 transition-colors duration-200 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -276,7 +283,7 @@
 
             <!-- Modal Footer -->
             <div class="flex items-center justify-end space-x-3 p-6 border-t border-gray-200 dark:border-gray-700">
-                <button type="button" @click="showModal = false"
+                <button type="button" @click="$wire.set('isOpen', false)"
                     class="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl transition-colors duration-200">
                     Batal
                 </button>

@@ -283,14 +283,6 @@
             display: block;
         }
 
-        .next-queue {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            flex: 1;
-            overflow-y: auto;
-        }
-
         .next-item {
             background: linear-gradient(to right, #1e293b, #334155);
             border-radius: 8px;
@@ -740,47 +732,47 @@
                 height: 25px !important;
             }
 
-                .queue-number {
-                    font-size: 2.5rem;
-                }
-
-                .queue-service {
-                    font-size: 1rem;
-                }
-
-                .queue-counter {
-                    font-size: 1rem;
-                }
-
-                .services-grid {
-                    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-                    gap: 0.5rem;
-                }
-
-                .service-item {
-                    padding: 0.5rem;
-                }
-
-                .service-name {
-                    font-size: 0.75rem;
-                }
-
-                .service-current {
-                    font-size: 1.25rem;
-                }
-
-                .service-next {
-                    font-size: 0.875rem;
-                }
-
-                .service-counter,
-                .service-range {
-                    font-size: 0.65rem;
-                }
+            .queue-number {
+                font-size: 2.5rem;
             }
 
-            @media (max-width: 480px) {
-                .main-container {
+            .queue-service {
+                font-size: 1rem;
+            }
+
+            .queue-counter {
+                font-size: 1rem;
+            }
+
+            .services-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                gap: 0.5rem;
+            }
+
+            .service-item {
+                padding: 0.5rem;
+            }
+
+            .service-name {
+                font-size: 0.75rem;
+            }
+
+            .service-current {
+                font-size: 1.25rem;
+            }
+
+            .service-next {
+                font-size: 0.875rem;
+            }
+
+            .service-counter,
+            .service-range {
+                font-size: 0.65rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-container {
                 gap: 0.375rem;
                 padding: 0.375rem;
                 grid-template-columns: 1fr !important;
@@ -788,7 +780,7 @@
                 height: calc(100vh - 50px) !important;
                 padding-top: 60px;
             }
-            
+
             .calling-card,
             .video-card,
             .services-card {
@@ -796,20 +788,20 @@
                 min-height: 150px !important;
                 max-height: none !important;
             }
-            
+
             .calling-card {
                 grid-row: 1 / 2 !important;
             }
-            
+
             .video-card {
                 grid-row: 2 / 3 !important;
             }
-            
+
             .services-card {
                 grid-row: 3 / 4 !important;
                 max-height: 180px !important;
             }
-            
+
             #running-text {
                 grid-column: 1 / 2 !important;
                 grid-row: 4 / 5 !important;
@@ -822,54 +814,45 @@
             .services-grid {
                 grid-template-columns: 1fr 1fr;
             }
-            }
+        }
 
-            /* Hide scrollbar for better appearance */
-            .services-grid::-webkit-scrollbar,
-            .next-queue::-webkit-scrollbar {
-                width: 4px;
-            }
+        /* Hide scrollbar for better appearance */
+        .services-grid::-webkit-scrollbar,
 
-            .services-grid::-webkit-scrollbar-track,
-            .next-queue::-webkit-scrollbar-track {
-                background: #1e293b;
-            }
 
-            .services-grid::-webkit-scrollbar-thumb,
-            .next-queue::-webkit-scrollbar-thumb {
-                background: #475569;
-                border-radius: 2px;
-            }
+        .services-grid::-webkit-scrollbar-track,
 
-            .services-grid::-webkit-scrollbar-thumb:hover,
-            .next-queue::-webkit-scrollbar-thumb:hover {
-                background: #64748b;
-            }
 
-            .loading {
-                display: inline-block;
-                width: 20px;
-                height: 20px;
-                border: 3px solid rgba(255, 255, 255, .3);
-                border-radius: 50%;
-                border-top-color: #fff;
-                animation: spin 1s ease-in-out infinite;
-            }
+        .services-grid::-webkit-scrollbar-thumb,
 
-            @keyframes spin {
-                to {
-                    transform: rotate(360deg);
-                }
-            }
 
-            .no-data {
-                text-align: center;
-                color: #64748b;
-                font-style: italic;
-                padding: 2rem;
-            }
+        .services-grid::-webkit-scrollbar-thumb:hover,
 
-            /* Layout untuk mode 1920x1080 */
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, .3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .no-data {
+            text-align: center;
+            color: #64748b;
+            font-style: italic;
+            padding: 2rem;
+        }
+
+        /* Layout untuk mode 1920x1080 */
         @media screen and (min-width: 1920px) {
             .main-container {
                 grid-template-columns: 1fr 1fr !important;
@@ -880,144 +863,145 @@
                 padding-top: 70px !important;
             }
 
-                .calling-card {
-                    grid-column: 1 / 2 !important;
-                    grid-row: 1 / 2 !important;
-                    height: 100% !important;
-                    min-height: 300px !important;
-                }
-
-                .video-card {
-                    grid-column: 2 / 3 !important;
-                    grid-row: 1 / 2 !important;
-                    height: 100% !important;
-                    min-height: 300px !important;
-                }
-
-                .services-card {
-                    grid-column: 1 / 3 !important;
-                    grid-row: 2 / 3 !important;
-                    height: 100% !important;
-                    max-height: 200px !important;
-                    min-height: 150px !important;
-                }
+            .calling-card {
+                grid-column: 1 / 2 !important;
+                grid-row: 1 / 2 !important;
+                height: 100% !important;
+                min-height: 300px !important;
             }
 
-            /* Layout untuk fullscreen - header tetap terlihat */
-         :fullscreen .main-container,
-         :-webkit-full-screen .main-container,
-         :-moz-full-screen .main-container {
-             grid-template-columns: 1fr 1fr !important;
-             grid-template-rows: 1.5fr 1fr auto !important;
-             height: calc(100vh - 60px) !important;
-             gap: 0.75rem !important;
-             padding: 0.5rem !important;
-             padding-top: 70px !important;
-         }
+            .video-card {
+                grid-column: 2 / 3 !important;
+                grid-row: 1 / 2 !important;
+                height: 100% !important;
+                min-height: 300px !important;
+            }
 
-            /* Running teks dengan tabel */
+            .services-card {
+                grid-column: 1 / 3 !important;
+                grid-row: 2 / 3 !important;
+                height: 100% !important;
+                max-height: 200px !important;
+                min-height: 150px !important;
+            }
+        }
+
+        /* Layout untuk fullscreen - header tetap terlihat */
+        :fullscreen .main-container,
+        :-webkit-full-screen .main-container,
+        :-moz-full-screen .main-container {
+            grid-template-columns: 1fr 1fr !important;
+            grid-template-rows: 1.5fr 1fr auto !important;
+            height: calc(100vh - 60px) !important;
+            gap: 0.75rem !important;
+            padding: 0.5rem !important;
+            padding-top: 70px !important;
+        }
+
+        /* Running teks dengan tabel */
+        .running-text-table {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            white-space: nowrap;
+            animation: scroll-left 30s linear infinite;
+            padding: 10px 0;
+        }
+
+        .running-text-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .running-text-item i {
+            color: #ffd700;
+            font-size: 1.2rem;
+        }
+
+        @keyframes scroll-left {
+            0% {
+                transform: translateX(100%);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        /* Enhanced running text for 1920x1080 */
+        @media screen and (min-width: 1920px) {
+            .running-text {
+                height: 120px !important;
+                padding: 15px 0 !important;
+            }
+
             .running-text-table {
-                display: flex;
-                align-items: center;
-                gap: 2rem;
-                white-space: nowrap;
-                animation: scroll-left 30s linear infinite;
+                gap: 3rem;
                 padding: 10px 0;
             }
 
             .running-text-item {
-                display: flex;
-                align-items: center;
-                gap: 10px;
+                font-size: 1.2rem;
                 padding: 12px 20px;
-                background: rgba(59, 130, 246, 0.1);
-                border: 1px solid rgba(59, 130, 246, 0.3);
-                border-radius: 8px;
-                font-size: 1rem;
-                font-weight: 500;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                background: rgba(59, 130, 246, 0.15);
+                border: 1px solid rgba(59, 130, 246, 0.4);
             }
 
             .running-text-item i {
                 color: #ffd700;
-                font-size: 1.2rem;
+                margin-right: 10px;
             }
+        }
 
-            @keyframes scroll-left {
-                0% {
-                    transform: translateX(100%);
-                }
+        /* Fullscreen optimizations */
+        :fullscreen .running-text,
+        :-webkit-full-screen .running-text,
+        :-moz-full-screen .running-text {
+            height: 100px !important;
+        }
 
-                100% {
-                    transform: translateX(-100%);
-                }
-            }
+        :fullscreen .running-text-table,
+        :-webkit-full-screen .running-text-table,
+        :-moz-full-screen .running-text-table {
+            gap: 2.5rem;
+        }
 
-            /* Enhanced running text for 1920x1080 */
-            @media screen and (min-width: 1920px) {
-                .running-text {
-                    height: 120px !important;
-                    padding: 15px 0 !important;
-                }
+        :fullscreen .running-text-item,
+        :-webkit-full-screen .running-text-item,
+        :-moz-full-screen .running-text-item {
+            font-size: 1.1rem;
+            padding: 10px 18px;
+        }
 
-                .running-text-table {
-                    gap: 3rem;
-                    padding: 10px 0;
-                }
-
-                .running-text-item {
-                    font-size: 1.2rem;
-                    padding: 12px 20px;
-                    background: rgba(59, 130, 246, 0.15);
-                    border: 1px solid rgba(59, 130, 246, 0.4);
-                }
-
-                .running-text-item i {
-                    color: #ffd700;
-                    margin-right: 10px;
-                }
-            }
-
-            /* Fullscreen optimizations */
-            :fullscreen .running-text,
-            :-webkit-full-screen .running-text,
-            :-moz-full-screen .running-text {
-                height: 100px !important;
-            }
-
-            :fullscreen .running-text-table,
-            :-webkit-full-screen .running-text-table,
-            :-moz-full-screen .running-text-table {
-                gap: 2.5rem;
-            }
-
-            :fullscreen .running-text-item,
-            :-webkit-full-screen .running-text-item,
-            :-moz-full-screen .running-text-item {
-                font-size: 1.1rem;
-                padding: 10px 18px;
-            }
-    /* Running Text Fade Animation Styles */
+        /* Running Text Fade Animation Styles */
         .running-text-fade {
             transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
             will-change: opacity, transform;
         }
-        
+
         .running-text-fade.fade-out {
             opacity: 0;
             transform: translateY(-10px);
         }
-        
+
         .running-text-fade.fade-in {
             opacity: 1;
             transform: translateY(0);
         }
-        
+
         .running-text-content {
             transition: opacity 1.2s ease-in-out, transform 1.2s ease-in-out;
             will-change: opacity, transform;
         }
-        </style>
+    </style>
 </head>
 
 <body>
@@ -1180,7 +1164,6 @@
             const currentNumberEl = safeGetElementById('current-number');
             const currentCounterEl = safeGetElementById('current-counter');
             const currentServiceEl = safeGetElementById('current-service');
-            const nextContainer = safeGetElementById('next-queue-container');
             const servicesContainer = safeGetElementById('services-container');
             const runningText = safeGetElementById('running-text');
 
@@ -1236,10 +1219,23 @@
         let pollingActive = true;
 
         // Video player functionality
-        let currentVideo = null;
+        let currentVideoId = null;
+        let videoLoadAttempts = 0;
+        const MAX_RETRIES = 3;
+        const RETRY_DELAY = 5000; // 5 seconds
 
         async function loadVideo() {
+            const videoPlayer = document.getElementById('video-player');
+            
             try {
+                // Show loading state
+                videoPlayer.innerHTML = `
+                    <div class="video-placeholder">
+                        <div class="loading"></div>
+                        <div>Memuat video...</div>
+                    </div>
+                `;
+
                 const response = await fetch('/api/video', {
                     method: 'GET',
                     headers: {
@@ -1253,82 +1249,115 @@
                 }
 
                 const data = await response.json();
-                const videoPlayer = document.getElementById('video-player');
 
+                if (!data.success) {
+                    throw new Error(data.message || 'Gagal memuat video');
+                }
+
+                // Reset retry counter on successful response
+                videoLoadAttempts = 0;
+
+                // If no active video
                 if (!data.video) {
                     videoPlayer.innerHTML = `
                         <div class="video-placeholder">
-                            <i class="fas fa-video-slash"></i>
-                            <div>Tidak ada video aktif</div>
+                            <i class="fas fa-video-slash text-4xl mb-2"></i>
+                            <div class="text-lg font-medium">Tidak ada video aktif</div>
+                            <div class="text-sm opacity-75 mt-1">Silakan tambahkan video melalui panel admin</div>
                         </div>
                     `;
                     return;
                 }
 
-                // Cek apakah video berubah
-                if (currentVideo && currentVideo.id === data.video.id) {
-                    return; // Skip jika video sama
+                // Skip if same video is already playing
+                if (currentVideoId === data.video.id) {
+                    return;
                 }
 
-                currentVideo = data.video;
+                currentVideoId = data.video.id;
 
+                // Handle YouTube videos
                 if (data.video.type === 'youtube') {
-                    // Extract YouTube video ID from URL
-                    const youtubeId = extractYouTubeId(data.video.url);
-                    if (youtubeId) {
-                        videoPlayer.innerHTML = `
-                        <iframe
-                            width="100%"
-                            height="100%"
-                            src="https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}"
-                            frameborder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowfullscreen
-                            style="border-radius: 8px; width: 100%; height: 100%; position: absolute; top: 0; left: 0;"
-                        ></iframe>
-                    `;
-                    } else {
-                        videoPlayer.innerHTML = `
-                            <div class="video-placeholder">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                <div>URL YouTube tidak valid</div>
-                            </div>
-                        `;
-                    }
-                } else {
-                    // Local file video
                     videoPlayer.innerHTML = `
-                        <video
-                            controls
-                            autoplay
-                            muted
-                            loop
-                            style="border-radius: 8px; width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0;"
+                        <div class="youtube-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%;">
+                            <iframe 
+                                src="${data.video.url}"
+                                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+                    `;
+                } 
+                // Handle local video files
+                else if (data.video.type === 'file') {
+                    videoPlayer.innerHTML = `
+                        <video 
+                            autoplay 
+                            muted 
+                            loop 
+                            playsinline
+                            style="width: 100%; height: 100%; object-fit: contain; background: #000;"
+                            onerror="handleVideoError()"
                         >
                             <source src="${data.video.url}" type="video/mp4">
-                            Browser Anda tidak mendukung tag video.
+                            Browser Anda tidak mendukung pemutaran video.
                         </video>
                     `;
                 }
             } catch (error) {
                 console.error('Error loading video:', error);
-                const videoPlayer = document.getElementById('video-player');
-                videoPlayer.innerHTML = `
-                    <div class="video-placeholder">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <div>Error loading video: ${error.message || 'HTTP 500'}</div>
-                        <div style="font-size: 0.875rem; margin-top: 0.5rem; opacity: 0.7;">
-                            Silakan cek koneksi internet atau hubungi admin
+                videoLoadAttempts++;
+                
+                if (videoLoadAttempts <= MAX_RETRIES) {
+                    videoPlayer.innerHTML = `
+                        <div class="video-placeholder">
+                            <i class="fas fa-sync-alt fa-spin text-4xl mb-2"></i>
+                            <div>Mencoba memuat ulang video (${videoLoadAttempts}/${MAX_RETRIES})...</div>
                         </div>
-                    </div>
-                `;
+                    `;
+                    // Retry after delay
+                    setTimeout(loadVideo, RETRY_DELAY);
+                } else {
+                    videoPlayer.innerHTML = `
+                        <div class="video-placeholder">
+                            <i class="fas fa-exclamation-triangle text-4xl mb-2 text-yellow-500"></i>
+                            <div class="text-lg font-medium">Gagal memuat video</div>
+                            <div class="text-sm opacity-75 mt-1">${error.message || 'Terjadi kesalahan'}</div>
+                            <button onclick="loadVideo()" class="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-sync-alt mr-2"></i>Coba Lagi
+                            </button>
+                        </div>
+                    `;
+                }
             }
         }
 
-        function extractYouTubeId(url) {
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : null;
+        // Handle video playback errors
+        function handleVideoError() {
+            const videoPlayer = document.getElementById('video-player');
+            if (!videoPlayer) return;
+            
+            videoPlayer.innerHTML = `
+                <div class="video-placeholder">
+                    <i class="fas fa-exclamation-triangle text-4xl mb-2 text-red-500"></i>
+                    <div class="text-lg font-medium">Gagal memutar video</div>
+                    <div class="text-sm opacity-75 mt-1">Format tidak didukung atau file rusak</div>
+                    <button onclick="loadVideo()" class="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-sync-alt mr-2"></i>Coba Lagi
+                    </button>
+                </div>
+            `;
+        }
+
+        // Initialize video player
+        function initVideoPlayer() {
+            // Load video when page loads
+            loadVideo();
+            
+            // Refresh video every 5 minutes to catch any updates
+            setInterval(loadVideo, 5 * 60 * 1000);
         }
 
         // Running teks functionality dengan fade animation yang lebih mulus
@@ -1375,7 +1404,7 @@
                 runningTextContainer.style.transition = 'opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1)';
                 runningTextContainer.style.willChange = 'opacity';
                 runningTextContainer.style.opacity = '1';
-                
+
                 let currentIndex = 0;
                 let isTransitioning = false;
 
@@ -1388,21 +1417,21 @@
 
                 const smoothTransition = (newText) => {
                     if (isTransitioning) return;
-                    
+
                     isTransitioning = true;
-                    
+
                     // Fade out dengan easing yang lebih halus
                     runningTextContainer.style.opacity = '0';
-                    
+
                     setTimeout(() => {
                         runningTextContainer.innerHTML = createContent(newText);
-                        
+
                         // Force reflow untuk transisi yang smooth
                         runningTextContainer.offsetHeight;
-                        
+
                         // Fade in dengan easing yang lebih halus
                         runningTextContainer.style.opacity = '1';
-                        
+
                         setTimeout(() => {
                             isTransitioning = false;
                         }, 1200);
@@ -1411,7 +1440,7 @@
 
                 // Tampilkan teks pertama
                 runningTextContainer.innerHTML = createContent(activeItems[0].text);
-                
+
                 // Rotasi teks dengan timing yang lebih baik
                 const updateText = () => {
                     currentIndex = (currentIndex + 1) % activeItems.length;
@@ -1536,7 +1565,6 @@
             const currentNumberEl = safeGetElementById('current-number');
             const currentCounterEl = safeGetElementById('current-counter');
             const currentServiceEl = safeGetElementById('current-service');
-            const nextContainer = safeGetElementById('next-queue-container');
             const servicesContainer = safeGetElementById('services-container');
             const runningText = safeGetElementById('running-text');
 
@@ -1559,40 +1587,7 @@
                 if (currentServiceEl) currentServiceEl.textContent = '-';
             }
 
-            // Update next queues
-            if (nextContainer) {
-                if (data.nextQueues && data.nextQueues.length > 0) {
-                    nextContainer.innerHTML = '';
 
-                    // Group by service
-                    const services = {};
-                    data.nextQueues.forEach(queue => {
-                        if (!services[queue.service_name]) {
-                            services[queue.service_name] = [];
-                        }
-                        if (services[queue.service_name].length < 2) {
-                            services[queue.service_name].push(queue);
-                        }
-                    });
-
-                    Object.entries(services).forEach(([serviceName, queues]) => {
-                        queues.forEach(queue => {
-                            const nextItem = document.createElement('div');
-                            nextItem.className = 'next-item';
-                            nextItem.innerHTML = `
-                                <div class="next-number">${queue.formatted_number}</div>
-                                <div class="next-counter">
-                                    <i class="fas fa-list-ol counter-icon"></i>
-                                    ${serviceName}
-                                </div>
-                            `;
-                            nextContainer.appendChild(nextItem);
-                        });
-                    });
-                } else {
-                    nextContainer.innerHTML = '<div class="no-data">Tidak ada antrian</div>';
-                }
-            }
 
             // Update services info
             if (servicesContainer) {
@@ -1725,7 +1720,22 @@
         });
 
         // Fullscreen toggle functionality
+        // Handle page visibility changes
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                // Reload video when page becomes visible again
+                if (typeof loadVideo === 'function') {
+                    loadVideo();
+                }
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize video player
+            if (typeof initVideoPlayer === 'function') {
+                initVideoPlayer();
+            }
+            
             const fullscreenBtn = safeGetElementById('fullscreen-btn');
             if (!fullscreenBtn) return;
 

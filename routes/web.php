@@ -165,15 +165,48 @@ Route::get('/display', function () {
 
     // API endpoint untuk video
     Route::get('/api/video', function () {
-        $video = \App\Models\Video::where('is_active', true)
-            ->first(['id', 'title', 'url', 'type']);
+        try {
+            $video = \App\Models\Video::where('is_active', true)
+                ->orderBy('updated_at', 'desc')
+                ->first();
 
-        return response()->json([
-            'video' => $video,
-            'timestamp' => now()->toDateTimeString(),
-        ])->header('Cache-Control', 'no-cache, no-store, must-revalidate')
-           ->header('Pragma', 'no-cache')
-           ->header('Expires', '0');
+            if (!$video) {
+                return response()->json([
+                    'success' => true,
+                    'video' => null,
+                    'message' => 'Tidak ada video aktif yang ditemukan',
+                    'timestamp' => now()->toDateTimeString(),
+                ], 200);
+            }
+
+            $response = [
+                'success' => true,
+                'video' => [
+                    'id' => $video->id,
+                    'url' => $video->video_url,
+                    'type' => $video->type,
+                    'is_active' => (bool)$video->is_active,
+                    'created_at' => $video->created_at->toDateTimeString(),
+                    'updated_at' => $video->updated_at->toDateTimeString(),
+                ],
+                'timestamp' => now()->toDateTimeString(),
+            ];
+
+            return response()
+                ->json($response)
+                ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+                ->header('Pragma', 'no-cache')
+                ->header('Expires', '0');
+
+        } catch (\Exception $e) {
+            \Log::error('Error in video API: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => 'Gagal memuat video',
+                'message' => 'Terjadi kesalahan saat memuat video. Silakan coba lagi nanti.',
+                'timestamp' => now()->toDateTimeString(),
+            ], 500);
+        }
     })->name('api.video');
 
 // Route untuk tiket front (alternatif tampilan ambil tiket)

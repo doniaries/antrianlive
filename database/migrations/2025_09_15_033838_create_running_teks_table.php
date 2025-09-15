@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('running_teks', function (Blueprint $table) {
             $table->id();
             $table->string('text')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

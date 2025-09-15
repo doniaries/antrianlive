@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Video;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
@@ -11,8 +12,13 @@ class VideoManager extends Component
 {
     use WithPagination, WithFileUploads;
 
+    protected $listeners = [
+        'videoUpdated' => '$refresh',
+        'videoStored' => 'handleVideoStored',
+        'videoDeleted' => 'handleVideoDeleted'
+    ];
+
     public $url = '';
-    public $title = '';
     public $type = 'youtube'; // youtube atau file
     public $is_active = true;
     public $video_file;
@@ -20,14 +26,12 @@ class VideoManager extends Component
     public $isOpen = false;
 
     protected $rules = [
-        'title' => 'required|string|max:255',
         'type' => 'required|in:youtube,file',
     ];
 
     protected function rules()
     {
         $rules = [
-            'title' => 'required|string|max:255',
             'type' => 'required|in:youtube,file',
             'is_active' => 'boolean',
         ];
@@ -47,8 +51,26 @@ class VideoManager extends Component
 
     public function render()
     {
-        $videos = Video::latest()->paginate(10);
-        return view('livewire.video-manager', compact('videos'));
+        try {
+            $videos = Video::latest()->paginate(10);
+            return view('livewire.video-manager', [
+                'videos' => $videos->through(function ($video) {
+                    // Ensure all required fields have default values
+                    return (object)[
+                        'id' => $video->id ?? null,
+                        'url' => $video->url ?? '',
+                        'type' => $video->type ?? 'youtube',
+                        'is_active' => $video->is_active ?? true,
+                        'created_at' => $video->created_at ?? now(),
+                        'updated_at' => $video->updated_at ?? now()
+                    ];
+                })
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error loading videos: ' . $e->getMessage());
+            session()->flash('error', 'Gagal memuat video. Silakan coba lagi atau hubungi admin.');
+            return view('livewire.video-manager', ['videos' => collect()]);
+        }
     }
 
     public function create()
@@ -61,36 +83,59 @@ class VideoManager extends Component
     {
         $this->validate();
 
-        $data = [
-            'title' => $this->title,
-            'type' => $this->type,
-            'is_active' => $this->is_active,
-        ];
+        try {
+            $data = [
+                'type' => $this->type,
+                'is_active' => $this->is_active,
+            ];
 
-        if ($this->type === 'youtube') {
-            $data['url'] = $this->url;
-        } else {
-            if ($this->video_file) {
-                $path = $this->video_file->store('videos', 'public');
-                $data['url'] = $path;
+            if ($this->type === 'youtube') {
+                $data['url'] = $this->url;
+            } else {
+                if ($this->video_file) {
+                    // Hapus file lama jika sedang mengedit
+                    if ($this->editId) {
+                        $oldVideo = Video::find($this->editId);
+                        if ($oldVideo && $oldVideo->type === 'file' && $oldVideo->url) {
+                            $oldPath = storage_path('app/public/' . $oldVideo->url);
+                            if (file_exists($oldPath)) {
+                                unlink($oldPath);
+                            }
+                        }
+                    }
+                    
+                    $path = $this->video_file->store('videos', 'public');
+                    $data['url'] = $path;
+                } else if ($this->editId) {
+                    // Jika mengedit tanpa mengubah file, pertahankan URL yang ada
+                    $existing = Video::find($this->editId);
+                    if ($existing && $existing->type === 'file') {
+                        $data['url'] = $existing->url;
+                    }
+                }
             }
+
+            $video = Video::updateOrCreate(['id' => $this->editId], $data);
+
+            $message = $this->editId ? 'Video berhasil diperbarui.' : 'Video berhasil ditambahkan.';
+            session()->flash('message', $message);
+
+            $this->closeModal();
+            $this->resetInputFields();
+            
+            // Emit event for Livewire to refresh the component
+            $this->emit('videoStored');
+            $this->dispatch('refreshVideos');
+        } catch (\Exception $e) {
+            \Log::error('Error saving video: ' . $e->getMessage());
+            session()->flash('error', 'Gagal menyimpan video: ' . $e->getMessage());
         }
-
-        Video::updateOrCreate(['id' => $this->editId], $data);
-
-        session()->flash('message',
-            $this->editId ? 'Video berhasil diperbarui.' : 'Video berhasil ditambahkan.'
-        );
-
-        $this->closeModal();
-        $this->resetInputFields();
     }
 
     public function edit($id)
     {
         $video = Video::findOrFail($id);
         $this->editId = $id;
-        $this->title = $video->title;
         $this->type = $video->type;
         $this->url = $video->type === 'youtube' ? $video->url : '';
         $this->is_active = $video->is_active;
@@ -99,21 +144,32 @@ class VideoManager extends Component
 
     public function delete($id)
     {
-        $video = Video::find($id);
-        if ($video->type === 'file' && $video->url) {
-            // Hapus file jika ada
-            $filePath = storage_path('app/public/' . $video->url);
-            if (file_exists($filePath)) {
-                unlink($filePath);
+        try {
+            $video = Video::findOrFail($id);
+            
+            // Hapus file fisik jika tipe file
+            if ($video->type === 'file' && $video->url) {
+                $filePath = storage_path('app/public/' . $video->url);
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
             }
+            
+            $video->delete();
+            session()->flash('message', 'Video berhasil dihapus.');
+            
+            // Emit event for Livewire to refresh the component
+            $this->emit('videoDeleted');
+            $this->dispatch('refreshVideos');
+            
+        } catch (\Exception $e) {
+            \Log::error('Error deleting video: ' . $e->getMessage());
+            session()->flash('error', 'Gagal menghapus video: ' . $e->getMessage());
         }
-        $video->delete();
-        session()->flash('message', 'Video berhasil dihapus.');
     }
 
     private function resetInputFields()
     {
-        $this->title = '';
         $this->url = '';
         $this->type = 'youtube';
         $this->video_file = null;
@@ -128,5 +184,16 @@ class VideoManager extends Component
     public function closeModal()
     {
         $this->isOpen = false;
+        $this->resetInputFields();
+    }
+
+    public function handleVideoStored()
+    {
+        $this->resetPage();
+    }
+
+    public function handleVideoDeleted()
+    {
+        $this->resetPage();
     }
 }
