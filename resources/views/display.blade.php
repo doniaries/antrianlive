@@ -320,16 +320,17 @@
             width: 60px !important;
             height: 60px !important;
             border-radius: 50% !important;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6) !important;
+            background: linear-gradient(135deg, rgba(59,130,246,0.25), rgba(139,92,246,0.25)) !important;
             color: white !important;
-            border: 2px solid rgba(255, 255, 255, 0.3) !important;
-            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4) !important;
+            border: 2px solid rgba(255,255,255,0.15) !important;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.15) !important;
             cursor: pointer !important;
             z-index: 9999 !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
             transition: all 0.3s ease !important;
+            backdrop-filter: blur(2px);
         }
 
         #fullscreen-btn:hover {
