@@ -11,10 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('running_teks', function (Blueprint $table) {
-            $table->id();
-            $table->string('text')->nullable();
-            $table->timestamps();
+        Schema::table('videos', function (Blueprint $table) {
+            $table->string('title')->after('url');
+            $table->enum('type', ['youtube', 'file'])->default('youtube')->after('title');
         });
     }
 
@@ -23,6 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('running_teks');
+        Schema::table('videos', function (Blueprint $table) {
+            $table->dropColumn(['title', 'type']);
+        });
     }
 };

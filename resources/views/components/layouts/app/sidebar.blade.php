@@ -50,6 +50,15 @@
                 </li> --}}
             </flux:navlist.group>
 
+            <flux:navlist.group :heading="__('Konten Display')" class="grid">
+                <flux:navlist.item icon="chat-bubble-left-right" :href="route('running-teks.index')"
+                    :current="request()->routeIs('running-teks.*')" wire:navigate>{{ __('Running Teks') }}
+                </flux:navlist.item>
+                <flux:navlist.item icon="video-camera" :href="route('video.index')"
+                    :current="request()->routeIs('video.*')" wire:navigate>{{ __('Video') }}
+                </flux:navlist.item>
+            </flux:navlist.group>
+
             <flux:navlist.group :heading="__('Pengaturan')" class="grid">
                 <flux:navlist.item icon="cog" :href="route('profil.index')"
                     :current="request()->routeIs('profil.*')" wire:navigate>{{ __('Profil Instansi') }}

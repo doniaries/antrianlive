@@ -150,6 +150,33 @@ Route::get('/display', function () {
            ->header('Content-Type', 'application/json');
     })->name('api.display-data');
 
+    // API endpoint untuk running teks
+    Route::get('/api/running-teks', function () {
+        $runningTeks = \App\Models\RunningTeks::where('is_active', true)
+            ->orderBy('order', 'asc')
+            ->get(['id', 'text', 'is_active', 'order']);
+
+        return response()->json([
+            'running_teks' => $runningTeks,
+            'timestamp' => now()->toDateTimeString(),
+        ])->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+           ->header('Pragma', 'no-cache')
+           ->header('Expires', '0');
+    })->name('api.running-teks');
+
+    // API endpoint untuk video
+    Route::get('/api/video', function () {
+        $video = \App\Models\Video::where('is_active', true)
+            ->first(['id', 'title', 'url', 'type']);
+
+        return response()->json([
+            'video' => $video,
+            'timestamp' => now()->toDateTimeString(),
+        ])->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+           ->header('Pragma', 'no-cache')
+           ->header('Expires', '0');
+    })->name('api.video');
+
 // Route untuk tiket front (alternatif tampilan ambil tiket)
 Route::get('/tiket-front', function () {
     $profil = \App\Models\Profil::first();
@@ -193,6 +220,18 @@ Route::middleware([
         Route::get('/password', \App\Livewire\Settings\Password::class)->name('settings.password');
         Route::get('/appearance', \App\Livewire\Settings\Appearance::class)->name('settings.appearance');
         Route::get('/delete-account', \App\Livewire\Settings\DeleteUserForm::class)->name('settings.delete-account');
+    });
+
+    // Route untuk Running Teks Management
+    Route::prefix('running-teks')->group(function () {
+        Route::get('/', \App\Livewire\RunningTeksManager::class)->name('running-teks.index');
+        Route::get('/list', \App\Livewire\RunningTeksManager::class)->name('running-teks.list');
+    });
+
+    // Route untuk Video Management
+    Route::prefix('video')->group(function () {
+        Route::get('/', \App\Livewire\VideoManager::class)->name('video.index');
+        Route::get('/list', \App\Livewire\VideoManager::class)->name('video.list');
     });
 
     // Route untuk User Management (hanya untuk superadmin)
