@@ -392,19 +392,21 @@
             color: white;
         }
 
-        .service-item .service-name,
-        .service-item .service-current,
-        .service-item .service-next,
-        .service-item .service-counter,
-        .service-item .service-range {
-            color: white !important;
-        }
-
-        .service-item .service-range {
-            background: rgba(255, 255, 255, 0.2) !important;
-            color: white !important;
-        }
-
+        .service-item .service-current {
+    font-size: 3.5rem !important;
+    font-weight: bold !important;
+    letter-spacing: 2px !important;
+    margin: 0.5rem 0 !important;
+    text-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+.service-item .service-next {
+    font-size: 2.5rem !important;
+    font-weight: bold !important;
+    letter-spacing: 1px !important;
+    margin: 0.5rem 0 !important;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+// ... existing code ...
         .service-item:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
@@ -1518,7 +1520,6 @@ if (services[queue.service_name].length < 2) { services[queue.service_name].push
         <div class="service-current">${currentCalled ? currentCalled.formatted_number : '---'}</div>
         <div class="service-label">NOMOR BERIKUTNYA</div>
         <div class="service-next">${nextQueue ? nextQueue.formatted_number : '-'}</div>
-        <div class="service-counter">${currentCalled ? (currentCalled.counter_name || 'Loket') : ''}</div>
         <div class="service-range">${service.range || ''}</div>
     </div>
     `;
