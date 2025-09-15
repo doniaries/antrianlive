@@ -260,6 +260,57 @@
             overflow: hidden;
         }
 
+        /* Warna berbeda untuk tiap layanan */
+        .service-item[data-service-id="1"] {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            border-color: #3b82f6;
+        }
+
+        .service-item[data-service-id="2"] {
+            background: linear-gradient(135deg, #166534 0%, #22c55e 100%);
+            border-color: #22c55e;
+        }
+
+        .service-item[data-service-id="3"] {
+            background: linear-gradient(135deg, #9a3412 0%, #f97316 100%);
+            border-color: #f97316;
+        }
+
+        .service-item[data-service-id="4"] {
+            background: linear-gradient(135deg, #86198f 0%, #a855f7 100%);
+            border-color: #a855f7;
+        }
+
+        .service-item[data-service-id="5"] {
+            background: linear-gradient(135deg, #a16207 0%, #eab308 100%);
+            border-color: #eab308;
+        }
+
+        .service-item[data-service-id="6"] {
+            background: linear-gradient(135deg, #be185d 0%, #ec4899 100%);
+            border-color: #ec4899;
+        }
+
+        .service-item[data-service-id="7"] {
+            background: linear-gradient(135deg, #0e7490 0%, #06b6d4 100%);
+            border-color: #06b6d4;
+        }
+
+        .service-item[data-service-id="8"] {
+            background: linear-gradient(135deg, #7c2d12 0%, #d97706 100%);
+            border-color: #d97706;
+        }
+
+        .service-item[data-service-id="9"] {
+            background: linear-gradient(135deg, #4c1d95 0%, #8b5cf6 100%);
+            border-color: #8b5cf6;
+        }
+
+        .service-item[data-service-id="10"] {
+            background: linear-gradient(135deg, #881337 0%, #f43f5e 100%);
+            border-color: #f43f5e;
+        }
+
         .service-item:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
@@ -936,6 +987,7 @@
 
                         const serviceItem = document.createElement('div');
                         serviceItem.className = 'service-item';
+                        serviceItem.setAttribute('data-service-id', service.id);
                         if (serviceCurrentCalled) {
                             serviceItem.classList.add('active');
                         }
@@ -1323,6 +1375,7 @@ if (services[queue.service_name].length < 2) { services[queue.service_name].push
 
     const serviceItem = document.createElement('div');
     serviceItem.className = 'service-item';
+    serviceItem.setAttribute('data-service-id', service.id);
     if (currentCalled && currentCalled.service_id === service.id) {
     serviceItem.classList.add('active');
     }
@@ -1456,6 +1509,7 @@ if (services[queue.service_name].length < 2) { services[queue.service_name].push
 
         const serviceItem = document.createElement('div');
         serviceItem.className = 'service-item';
+        serviceItem.setAttribute('data-service-id', service.id);
         if (currentCalled && currentCalled.service_id === service.id) {
         serviceItem.classList.add('active');
         }
@@ -1589,6 +1643,7 @@ if (services[queue.service_name].length < 2) { services[queue.service_name].push
 
             const serviceItem = document.createElement('div');
             serviceItem.className = 'service-item';
+            serviceItem.setAttribute('data-service-id', service.id);
             if (currentCalled && currentCalled.service_id === service.id) {
             serviceItem.classList.add('active');
             }
@@ -1722,6 +1777,7 @@ if (services[queue.service_name].length < 2) { services[queue.service_name].push
 
                 const serviceItem = document.createElement('div');
                 serviceItem.className = 'service-item';
+                serviceItem.setAttribute('data-service-id', service.id);
                 if (currentCalled && currentCalled.service_id === service.id) {
                 serviceItem.classList.add('active');
                 }
