@@ -72,12 +72,14 @@ Route::get('/display', function () {
             ->orderBy('name')
             ->get(['id', 'name', 'code']);
         
-        // Get current called queues with optimized query
+        // Get current called queues - only active calls (not finished)
         $currentCalled = \App\Models\Antrian::with(['service:id,name', 'counter:id,name'])
             ->whereDate('created_at', $today)
             ->where('status', 'called')
+            ->whereNull('finished_at') // Pastikan antrian belum selesai
+            ->where('called_at', '>=', now()->subMinutes(3)) // Hanya tampilkan yang baru dipanggil
             ->orderBy('called_at', 'desc')
-            ->limit(5)
+            ->limit(1) // Hanya ambil 1 antrian yang sedang aktif dipanggil
             ->get(['id', 'service_id', 'counter_id', 'formatted_number', 'called_at'])
             ->map(function ($antrian) {
                 return [

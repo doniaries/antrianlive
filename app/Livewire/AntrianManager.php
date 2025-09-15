@@ -277,15 +277,32 @@ class AntrianManager extends Component
         $service = $antrian->service;
         $counter = $antrian->counter;
 
+        // Update status and called_at
+        $antrian->update([
+            'status' => 'called',
+            'called_at' => now(),
+            'counter_id' => $counter?->id,
+        ]);
+
         // Debug log
         \Log::info('Recall triggered', [
             'number' => $antrian->formatted_number,
             'service' => $service->name,
             'counter' => $counter?->name,
+            'id' => $antrian->id,
+            'type' => 'recall'
+        ]);
+
+        // Kirim event untuk pemutaran suara pada panggilan ulang
+        $this->dispatch('queue-called', [
+            'number' => $antrian->formatted_number,
+            'service' => $service->name,
+            'counter' => $counter?->name ?? 'Loket',
             'id' => $antrian->id
         ]);
 
-        $this->dispatch('antrian-called', [
+        // Kirim event khusus untuk panggilan ulang
+        $this->dispatch('antrian-recalled', [
             'number' => $antrian->formatted_number,
             'service' => $service->name,
             'counter' => $counter?->name ?? 'Loket',

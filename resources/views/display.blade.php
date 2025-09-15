@@ -577,7 +577,8 @@
     </header>
 
     <!-- Main Content -->
-    <div class="main-container" style="grid-template-columns: 1fr 1fr; grid-template-rows: 1.5fr 1fr; gap: 1rem; height: calc(100vh - 70px); padding: 1rem; overflow: hidden;">
+    <div class="main-container"
+        style="grid-template-columns: 1fr 1fr; grid-template-rows: 1.5fr 1fr; gap: 1rem; height: calc(100vh - 70px); padding: 1rem; overflow: hidden;">
         <!-- Sedang Dipanggil Card -->
         <div class="card calling-card" style="grid-column: 1 / 2; grid-row: 1 / 2; height: 100%;">
             <h2 class="card-title">
@@ -615,12 +616,13 @@
         </div>
 
         <!-- Informasi Layanan Card -->
-        <div class="card services-card" style="grid-column: 1 / 3; grid-row: 2 / 3; height: 100%; max-height: 250px; overflow-y: auto;">
+        <div class="card services-card"
+            style="grid-column: 1 / 3; grid-row: 2 / 3; height: 100%; max-height: 250px; overflow-y: auto;">
             <h2 class="card-title">
                 <div class="card-icon" style="background-color: #10b981;">
                     <i class="fas fa-info-circle text-white"></i>
                 </div>
-                Informasi Layanan
+                Dalam Antrian
             </h2>
             <div class="services-grid" id="services-container">
                 <div class="no-data">Memuat data layanan...</div>
@@ -642,7 +644,9 @@
     </footer>
 
     <!-- Floating Fullscreen Toggle Button -->
-    <button id="fullscreen-btn" class="fixed bottom-8 right-8 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg transition-all duration-300 ease-in-out transform hover:scale-110 z-50" title="Toggle Fullscreen">
+    <button id="fullscreen-btn"
+        class="fixed bottom-8 right-8 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg transition-all duration-300 ease-in-out transform hover:scale-110 z-50"
+        title="Toggle Fullscreen">
         <i class="fas fa-expand-arrows-alt text-xl"></i>
     </button>
 
@@ -755,37 +759,77 @@
         let pollingInterval = 3000; // Poll every 3 seconds
         let pollingActive = true;
 
-        // Enhanced fetch function with better error handling
+        // Enhanced fetch function with comprehensive error handling
         async function fetchQueueData() {
             if (!pollingActive) return;
 
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+            const url = new URL('/api/display-data', window.location.origin);
+            url.searchParams.set('t', Date.now());
+
             try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
-                
-                const response = await fetch('/api/display-data', {
-                    signal: controller.signal,
+                const response = await fetch(url.toString(), {
+                    method: 'GET',
                     headers: {
                         'Accept': 'application/json',
-                        'Cache-Control': 'no-cache'
-                    }
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
+                    },
+                    signal: controller.signal,
+                    mode: 'cors',
+                    credentials: 'omit'
                 });
-                
+
                 clearTimeout(timeoutId);
-                
+
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
-                
+
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Invalid response format - expected JSON');
+                }
+
                 const data = await response.json();
+
+                if (typeof data !== 'object' || data === null) {
+                    throw new Error('Invalid data structure');
+                }
+
                 updateDisplay(data);
                 lastUpdateTime = Date.now();
+                hideOfflineIndicator();
+
+                if (window.debugMode) {
+                    console.log('✅ Queue data fetched successfully:', data);
+                }
 
             } catch (error) {
-                // Only log if it's not a network abort error
-                if (!error.message.includes('aborted')) {
-                    console.error('Error fetching queue data:', error.message);
+                clearTimeout(timeoutId);
+
+                if (error.name === 'AbortError') {
+                    console.warn('⏰ Request timeout - server may be slow');
+                    showOfflineIndicator('Request timeout - checking connection...');
+                } else if (error.name === 'TypeError') {
+                    console.error('🔌 Network error:', error.message);
+                    showOfflineIndicator('Network connection issue - retrying...');
+                } else {
+                    console.error('❌ Fetch error:', error.message);
+                    showOfflineIndicator(`Error: ${error.message}`);
                 }
+
+                // Retry with exponential backoff
+                const retryDelay = Math.min(5000 * Math.pow(1.5, fetchQueueData.retryCount || 0), 30000);
+                fetchQueueData.retryCount = (fetchQueueData.retryCount || 0) + 1;
+
+                setTimeout(() => {
+                    fetchQueueData.retryCount = 0;
+                    fetchQueueData();
+                }, retryDelay);
             }
         }
 
@@ -822,12 +866,25 @@
 
             if (!data) return;
 
-            // Update current calling queue
+            // Update current calling queue - only show if it's a recent call
+            let validCurrentCall = null;
+            
             if (data.currentCalled && data.currentCalled.length > 0) {
                 const current = data.currentCalled[0];
-                if (currentNumberEl) currentNumberEl.textContent = current.formatted_number || '---';
-                if (currentCounterEl) currentCounterEl.textContent = current.counter_name || 'Loket';
-                if (currentServiceEl) currentServiceEl.textContent = current.service_name || '-';
+                const now = new Date();
+                const calledAt = new Date(current.called_at);
+                const timeDiff = (now - calledAt) / 1000 / 60; // in minutes
+                
+                // Only show if called within last 2 minutes
+                if (timeDiff <= 2) {
+                    validCurrentCall = current;
+                }
+            }
+
+            if (validCurrentCall) {
+                if (currentNumberEl) currentNumberEl.textContent = validCurrentCall.formatted_number || '---';
+                if (currentCounterEl) currentCounterEl.textContent = validCurrentCall.counter_name || 'Loket';
+                if (currentServiceEl) currentServiceEl.textContent = validCurrentCall.service_name || '-';
             } else {
                 if (currentNumberEl) currentNumberEl.textContent = '---';
                 if (currentCounterEl) currentCounterEl.textContent = '-';
@@ -838,7 +895,7 @@
             if (nextContainer) {
                 if (data.nextQueues && data.nextQueues.length > 0) {
                     nextContainer.innerHTML = '';
-                    
+
                     // Group by service
                     const services = {};
                     data.nextQueues.forEach(queue => {
@@ -874,12 +931,12 @@
                 if (data.services && data.services.length > 0) {
                     servicesContainer.innerHTML = '';
                     data.services.forEach(service => {
-                        const currentCalled = data.currentCalled?.find(q => q.service_id === service.id);
+                        const serviceCurrentCalled = validCurrentCall && validCurrentCall.service_id === service.id ? validCurrentCall : null;
                         const nextQueue = data.nextQueues?.find(q => q.service_id === service.id);
 
                         const serviceItem = document.createElement('div');
                         serviceItem.className = 'service-item';
-                        if (currentCalled && currentCalled.service_id === service.id) {
+                        if (serviceCurrentCalled) {
                             serviceItem.classList.add('active');
                         }
 
@@ -887,15 +944,16 @@
 
                         serviceItem.innerHTML = `
                             <div class="service-header">
-                                <div class="service-icon" style="background: ${currentCalled && currentCalled.service_id === service.id ? '#3b82f6' : '#475569'}">
+                                <div class="service-icon"
+                                    style="background: ${serviceCurrentCalled ? '#3b82f6' : '#475569'}">
                                     <i class="${iconClass} text-white"></i>
                                 </div>
                                 <div class="service-name">${service.name}</div>
                             </div>
                             <div class="service-info">
-                                <div class="service-current">${currentCalled ? currentCalled.formatted_number : '---'}</div>
+                                <div class="service-current">${serviceCurrentCalled ? serviceCurrentCalled.formatted_number : '---'}</div>
                                 <div class="service-next">${nextQueue ? nextQueue.formatted_number : '-'}</div>
-                                <div class="service-counter">${currentCalled ? (currentCalled.counter_name || 'Loket') : ''}</div>
+                                <div class="service-counter">${serviceCurrentCalled ? (serviceCurrentCalled.counter_name || 'Loket') : ''}</div>
                                 <div class="service-range">${service.range || ''}</div>
                             </div>
                         `;
@@ -908,13 +966,10 @@
 
             // Update running text safely
             if (runningText) {
-                if (data.currentCalled && data.currentCalled.length > 0) {
-                    const calls = data.currentCalled.map(q =>
-                        `Nomor ${q.formatted_number} untuk ${q.service_name} di ${q.counter_name || 'Loket'}`
-                    ).join(' • ');
+                if (validCurrentCall) {
                     runningText.innerHTML = `
                         <i class="fas fa-info-circle"></i>
-                        ${calls}. Silakan menunggu jika nomor Anda belum dipanggil.
+                        Nomor ${validCurrentCall.formatted_number} untuk ${validCurrentCall.service_name} di ${validCurrentCall.counter_name || 'Loket'}. Silakan menunggu jika nomor Anda belum dipanggil.
                     `;
                 } else {
                     runningText.innerHTML = `
@@ -925,16 +980,79 @@
             }
         }
 
-        // Start polling
-        function startPolling() {
-            if (typeof fetchQueueData === 'function') {
-                fetchQueueData(); // Initial load
-                setInterval(fetchQueueData, pollingInterval);
+        // Enhanced offline indicator
+        function showOfflineIndicator(message = 'Connection lost') {
+            let indicator = document.getElementById('offline-indicator');
+            if (!indicator) {
+                indicator = document.createElement('div');
+                indicator.id = 'offline-indicator';
+                indicator.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: #ef4444;
+                    color: white;
+                    padding: 12px 24px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    z-index: 9999;
+                    font-weight: bold;
+                    animation: pulse 2s infinite;
+                `;
+                document.body.appendChild(indicator);
+            }
+            indicator.textContent = message;
+            indicator.style.display = 'block';
+        }
+
+        function hideOfflineIndicator() {
+            const indicator = document.getElementById('offline-indicator');
+            if (indicator) {
+                indicator.style.display = 'none';
             }
         }
 
-        // Start polling when page loads
-        document.addEventListener('DOMContentLoaded', startPolling);
+        // Enhanced polling with visibility API
+        let pollingIntervalId;
+        let isPageVisible = true;
+
+        function startPolling() {
+            if (typeof fetchQueueData === 'function') {
+                fetchQueueData(); // Initial load
+
+                // Clear any existing interval
+                if (pollingIntervalId) {
+                    clearInterval(pollingIntervalId);
+                }
+
+                pollingIntervalId = setInterval(() => {
+                    if (isPageVisible && navigator.onLine !== false) {
+                        fetchQueueData();
+                    }
+                }, pollingInterval);
+            }
+        }
+
+        // Handle page visibility
+        document.addEventListener('visibilitychange', () => {
+            isPageVisible = !document.hidden;
+            if (isPageVisible) {
+                fetchQueueData(); // Immediate fetch when page becomes visible
+            }
+        });
+
+        // Handle online/offline events
+        window.addEventListener('online', () => {
+            console.log('🟢 Connection restored');
+            hideOfflineIndicator();
+            fetchQueueData();
+        });
+
+        window.addEventListener('offline', () => {
+            console.log('🔴 Connection lost');
+            showOfflineIndicator('No internet connection');
+        });
 
         // Fullscreen toggle functionality
         document.addEventListener('DOMContentLoaded', function() {
@@ -945,18 +1063,18 @@
 
             // Check if fullscreen is supported
             function isFullscreenSupported() {
-                return document.fullscreenEnabled || 
-                       document.webkitFullscreenEnabled || 
-                       document.mozFullScreenEnabled || 
-                       document.msFullscreenEnabled;
+                return document.fullscreenEnabled ||
+                    document.webkitFullscreenEnabled ||
+                    document.mozFullScreenEnabled ||
+                    document.msFullscreenEnabled;
             }
 
             // Check if currently in fullscreen
             function isInFullscreen() {
-                return !!(document.fullscreenElement || 
-                          document.webkitFullscreenElement || 
-                          document.mozFullScreenElement || 
-                          document.msFullscreenElement);
+                return !!(document.fullscreenElement ||
+                    document.webkitFullscreenElement ||
+                    document.mozFullScreenElement ||
+                    document.msFullscreenElement);
             }
 
             // Enter fullscreen
@@ -1011,9 +1129,10 @@
             fullscreenBtn.addEventListener('click', toggleFullscreen);
 
             // Listen for fullscreen changes
-            ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(event => {
-                document.addEventListener(event, updateFullscreenIcon);
-            });
+            ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(
+                event => {
+                    document.addEventListener(event, updateFullscreenIcon);
+                });
 
             // Keyboard shortcut (F11 or F key)
             document.addEventListener('keydown', function(e) {
@@ -1036,70 +1155,62 @@
 
 </html>
 
-// Perbaikan untuk error fetching data
-let retryCount = 0;
-const maxRetries = 3;
+// Initialize enhanced polling
+document.addEventListener('DOMContentLoaded', () => {
+// Enable debug mode for development
+window.debugMode = true;
 
-async function fetchQueueData() {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
-    
-    try {
-        const timestamp = new Date().getTime();
-        const response = await fetch(`/api/display-data?t=${timestamp}`, {
-            method: 'GET',
-            headers: {
-                'Cache-Control': 'no-cache, no-store, must-revalidate',
-                'Pragma': 'no-cache',
-                'Expires': '0'
-            },
-            signal: controller.signal
-        });
-        
-        clearTimeout(timeoutId);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        updateDisplayData(data);
-        retryCount = 0; // Reset retry count on success
-        
-    } catch (error) {
-        clearTimeout(timeoutId);
-        console.error('Error fetching queue data:', error.message);
-        
-        // Retry mechanism
-        if (retryCount < maxRetries) {
-            retryCount++;
-            console.log(`Retrying... (${retryCount}/${maxRetries})`);
-            setTimeout(fetchQueueData, 2000 * retryCount);
-        } else {
-            // Show offline indicator
-            const offlineIndicator = document.getElementById('offline-indicator');
-            if (offlineIndicator) {
-                offlineIndicator.style.display = 'block';
-            }
-        }
-    }
+// Test API availability first
+fetch('/api/display-data', { method: 'HEAD' })
+.then(response => {
+if (response.ok) {
+console.log('✅ API endpoint available');
+startPolling();
+} else {
+console.error('❌ API endpoint not responding correctly');
+showOfflineIndicator('API endpoint error');
+startPolling(); // Still start polling to retry
+}
+})
+.catch(error => {
+console.error('❌ Cannot reach API:', error.message);
+showOfflineIndicator('Cannot reach server');
+startPolling(); // Still start polling to retry
+});
+});
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', () => {
+if (pollingIntervalId) {
+clearInterval(pollingIntervalId);
+}
+});
+setTimeout(fetchQueueData, 2000 * retryCount);
+} else {
+// Show offline indicator
+const offlineIndicator = document.getElementById('offline-indicator');
+if (offlineIndicator) {
+offlineIndicator.style.display = 'block';
+}
+}
+}
 }
 
 // Tambahkan offline indicator di bagian atas body
 const offlineIndicator = document.createElement('div');
 offlineIndicator.id = 'offline-indicator';
 offlineIndicator.style.cssText = `
-    position: fixed;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #ef4444;
-    color: white;
-    padding: 8px 16px;
-    border-radius: 4px;
-    font-size: 14px;
-    z-index: 9999;
-    display: none;
+position: fixed;
+top: 10px;
+left: 50%;
+transform: translateX(-50%);
+background: #ef4444;
+color: white;
+padding: 8px 16px;
+border-radius: 4px;
+font-size: 14px;
+z-index: 9999;
+display: none;
 `;
 offlineIndicator.textContent = 'Koneksi terputus - Menghubungkan ulang...';
 document.body.appendChild(offlineIndicator);
@@ -1108,48 +1219,181 @@ document.body.appendChild(offlineIndicator);
 let pollingInterval = 3000;
 
 function startPolling() {
-    fetchQueueData();
-    setInterval(() => {
-        if (document.visibilityState === 'visible') {
-            fetchQueueData();
-        }
-    }, pollingInterval);
+fetchQueueData();
+setInterval(() => {
+if (document.visibilityState === 'visible') {
+fetchQueueData();
+}
+}, pollingInterval);
 }
 
 // Event listener untuk visibility change
 if (typeof document !== 'undefined') {
-    document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') {
-            retryCount = 0;
-            fetchQueueData();
-        }
+document.addEventListener('visibilitychange', () => {
+if (document.visibilityState === 'visible') {
+retryCount = 0;
+fetchQueueData();
+}
+});
+}
+
+// Helper function to get service icon
+function getServiceIcon(serviceName) {
+const icons = {
+'Pendaftaran': 'fas fa-user-plus',
+'Pembayaran': 'fas fa-money-bill',
+'Poliklinik': 'fas fa-user-md',
+'Apotek': 'fas fa-pills',
+'Laboratorium': 'fas fa-flask',
+'Radiologi': 'fas fa-x-ray',
+'Administrasi': 'fas fa-file-alt',
+'Informasi': 'fas fa-info-circle'
+};
+
+const normalizedName = serviceName?.toLowerCase() || '';
+for (const [key, icon] of Object.entries(icons)) {
+if (normalizedName.includes(key.toLowerCase())) {
+return icon;
+}
+}
+return 'fas fa-list-ol';
+}
+
+// Update display with real data
+function updateDisplay(data) {
+const currentNumberEl = safeGetElementById('current-number');
+const currentCounterEl = safeGetElementById('current-counter');
+const currentServiceEl = safeGetElementById('current-service');
+const nextContainer = safeGetElementById('next-queue-container');
+const servicesContainer = safeGetElementById('services-container');
+const runningText = safeGetElementById('running-text');
+
+if (!data) return;
+
+// Update current calling queue
+if (data.currentCalled && data.currentCalled.length > 0) {
+const current = data.currentCalled[0];
+if (currentNumberEl) currentNumberEl.textContent = current.formatted_number || '---';
+if (currentCounterEl) currentCounterEl.textContent = current.counter_name || 'Loket';
+if (currentServiceEl) currentServiceEl.textContent = current.service_name || '-';
+} else {
+if (currentNumberEl) currentNumberEl.textContent = '---';
+if (currentCounterEl) currentCounterEl.textContent = '-';
+if (currentServiceEl) currentServiceEl.textContent = '-';
+}
+
+// Update next queues
+if (nextContainer) {
+if (data.nextQueues && data.nextQueues.length > 0) {
+nextContainer.innerHTML = '';
+
+// Group by service
+const services = {};
+data.nextQueues.forEach(queue => {
+if (!services[queue.service_name]) {
+services[queue.service_name] = [];
+}
+if (services[queue.service_name].length < 2) { services[queue.service_name].push(queue); } });
+    Object.entries(services).forEach(([serviceName, queues])=> {
+    queues.forEach(queue => {
+    const nextItem = document.createElement('div');
+    nextItem.className = 'next-item';
+    nextItem.innerHTML = `
+    <div class="next-number">${queue.formatted_number}</div>
+    <div class="next-counter">
+        <i class="fas fa-list-ol counter-icon"></i>
+        ${serviceName}
+    </div>
+    `;
+    nextContainer.appendChild(nextItem);
     });
-}
+    });
+    } else {
+    nextContainer.innerHTML = '<div class="no-data">Tidak ada antrian</div>';
+    }
+    }
 
-// Helper function to get service icon
-function getServiceIcon(serviceName) {
+    // Update services info
+    if (servicesContainer) {
+    if (data.services && data.services.length > 0) {
+    servicesContainer.innerHTML = '';
+    data.services.forEach(service => {
+    const currentCalled = data.currentCalled?.find(q => q.service_id === service.id);
+    const nextQueue = data.nextQueues?.find(q => q.service_id === service.id);
+
+    const serviceItem = document.createElement('div');
+    serviceItem.className = 'service-item';
+    if (currentCalled && currentCalled.service_id === service.id) {
+    serviceItem.classList.add('active');
+    }
+
+    const iconClass = getServiceIcon(service.name);
+
+    serviceItem.innerHTML = `
+    <div class="service-header">
+        <div class="service-icon"
+            style="background: ${currentCalled && currentCalled.service_id === service.id ? '#3b82f6' : '#475569'}">
+            <i class="${iconClass} text-white"></i>
+        </div>
+        <div class="service-name">${service.name}</div>
+    </div>
+    <div class="service-info">
+        <div class="service-current">${currentCalled ? currentCalled.formatted_number : '---'}</div>
+        <div class="service-next">${nextQueue ? nextQueue.formatted_number : '-'}</div>
+        <div class="service-counter">${currentCalled ? (currentCalled.counter_name || 'Loket') : ''}</div>
+        <div class="service-range">${service.range || ''}</div>
+    </div>
+    `;
+    servicesContainer.appendChild(serviceItem);
+    });
+    } else {
+    servicesContainer.innerHTML = '<div class="no-data">Tidak ada layanan aktif</div>';
+    }
+    }
+
+    // Update running text safely
+    if (runningText) {
+    if (data.currentCalled && data.currentCalled.length > 0) {
+    const calls = data.currentCalled.map(q =>
+    `Nomor ${q.formatted_number} untuk ${q.service_name} di ${q.counter_name || 'Loket'}`
+    ).join(' • ');
+    runningText.innerHTML = `
+    <i class="fas fa-info-circle"></i>
+    ${calls}. Silakan menunggu jika nomor Anda belum dipanggil.
+    `;
+    } else {
+    runningText.innerHTML = `
+    <i class="fas fa-info-circle"></i>
+    Sistem Antrian Digital - Selamat datang di layanan kami
+    `;
+    }
+    }
+    }
+
+    // Helper function to get service icon
+    function getServiceIcon(serviceName) {
     const icons = {
-        'Pendaftaran': 'fas fa-user-plus',
-        'Pembayaran': 'fas fa-money-bill',
-        'Poliklinik': 'fas fa-user-md',
-        'Apotek': 'fas fa-pills',
-        'Laboratorium': 'fas fa-flask',
-        'Radiologi': 'fas fa-x-ray',
-        'Administrasi': 'fas fa-file-alt',
-        'Informasi': 'fas fa-info-circle'
+    'Pendaftaran': 'fas fa-user-plus',
+    'Pembayaran': 'fas fa-money-bill',
+    'Poliklinik': 'fas fa-user-md',
+    'Apotek': 'fas fa-pills',
+    'Laboratorium': 'fas fa-flask',
+    'Radiologi': 'fas fa-x-ray',
+    'Administrasi': 'fas fa-file-alt',
+    'Informasi': 'fas fa-info-circle'
     };
 
     const normalizedName = serviceName?.toLowerCase() || '';
     for (const [key, icon] of Object.entries(icons)) {
-        if (normalizedName.includes(key.toLowerCase())) {
-            return icon;
-        }
+    if (normalizedName.includes(key.toLowerCase())) {
+    return icon;
+    }
     }
     return 'fas fa-list-ol';
-}
+    }
 
-// Update display with real data
-function updateDisplay(data) {
+    // Update display with real data
+    function updateDisplay(data) {
     const currentNumberEl = safeGetElementById('current-number');
     const currentCounterEl = safeGetElementById('current-counter');
     const currentServiceEl = safeGetElementById('current-service');
@@ -1161,596 +1405,447 @@ function updateDisplay(data) {
 
     // Update current calling queue
     if (data.currentCalled && data.currentCalled.length > 0) {
-        const current = data.currentCalled[0];
-        if (currentNumberEl) currentNumberEl.textContent = current.formatted_number || '---';
-        if (currentCounterEl) currentCounterEl.textContent = current.counter_name || 'Loket';
-        if (currentServiceEl) currentServiceEl.textContent = current.service_name || '-';
+    const current = data.currentCalled[0];
+    if (currentNumberEl) currentNumberEl.textContent = current.formatted_number || '---';
+    if (currentCounterEl) currentCounterEl.textContent = current.counter_name || 'Loket';
+    if (currentServiceEl) currentServiceEl.textContent = current.service_name || '-';
     } else {
-        if (currentNumberEl) currentNumberEl.textContent = '---';
-        if (currentCounterEl) currentCounterEl.textContent = '-';
-        if (currentServiceEl) currentServiceEl.textContent = '-';
+    if (currentNumberEl) currentNumberEl.textContent = '---';
+    if (currentCounterEl) currentCounterEl.textContent = '-';
+    if (currentServiceEl) currentServiceEl.textContent = '-';
     }
 
     // Update next queues
     if (nextContainer) {
+    if (data.nextQueues && data.nextQueues.length > 0) {
+    nextContainer.innerHTML = '';
+
+    // Group by service
+    const services = {};
+    data.nextQueues.forEach(queue => {
+    if (!services[queue.service_name]) {
+    services[queue.service_name] = [];
+    }
+    if (services[queue.service_name].length < 2) { services[queue.service_name].push(queue); } });
+        Object.entries(services).forEach(([serviceName, queues])=> {
+        queues.forEach(queue => {
+        const nextItem = document.createElement('div');
+        nextItem.className = 'next-item';
+        nextItem.innerHTML = `
+        <div class="next-number">${queue.formatted_number}</div>
+        <div class="next-counter">
+            <i class="fas fa-list-ol counter-icon"></i>
+            ${serviceName}
+        </div>
+        `;
+        nextContainer.appendChild(nextItem);
+        });
+        });
+        } else {
+        nextContainer.innerHTML = '<div class="no-data">Tidak ada antrian</div>';
+        }
+        }
+
+        // Update services info
+        if (servicesContainer) {
+        if (data.services && data.services.length > 0) {
+        servicesContainer.innerHTML = '';
+        data.services.forEach(service => {
+        const currentCalled = data.currentCalled?.find(q => q.service_id === service.id);
+        const nextQueue = data.nextQueues?.find(q => q.service_id === service.id);
+
+        const serviceItem = document.createElement('div');
+        serviceItem.className = 'service-item';
+        if (currentCalled && currentCalled.service_id === service.id) {
+        serviceItem.classList.add('active');
+        }
+
+        const iconClass = getServiceIcon(service.name);
+
+        serviceItem.innerHTML = `
+        <div class="service-header">
+            <div class="service-icon"
+                style="background: ${currentCalled && currentCalled.service_id === service.id ? '#3b82f6' : '#475569'}">
+                <i class="${iconClass} text-white"></i>
+            </div>
+            <div class="service-name">${service.name}</div>
+        </div>
+        <div class="service-info">
+            <div class="service-current">${currentCalled ? currentCalled.formatted_number : '---'}</div>
+            <div class="service-next">${nextQueue ? nextQueue.formatted_number : '-'}</div>
+            <div class="service-counter">${currentCalled ? (currentCalled.counter_name || 'Loket') : ''}</div>
+            <div class="service-range">${service.range || ''}</div>
+        </div>
+        `;
+        servicesContainer.appendChild(serviceItem);
+        });
+        } else {
+        servicesContainer.innerHTML = '<div class="no-data">Tidak ada layanan aktif</div>';
+        }
+        }
+
+        // Update running text safely
+        if (runningText) {
+        if (data.currentCalled && data.currentCalled.length > 0) {
+        const calls = data.currentCalled.map(q =>
+        `Nomor ${q.formatted_number} untuk ${q.service_name} di ${q.counter_name || 'Loket'}`
+        ).join(' • ');
+        runningText.innerHTML = `
+        <i class="fas fa-info-circle"></i>
+        ${calls}. Silakan menunggu jika nomor Anda belum dipanggil.
+        `;
+        } else {
+        runningText.innerHTML = `
+        <i class="fas fa-info-circle"></i>
+        Sistem Antrian Digital - Selamat datang di layanan kami
+        `;
+        }
+        }
+        }
+
+        // Helper function to get service icon
+        function getServiceIcon(serviceName) {
+        const icons = {
+        'Pendaftaran': 'fas fa-user-plus',
+        'Pembayaran': 'fas fa-money-bill',
+        'Poliklinik': 'fas fa-user-md',
+        'Apotek': 'fas fa-pills',
+        'Laboratorium': 'fas fa-flask',
+        'Radiologi': 'fas fa-x-ray',
+        'Administrasi': 'fas fa-file-alt',
+        'Informasi': 'fas fa-info-circle'
+        };
+
+        const normalizedName = serviceName?.toLowerCase() || '';
+        for (const [key, icon] of Object.entries(icons)) {
+        if (normalizedName.includes(key.toLowerCase())) {
+        return icon;
+        }
+        }
+        return 'fas fa-list-ol';
+        }
+
+        // Update display with real data
+        function updateDisplay(data) {
+        const currentNumberEl = safeGetElementById('current-number');
+        const currentCounterEl = safeGetElementById('current-counter');
+        const currentServiceEl = safeGetElementById('current-service');
+        const nextContainer = safeGetElementById('next-queue-container');
+        const servicesContainer = safeGetElementById('services-container');
+        const runningText = safeGetElementById('running-text');
+
+        if (!data) return;
+
+        // Update current calling queue
+        if (data.currentCalled && data.currentCalled.length > 0) {
+        const current = data.currentCalled[0];
+        if (currentNumberEl) currentNumberEl.textContent = current.formatted_number || '---';
+        if (currentCounterEl) currentCounterEl.textContent = current.counter_name || 'Loket';
+        if (currentServiceEl) currentServiceEl.textContent = current.service_name || '-';
+        } else {
+        if (currentNumberEl) currentNumberEl.textContent = '---';
+        if (currentCounterEl) currentCounterEl.textContent = '-';
+        if (currentServiceEl) currentServiceEl.textContent = '-';
+        }
+
+        // Update next queues
+        if (nextContainer) {
         if (data.nextQueues && data.nextQueues.length > 0) {
+        nextContainer.innerHTML = '';
+
+        // Group by service
+        const services = {};
+        data.nextQueues.forEach(queue => {
+        if (!services[queue.service_name]) {
+        services[queue.service_name] = [];
+        }
+        if (services[queue.service_name].length < 2) { services[queue.service_name].push(queue); } });
+            Object.entries(services).forEach(([serviceName, queues])=> {
+            queues.forEach(queue => {
+            const nextItem = document.createElement('div');
+            nextItem.className = 'next-item';
+            nextItem.innerHTML = `
+            <div class="next-number">${queue.formatted_number}</div>
+            <div class="next-counter">
+                <i class="fas fa-list-ol counter-icon"></i>
+                ${serviceName}
+            </div>
+            `;
+            nextContainer.appendChild(nextItem);
+            });
+            });
+            } else {
+            nextContainer.innerHTML = '<div class="no-data">Tidak ada antrian</div>';
+            }
+            }
+
+            // Update services info
+            if (servicesContainer) {
+            if (data.services && data.services.length > 0) {
+            servicesContainer.innerHTML = '';
+            data.services.forEach(service => {
+            const currentCalled = data.currentCalled?.find(q => q.service_id === service.id);
+            const nextQueue = data.nextQueues?.find(q => q.service_id === service.id);
+
+            const serviceItem = document.createElement('div');
+            serviceItem.className = 'service-item';
+            if (currentCalled && currentCalled.service_id === service.id) {
+            serviceItem.classList.add('active');
+            }
+
+            const iconClass = getServiceIcon(service.name);
+
+            serviceItem.innerHTML = `
+            <div class="service-header">
+                <div class="service-icon"
+                    style="background: ${currentCalled && currentCalled.service_id === service.id ? '#3b82f6' : '#475569'}">
+                    <i class="${iconClass} text-white"></i>
+                </div>
+                <div class="service-name">${service.name}</div>
+            </div>
+            <div class="service-info">
+                <div class="service-current">${currentCalled ? currentCalled.formatted_number : '---'}</div>
+                <div class="service-next">${nextQueue ? nextQueue.formatted_number : '-'}</div>
+                <div class="service-counter">${currentCalled ? (currentCalled.counter_name || 'Loket') : ''}</div>
+                <div class="service-range">${service.range || ''}</div>
+            </div>
+            `;
+            servicesContainer.appendChild(serviceItem);
+            });
+            } else {
+            servicesContainer.innerHTML = '<div class="no-data">Tidak ada layanan aktif</div>';
+            }
+            }
+
+            // Update running text safely
+            if (runningText) {
+            if (data.currentCalled && data.currentCalled.length > 0) {
+            const calls = data.currentCalled.map(q =>
+            `Nomor ${q.formatted_number} untuk ${q.service_name} di ${q.counter_name || 'Loket'}`
+            ).join(' • ');
+            runningText.innerHTML = `
+            <i class="fas fa-info-circle"></i>
+            ${calls}. Silakan menunggu jika nomor Anda belum dipanggil.
+            `;
+            } else {
+            runningText.innerHTML = `
+            <i class="fas fa-info-circle"></i>
+            Sistem Antrian Digital - Selamat datang di layanan kami
+            `;
+            }
+            }
+            }
+
+            // Helper function to get service icon
+            function getServiceIcon(serviceName) {
+            const icons = {
+            'Pendaftaran': 'fas fa-user-plus',
+            'Pembayaran': 'fas fa-money-bill',
+            'Poliklinik': 'fas fa-user-md',
+            'Apotek': 'fas fa-pills',
+            'Laboratorium': 'fas fa-flask',
+            'Radiologi': 'fas fa-x-ray',
+            'Administrasi': 'fas fa-file-alt',
+            'Informasi': 'fas fa-info-circle'
+            };
+
+            const normalizedName = serviceName?.toLowerCase() || '';
+            for (const [key, icon] of Object.entries(icons)) {
+            if (normalizedName.includes(key.toLowerCase())) {
+            return icon;
+            }
+            }
+            return 'fas fa-list-ol';
+            }
+
+            // Update display with real data
+            function updateDisplay(data) {
+            const currentNumberEl = safeGetElementById('current-number');
+            const currentCounterEl = safeGetElementById('current-counter');
+            const currentServiceEl = safeGetElementById('current-service');
+            const nextContainer = safeGetElementById('next-queue-container');
+            const servicesContainer = safeGetElementById('services-container');
+            const runningText = safeGetElementById('running-text');
+
+            if (!data) return;
+
+            // Update current calling queue
+            if (data.currentCalled && data.currentCalled.length > 0) {
+            const current = data.currentCalled[0];
+            if (currentNumberEl) currentNumberEl.textContent = current.formatted_number || '---';
+            if (currentCounterEl) currentCounterEl.textContent = current.counter_name || 'Loket';
+            if (currentServiceEl) currentServiceEl.textContent = current.service_name || '-';
+            } else {
+            if (currentNumberEl) currentNumberEl.textContent = '---';
+            if (currentCounterEl) currentCounterEl.textContent = '-';
+            if (currentServiceEl) currentServiceEl.textContent = '-';
+            }
+
+            // Update next queues
+            if (nextContainer) {
+            if (data.nextQueues && data.nextQueues.length > 0) {
             nextContainer.innerHTML = '';
-            
+
             // Group by service
             const services = {};
             data.nextQueues.forEach(queue => {
-                if (!services[queue.service_name]) {
-                    services[queue.service_name] = [];
-                }
-                if (services[queue.service_name].length < 2) {
-                    services[queue.service_name].push(queue);
-                }
-            });
-
-            Object.entries(services).forEach(([serviceName, queues]) => {
+            if (!services[queue.service_name]) {
+            services[queue.service_name] = [];
+            }
+            if (services[queue.service_name].length < 2) { services[queue.service_name].push(queue); } });
+                Object.entries(services).forEach(([serviceName, queues])=> {
                 queues.forEach(queue => {
-                    const nextItem = document.createElement('div');
-                    nextItem.className = 'next-item';
-                    nextItem.innerHTML = `
-                        <div class="next-number">${queue.formatted_number}</div>
-                        <div class="next-counter">
-                            <i class="fas fa-list-ol counter-icon"></i>
-                            ${serviceName}
-                        </div>
-                    `;
-                    nextContainer.appendChild(nextItem);
+                const nextItem = document.createElement('div');
+                nextItem.className = 'next-item';
+                nextItem.innerHTML = `
+                <div class="next-number">${queue.formatted_number}</div>
+                <div class="next-counter">
+                    <i class="fas fa-list-ol counter-icon"></i>
+                    ${serviceName}
+                </div>
+                `;
+                nextContainer.appendChild(nextItem);
                 });
-            });
-        } else {
-            nextContainer.innerHTML = '<div class="no-data">Tidak ada antrian</div>';
-        }
-    }
+                });
+                } else {
+                nextContainer.innerHTML = '<div class="no-data">Tidak ada antrian</div>';
+                }
+                }
 
-    // Update services info
-    if (servicesContainer) {
-        if (data.services && data.services.length > 0) {
-            servicesContainer.innerHTML = '';
-            data.services.forEach(service => {
+                // Update services info
+                if (servicesContainer) {
+                if (data.services && data.services.length > 0) {
+                servicesContainer.innerHTML = '';
+                data.services.forEach(service => {
                 const currentCalled = data.currentCalled?.find(q => q.service_id === service.id);
                 const nextQueue = data.nextQueues?.find(q => q.service_id === service.id);
 
                 const serviceItem = document.createElement('div');
                 serviceItem.className = 'service-item';
                 if (currentCalled && currentCalled.service_id === service.id) {
-                    serviceItem.classList.add('active');
+                serviceItem.classList.add('active');
                 }
 
                 const iconClass = getServiceIcon(service.name);
 
                 serviceItem.innerHTML = `
-                    <div class="service-header">
-                        <div class="service-icon" style="background: ${currentCalled && currentCalled.service_id === service.id ? '#3b82f6' : '#475569'}">
-                            <i class="${iconClass} text-white"></i>
-                        </div>
-                        <div class="service-name">${service.name}</div>
+                <div class="service-header">
+                    <div class="service-icon"
+                        style="background: ${currentCalled && currentCalled.service_id === service.id ? '#3b82f6' : '#475569'}">
+                        <i class="${iconClass} text-white"></i>
                     </div>
-                    <div class="service-info">
-                        <div class="service-current">${currentCalled ? currentCalled.formatted_number : '---'}</div>
-                        <div class="service-next">${nextQueue ? nextQueue.formatted_number : '-'}</div>
-                        <div class="service-counter">${currentCalled ? (currentCalled.counter_name || 'Loket') : ''}</div>
-                        <div class="service-range">${service.range || ''}</div>
-                    </div>
+                    <div class="service-name">${service.name}</div>
+                </div>
+                <div class="service-info">
+                    <div class="service-current">${currentCalled ? currentCalled.formatted_number : '---'}</div>
+                    <div class="service-next">${nextQueue ? nextQueue.formatted_number : '-'}</div>
+                    <div class="service-counter">${currentCalled ? (currentCalled.counter_name || 'Loket') : ''}</div>
+                    <div class="service-range">${service.range || ''}</div>
+                </div>
                 `;
                 servicesContainer.appendChild(serviceItem);
-            });
-        } else {
-            servicesContainer.innerHTML = '<div class="no-data">Tidak ada layanan aktif</div>';
-        }
-    }
+                });
+                } else {
+                servicesContainer.innerHTML = '<div class="no-data">Tidak ada layanan aktif</div>';
+                }
+                }
 
-    // Update running text safely
-    if (runningText) {
-        if (data.currentCalled && data.currentCalled.length > 0) {
-            const calls = data.currentCalled.map(q =>
+                // Update running text safely
+                if (runningText) {
+                if (data.currentCalled && data.currentCalled.length > 0) {
+                const calls = data.currentCalled.map(q =>
                 `Nomor ${q.formatted_number} untuk ${q.service_name} di ${q.counter_name || 'Loket'}`
-            ).join(' • ');
-            runningText.innerHTML = `
+                ).join(' • ');
+                runningText.innerHTML = `
                 <i class="fas fa-info-circle"></i>
                 ${calls}. Silakan menunggu jika nomor Anda belum dipanggil.
-            `;
-        } else {
-            runningText.innerHTML = `
+                `;
+                } else {
+                runningText.innerHTML = `
                 <i class="fas fa-info-circle"></i>
                 Sistem Antrian Digital - Selamat datang di layanan kami
-            `;
-        }
-    }
-}
+                `;
+                }
+                }
+                }
 
-// Helper function to get service icon
-function getServiceIcon(serviceName) {
-    const icons = {
-        'Pendaftaran': 'fas fa-user-plus',
-        'Pembayaran': 'fas fa-money-bill',
-        'Poliklinik': 'fas fa-user-md',
-        'Apotek': 'fas fa-pills',
-        'Laboratorium': 'fas fa-flask',
-        'Radiologi': 'fas fa-x-ray',
-        'Administrasi': 'fas fa-file-alt',
-        'Informasi': 'fas fa-info-circle'
-    };
+                // Helper function to get service icon
+                function getServiceIcon(serviceName) {
+                const icons = {
+                'Pendaftaran': 'fas fa-user-plus',
+                'Pembayaran': 'fas fa-money-bill',
+                'Poliklinik': 'fas fa-user-md',
+                'Apotek': 'fas fa-pills',
+                'Laboratorium': 'fas fa-flask',
+                'Radiologi': 'fas fa-x-ray',
+                'Administrasi': 'fas fa-file-alt',
+                'Informasi': 'fas fa-info-circle'
+                };
 
-    const normalizedName = serviceName?.toLowerCase() || '';
-    for (const [key, icon] of Object.entries(icons)) {
-        if (normalizedName.includes(key.toLowerCase())) {
-            return icon;
-        }
-    }
-    return 'fas fa-list-ol';
-}
+                const normalizedName = serviceName?.toLowerCase() || '';
+                for (const [key, icon] of Object.entries(icons)) {
+                if (normalizedName.includes(key.toLowerCase())) {
+                return icon;
+                }
+                }
+                return 'fas fa-list-ol';
+                }
 
-// Update display with real data
-function updateDisplay(data) {
-    const currentNumberEl = safeGetElementById('current-number');
-    const currentCounterEl = safeGetElementById('current-counter');
-    const currentServiceEl = safeGetElementById('current-service');
-    const nextContainer = safeGetElementById('next-queue-container');
-    const servicesContainer = safeGetElementById('services-container');
-    const runningText = safeGetElementById('running-text');
+                // Update display with real data
+                function updateDisplay(data) {
+                const currentNumberEl = safeGetElementById('current-number');
+                const currentCounterEl = safeGetElementById('current-counter');
+                const currentServiceEl = safeGetElementById('current-service');
+                const nextContainer = safeGetElementById('next-queue-container');
+                const servicesContainer = safeGetElementById('services-container');
+                const runningText = safeGetElementById('running-text');
 
-    if (!data) return;
+                if (!data) return;
 
-    // Update current calling queue
-    if (data.currentCalled && data.currentCalled.length > 0) {
-        const current = data.currentCalled[0];
-        if (currentNumberEl) currentNumberEl.textContent = current.formatted_number || '---';
-        if (currentCounterEl) currentCounterEl.textContent = current.counter_name || 'Loket';
-        if (currentServiceEl) currentServiceEl.textContent = current.service_name || '-';
-    } else {
-        if (currentNumberEl) currentNumberEl.textContent = '---';
-        if (currentCounterEl) currentCounterEl.textContent = '-';
-        if (currentServiceEl) currentServiceEl.textContent = '-';
-    }
+                // Update current calling queue
+                if (data.currentCalled && data.currentCalled.length > 0) {
+                const current = data.currentCalled[0];
+                if (currentNumberEl) currentNumberEl.textContent = current.formatted_number || '---';
+                if (currentCounterEl) currentCounterEl.textContent = current.counter_name || 'Loket';
+                if (currentServiceEl) currentServiceEl.textContent = current.service_name || '-';
+                } else {
+                if (currentNumberEl) currentNumberEl.textContent = '---';
+                if (currentCounterEl) currentCounterEl.textContent = '-';
+                if (currentServiceEl) currentServiceEl.textContent = '-';
+                }
 
-    // Update next queues
-    if (nextContainer) {
-        if (data.nextQueues && data.nextQueues.length > 0) {
-            nextContainer.innerHTML = '';
-            
-            // Group by service
-            const services = {};
-            data.nextQueues.forEach(queue => {
+                // Update next queues
+                if (nextContainer) {
+                if (data.nextQueues && data.nextQueues.length > 0) {
+                nextContainer.innerHTML = '';
+
+                // Group by service
+                const services = {};
+                data.nextQueues.forEach(queue => {
                 if (!services[queue.service_name]) {
-                    services[queue.service_name] = [];
+                services[queue.service_name] = [];
                 }
-                if (services[queue.service_name].length < 2) {
-                    services[queue.service_name].push(queue);
-                }
-            });
-
-            Object.entries(services).forEach(([serviceName, queues]) => {
-                queues.forEach(queue => {
+                if (services[queue.service_name].length < 2) { services[queue.service_name].push(queue); } });
+                    Object.entries(services).forEach(([serviceName, queues])=> {
+                    queues.forEach(queue => {
                     const nextItem = document.createElement('div');
                     nextItem.className = 'next-item';
                     nextItem.innerHTML = `
-                        <div class="next-number">${queue.formatted_number}</div>
-                        <div class="next-counter">
-                            <i class="fas fa-list-ol counter-icon"></i>
-                            ${serviceName}
-                        </div>
+                    <div class="next-number">${queue.formatted_number}</div>
+                    <div class="next-counter">
+                        <i class="fas fa-list-ol counter-icon"></i>
+                        ${serviceName}
+                    </div>
                     `;
                     nextContainer.appendChild(nextItem);
-                });
-            });
-        } else {
-            nextContainer.innerHTML = '<div class="no-data">Tidak ada antrian</div>';
-        }
-    }
+                    });
+                    });
+                    } else {
+                    nextContainer.innerHTML = '<div class="no-data">Tidak ada antrian</div>';
+                    }
+                    }
 
-    // Update services info
-    if (servicesContainer) {
-        if (data.services && data.services.length > 0) {
-            servicesContainer.innerHTML = '';
-            data.services.forEach(service => {
-                const currentCalled = data.currentCalled?.find(q => q.service_id === service.id);
-                const nextQueue = data.nextQueues?.find(q => q.service_id === service.id);
-
-                const serviceItem = document.createElement('div');
-                serviceItem.className = 'service-item';
-                if (currentCalled && currentCalled.service_id === service.id) {
-                    serviceItem.classList.add('active');
-                }
-
-                const iconClass = getServiceIcon(service.name);
-
-                serviceItem.innerHTML = `
-                    <div class="service-header">
-                        <div class="service-icon" style="background: ${currentCalled && currentCalled.service_id === service.id ? '#3b82f6' : '#475569'}">
-                            <i class="${iconClass} text-white"></i>
-                        </div>
-                        <div class="service-name">${service.name}</div>
-                    </div>
-                    <div class="service-info">
-                        <div class="service-current">${currentCalled ? currentCalled.formatted_number : '---'}</div>
-                        <div class="service-next">${nextQueue ? nextQueue.formatted_number : '-'}</div>
-                        <div class="service-counter">${currentCalled ? (currentCalled.counter_name || 'Loket') : ''}</div>
-                        <div class="service-range">${service.range || ''}</div>
-                    </div>
-                `;
-                servicesContainer.appendChild(serviceItem);
-            });
-        } else {
-            servicesContainer.innerHTML = '<div class="no-data">Tidak ada layanan aktif</div>';
-        }
-    }
-
-    // Update running text safely
-    if (runningText) {
-        if (data.currentCalled && data.currentCalled.length > 0) {
-            const calls = data.currentCalled.map(q =>
-                `Nomor ${q.formatted_number} untuk ${q.service_name} di ${q.counter_name || 'Loket'}`
-            ).join(' • ');
-            runningText.innerHTML = `
-                <i class="fas fa-info-circle"></i>
-                ${calls}. Silakan menunggu jika nomor Anda belum dipanggil.
-            `;
-        } else {
-            runningText.innerHTML = `
-                <i class="fas fa-info-circle"></i>
-                Sistem Antrian Digital - Selamat datang di layanan kami
-            `;
-        }
-    }
-}
-
-// Helper function to get service icon
-function getServiceIcon(serviceName) {
-    const icons = {
-        'Pendaftaran': 'fas fa-user-plus',
-        'Pembayaran': 'fas fa-money-bill',
-        'Poliklinik': 'fas fa-user-md',
-        'Apotek': 'fas fa-pills',
-        'Laboratorium': 'fas fa-flask',
-        'Radiologi': 'fas fa-x-ray',
-        'Administrasi': 'fas fa-file-alt',
-        'Informasi': 'fas fa-info-circle'
-    };
-
-    const normalizedName = serviceName?.toLowerCase() || '';
-    for (const [key, icon] of Object.entries(icons)) {
-        if (normalizedName.includes(key.toLowerCase())) {
-            return icon;
-        }
-    }
-    return 'fas fa-list-ol';
-}
-
-// Update display with real data
-function updateDisplay(data) {
-    const currentNumberEl = safeGetElementById('current-number');
-    const currentCounterEl = safeGetElementById('current-counter');
-    const currentServiceEl = safeGetElementById('current-service');
-    const nextContainer = safeGetElementById('next-queue-container');
-    const servicesContainer = safeGetElementById('services-container');
-    const runningText = safeGetElementById('running-text');
-
-    if (!data) return;
-
-    // Update current calling queue
-    if (data.currentCalled && data.currentCalled.length > 0) {
-        const current = data.currentCalled[0];
-        if (currentNumberEl) currentNumberEl.textContent = current.formatted_number || '---';
-        if (currentCounterEl) currentCounterEl.textContent = current.counter_name || 'Loket';
-        if (currentServiceEl) currentServiceEl.textContent = current.service_name || '-';
-    } else {
-        if (currentNumberEl) currentNumberEl.textContent = '---';
-        if (currentCounterEl) currentCounterEl.textContent = '-';
-        if (currentServiceEl) currentServiceEl.textContent = '-';
-    }
-
-    // Update next queues
-    if (nextContainer) {
-        if (data.nextQueues && data.nextQueues.length > 0) {
-            nextContainer.innerHTML = '';
-            
-            // Group by service
-            const services = {};
-            data.nextQueues.forEach(queue => {
-                if (!services[queue.service_name]) {
-                    services[queue.service_name] = [];
-                }
-                if (services[queue.service_name].length < 2) {
-                    services[queue.service_name].push(queue);
-                }
-            });
-
-            Object.entries(services).forEach(([serviceName, queues]) => {
-                queues.forEach(queue => {
-                    const nextItem = document.createElement('div');
-                    nextItem.className = 'next-item';
-                    nextItem.innerHTML = `
-                        <div class="next-number">${queue.formatted_number}</div>
-                        <div class="next-counter">
-                            <i class="fas fa-list-ol counter-icon"></i>
-                            ${serviceName}
-                        </div>
-                    `;
-                    nextContainer.appendChild(nextItem);
-                });
-            });
-        } else {
-            nextContainer.innerHTML = '<div class="no-data">Tidak ada antrian</div>';
-        }
-    }
-
-    // Update services info
-    if (servicesContainer) {
-        if (data.services && data.services.length > 0) {
-            servicesContainer.innerHTML = '';
-            data.services.forEach(service => {
-                const currentCalled = data.currentCalled?.find(q => q.service_id === service.id);
-                const nextQueue = data.nextQueues?.find(q => q.service_id === service.id);
-
-                const serviceItem = document.createElement('div');
-                serviceItem.className = 'service-item';
-                if (currentCalled && currentCalled.service_id === service.id) {
-                    serviceItem.classList.add('active');
-                }
-
-                const iconClass = getServiceIcon(service.name);
-
-                serviceItem.innerHTML = `
-                    <div class="service-header">
-                        <div class="service-icon" style="background: ${currentCalled && currentCalled.service_id === service.id ? '#3b82f6' : '#475569'}">
-                            <i class="${iconClass} text-white"></i>
-                        </div>
-                        <div class="service-name">${service.name}</div>
-                    </div>
-                    <div class="service-info">
-                        <div class="service-current">${currentCalled ? currentCalled.formatted_number : '---'}</div>
-                        <div class="service-next">${nextQueue ? nextQueue.formatted_number : '-'}</div>
-                        <div class="service-counter">${currentCalled ? (currentCalled.counter_name || 'Loket') : ''}</div>
-                        <div class="service-range">${service.range || ''}</div>
-                    </div>
-                `;
-                servicesContainer.appendChild(serviceItem);
-            });
-        } else {
-            servicesContainer.innerHTML = '<div class="no-data">Tidak ada layanan aktif</div>';
-        }
-    }
-
-    // Update running text safely
-    if (runningText) {
-        if (data.currentCalled && data.currentCalled.length > 0) {
-            const calls = data.currentCalled.map(q =>
-                `Nomor ${q.formatted_number} untuk ${q.service_name} di ${q.counter_name || 'Loket'}`
-            ).join(' • ');
-            runningText.innerHTML = `
-                <i class="fas fa-info-circle"></i>
-                ${calls}. Silakan menunggu jika nomor Anda belum dipanggil.
-            `;
-        } else {
-            runningText.innerHTML = `
-                <i class="fas fa-info-circle"></i>
-                Sistem Antrian Digital - Selamat datang di layanan kami
-            `;
-        }
-    }
-}
-
-// Helper function to get service icon
-function getServiceIcon(serviceName) {
-    const icons = {
-        'Pendaftaran': 'fas fa-user-plus',
-        'Pembayaran': 'fas fa-money-bill',
-        'Poliklinik': 'fas fa-user-md',
-        'Apotek': 'fas fa-pills',
-        'Laboratorium': 'fas fa-flask',
-        'Radiologi': 'fas fa-x-ray',
-        'Administrasi': 'fas fa-file-alt',
-        'Informasi': 'fas fa-info-circle'
-    };
-
-    const normalizedName = serviceName?.toLowerCase() || '';
-    for (const [key, icon] of Object.entries(icons)) {
-        if (normalizedName.includes(key.toLowerCase())) {
-            return icon;
-        }
-    }
-    return 'fas fa-list-ol';
-}
-
-// Update display with real data
-function updateDisplay(data) {
-    const currentNumberEl = safeGetElementById('current-number');
-    const currentCounterEl = safeGetElementById('current-counter');
-    const currentServiceEl = safeGetElementById('current-service');
-    const nextContainer = safeGetElementById('next-queue-container');
-    const servicesContainer = safeGetElementById('services-container');
-    const runningText = safeGetElementById('running-text');
-
-    if (!data) return;
-
-    // Update current calling queue
-    if (data.currentCalled && data.currentCalled.length > 0) {
-        const current = data.currentCalled[0];
-        if (currentNumberEl) currentNumberEl.textContent = current.formatted_number || '---';
-        if (currentCounterEl) currentCounterEl.textContent = current.counter_name || 'Loket';
-        if (currentServiceEl) currentServiceEl.textContent = current.service_name || '-';
-    } else {
-        if (currentNumberEl) currentNumberEl.textContent = '---';
-        if (currentCounterEl) currentCounterEl.textContent = '-';
-        if (currentServiceEl) currentServiceEl.textContent = '-';
-    }
-
-    // Update next queues
-    if (nextContainer) {
-        if (data.nextQueues && data.nextQueues.length > 0) {
-            nextContainer.innerHTML = '';
-            
-            // Group by service
-            const services = {};
-            data.nextQueues.forEach(queue => {
-                if (!services[queue.service_name]) {
-                    services[queue.service_name] = [];
-                }
-                if (services[queue.service_name].length < 2) {
-                    services[queue.service_name].push(queue);
-                }
-            });
-
-            Object.entries(services).forEach(([serviceName, queues]) => {
-                queues.forEach(queue => {
-                    const nextItem = document.createElement('div');
-                    nextItem.className = 'next-item';
-                    nextItem.innerHTML = `
-                        <div class="next-number">${queue.formatted_number}</div>
-                        <div class="next-counter">
-                            <i class="fas fa-list-ol counter-icon"></i>
-                            ${serviceName}
-                        </div>
-                    `;
-                    nextContainer.appendChild(nextItem);
-                });
-            });
-        } else {
-            nextContainer.innerHTML = '<div class="no-data">Tidak ada antrian</div>';
-        }
-    }
-
-    // Update services info
-    if (servicesContainer) {
-        if (data.services && data.services.length > 0) {
-            servicesContainer.innerHTML = '';
-            data.services.forEach(service => {
-                const currentCalled = data.currentCalled?.find(q => q.service_id === service.id);
-                const nextQueue = data.nextQueues?.find(q => q.service_id === service.id);
-
-                const serviceItem = document.createElement('div');
-                serviceItem.className = 'service-item';
-                if (currentCalled && currentCalled.service_id === service.id) {
-                    serviceItem.classList.add('active');
-                }
-
-                const iconClass = getServiceIcon(service.name);
-
-                serviceItem.innerHTML = `
-                    <div class="service-header">
-                        <div class="service-icon" style="background: ${currentCalled && currentCalled.service_id === service.id ? '#3b82f6' : '#475569'}">
-                            <i class="${iconClass} text-white"></i>
-                        </div>
-                        <div class="service-name">${service.name}</div>
-                    </div>
-                    <div class="service-info">
-                        <div class="service-current">${currentCalled ? currentCalled.formatted_number : '---'}</div>
-                        <div class="service-next">${nextQueue ? nextQueue.formatted_number : '-'}</div>
-                        <div class="service-counter">${currentCalled ? (currentCalled.counter_name || 'Loket') : ''}</div>
-                        <div class="service-range">${service.range || ''}</div>
-                    </div>
-                `;
-                servicesContainer.appendChild(serviceItem);
-            });
-        } else {
-            servicesContainer.innerHTML = '<div class="no-data">Tidak ada layanan aktif</div>';
-        }
-    }
-
-    // Update running text safely
-    if (runningText) {
-        if (data.currentCalled && data.currentCalled.length > 0) {
-            const calls = data.currentCalled.map(q =>
-                `Nomor ${q.formatted_number} untuk ${q.service_name} di ${q.counter_name || 'Loket'}`
-            ).join(' • ');
-            runningText.innerHTML = `
-                <i class="fas fa-info-circle"></i>
-                ${calls}. Silakan menunggu jika nomor Anda belum dipanggil.
-            `;
-        } else {
-            runningText.innerHTML = `
-                <i class="fas fa-info-circle"></i>
-                Sistem Antrian Digital - Selamat datang di layanan kami
-            `;
-        }
-    }
-}
-
-// Helper function to get service icon
-function getServiceIcon(serviceName) {
-    const icons = {
-        'Pendaftaran': 'fas fa-user-plus',
-        'Pembayaran': 'fas fa-money-bill',
-        'Poliklinik': 'fas fa-user-md',
-        'Apotek': 'fas fa-pills',
-        'Laboratorium': 'fas fa-flask',
-        'Radiologi': 'fas fa-x-ray',
-        'Administrasi': 'fas fa-file-alt',
-        'Informasi': 'fas fa-info-circle'
-    };
-
-    const normalizedName = serviceName?.toLowerCase() || '';
-    for (const [key, icon] of Object.entries(icons)) {
-        if (normalizedName.includes(key.toLowerCase())) {
-            return icon;
-        }
-    }
-    return 'fas fa-list-ol';
-}
-
-// Update display with real data
-function updateDisplay(data) {
-    const currentNumberEl = safeGetElementById('current-number');
-    const currentCounterEl = safeGetElementById('current-counter');
-    const currentServiceEl = safeGetElementById('current-service');
-    const nextContainer = safeGetElementById('next-queue-container');
-    const servicesContainer = safeGetElementById('services-container');
-    const runningText = safeGetElementById('running-text');
-
-    if (!data) return;
-
-    // Update current calling queue
-    if (data.currentCalled && data.currentCalled.length > 0) {
-        const current = data.currentCalled[0];
-        if (currentNumberEl) currentNumberEl.textContent = current.formatted_number || '---';
-        if (currentCounterEl) currentCounterEl.textContent = current.counter_name || 'Loket';
-        if (currentServiceEl) currentServiceEl.textContent = current.service_name || '-';
-    } else {
-        if (currentNumberEl) currentNumberEl.textContent = '---';
-        if (currentCounterEl) currentCounterEl.textContent = '-';
-        if (currentServiceEl) currentServiceEl.textContent = '-';
-    }
-
-    // Update next queues
-    if (nextContainer) {
-        if (data.nextQueues && data.nextQueues.length > 0) {
-            nextContainer.innerHTML = '';
-            
-            // Group by service
-            const services = {};
-            data.nextQueues.forEach(queue => {
-                if (!services[queue.service_name]) {
-                    services[queue.service_name] = [];
-                }
-                if (services[queue.service_name].length < 2) {
-                    services[queue.service_name].push(queue);
-                }
-            });
-
-            Object.entries(services).forEach(([serviceName, queues]) => {
-                queues.forEach(queue => {
-                    const nextItem = document.createElement('div');
-                    nextItem.className = 'next-item';
-                    nextItem.innerHTML = `
-                        <div class="next-number">${queue.formatted_number}</div>
-                        <div class="next-counter">
-                            <i class="fas fa-list-ol counter-icon"></i>
-                            ${serviceName}
-                        </div>
-                    `;
-                    nextContainer.appendChild(nextItem);
-                });
-            });
-        } else {
-            nextContainer.innerHTML = '<div class="no-data">Tidak ada antrian</div>';
-        }
-    }
-
-    // Update services info
-    if (servicesContainer) {
-        if (data.services && data.services.length > 0) {
-            services
+                    // Update services info
+                    if (servicesContainer) {
+                    if (data.services && data.services.length > 0) {
+                    services
