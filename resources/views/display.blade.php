@@ -14,7 +14,7 @@
     @endphp
     <link rel="icon" href="{{ $faviconUrl }}" type="image/x-icon">
     <link rel="shortcut icon" href="{{ $faviconUrl }}" type="image/x-icon">
-    <script src="https://cdn.tailwindcss.com"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -433,134 +433,121 @@
             }
 
             .logo {
-                <header class="header">
-                    <div class="logo">
-                        @if ($logoUrl)
-                            <img src="{{ $logoUrl }}" alt="Logo Instansi" style="height: 48px; width: auto; border-radius: 0; background: none; box-shadow: none;">
-                        @else
-                            <div class="logo-icon">
-                                <i class="fas fa-list-ol text-white text-xl"></i>
-                            </div>
-                        @endif
-                        <div class="logo-text">{{ $namaInstansi }}</div>
-                    </div>
-                    <div class="datetime">
-                        <div id="current-time" class="time">--:--:--</div>
-                        <div id="current-date" class="date">--</div>
-                    </div>
-                </header>
-            </div>
+                <header class="header"><div class="logo">@if ($logoUrl)
+                    <img src="{{ $logoUrl }}" alt="Logo Instansi" style="height: 48px; width: auto; border-radius: 0; background: none; box-shadow: none;">
+                @else
+                    <div class="logo-icon"><i class="fas fa-list-ol text-white text-xl"></i></div>
+                @endif
+                <div class="logo-text">{{ $namaInstansi }}</div></div><div class="datetime"><div id="current-time" class="time">--:--:--</div><div id="current-date" class="date">--</div></div></header></div>.logo-text {
+                    font-size: 1rem;
+                }
 
-            .logo-text {
-                font-size: 1rem;
+                .time {
+                    font-size: 1.25rem;
+                }
+
+                .date {
+                    font-size: 0.75rem;
+                }
+
+                .queue-number {
+                    font-size: 2.5rem;
+                }
+
+                .queue-service {
+                    font-size: 1rem;
+                }
+
+                .queue-counter {
+                    font-size: 1rem;
+                }
+
+                .services-grid {
+                    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                    gap: 0.5rem;
+                }
+
+                .service-item {
+                    padding: 0.5rem;
+                }
+
+                .service-name {
+                    font-size: 0.75rem;
+                }
+
+                .service-current {
+                    font-size: 1.25rem;
+                }
+
+                .service-next {
+                    font-size: 0.875rem;
+                }
+
+                .service-counter,
+                .service-range {
+                    font-size: 0.65rem;
+                }
             }
 
-            .time {
-                font-size: 1.25rem;
+            @media (max-width: 480px) {
+                .main-container {
+                    gap: 0.375rem;
+                    padding: 0.375rem;
+                }
+
+                .queue-number {
+                    font-size: 2rem;
+                }
+
+                .services-grid {
+                    grid-template-columns: 1fr 1fr;
+                }
             }
 
-            .date {
-                font-size: 0.75rem;
+            /* Hide scrollbar for better appearance */
+            .services-grid::-webkit-scrollbar,
+            .next-queue::-webkit-scrollbar {
+                width: 4px;
             }
 
-            .queue-number {
-                font-size: 2.5rem;
+            .services-grid::-webkit-scrollbar-track,
+            .next-queue::-webkit-scrollbar-track {
+                background: #1e293b;
             }
 
-            .queue-service {
-                font-size: 1rem;
+            .services-grid::-webkit-scrollbar-thumb,
+            .next-queue::-webkit-scrollbar-thumb {
+                background: #475569;
+                border-radius: 2px;
             }
 
-            .queue-counter {
-                font-size: 1rem;
+            .services-grid::-webkit-scrollbar-thumb:hover,
+            .next-queue::-webkit-scrollbar-thumb:hover {
+                background: #64748b;
             }
 
-            .services-grid {
-                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-                gap: 0.5rem;
+            .loading {
+                display: inline-block;
+                width: 20px;
+                height: 20px;
+                border: 3px solid rgba(255, 255, 255, .3);
+                border-radius: 50%;
+                border-top-color: #fff;
+                animation: spin 1s ease-in-out infinite;
             }
 
-            .service-item {
-                padding: 0.5rem;
+            @keyframes spin {
+                to {
+                    transform: rotate(360deg);
+                }
             }
 
-            .service-name {
-                font-size: 0.75rem;
+            .no-data {
+                text-align: center;
+                color: #64748b;
+                font-style: italic;
+                padding: 2rem;
             }
-
-            .service-current {
-                font-size: 1.25rem;
-            }
-
-            .service-next {
-                font-size: 0.875rem;
-            }
-
-            .service-counter,
-            .service-range {
-                font-size: 0.65rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .main-container {
-                gap: 0.375rem;
-                padding: 0.375rem;
-            }
-
-            .queue-number {
-                font-size: 2rem;
-            }
-
-            .services-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        /* Hide scrollbar for better appearance */
-        .services-grid::-webkit-scrollbar,
-        .next-queue::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .services-grid::-webkit-scrollbar-track,
-        .next-queue::-webkit-scrollbar-track {
-            background: #1e293b;
-        }
-
-        .services-grid::-webkit-scrollbar-thumb,
-        .next-queue::-webkit-scrollbar-thumb {
-            background: #475569;
-            border-radius: 2px;
-        }
-
-        .services-grid::-webkit-scrollbar-thumb:hover,
-        .next-queue::-webkit-scrollbar-thumb:hover {
-            background: #64748b;
-        }
-
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, .3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .no-data {
-            text-align: center;
-            color: #64748b;
-            font-style: italic;
-            padding: 2rem;
-        }
     </style>
 </head>
 
@@ -569,7 +556,8 @@
     <header class="header">
         <div class="logo">
             @if ($logoUrl)
-                <img src="{{ $logoUrl }}" alt="Logo Instansi" style="height: 40px; width: auto; border-radius: 8px; background: none;">
+                <img src="{{ $logoUrl }}" alt="Logo Instansi"
+                    style="height: 40px; width: auto; border-radius: 8px; background: none;">
             @else
                 <div class="logo-icon">
                     <i class="fas fa-list-ol text-white text-xl"></i>
@@ -662,56 +650,48 @@
     </footer>
 
     <!-- Audio Element -->
-    <audio id="callSound" src="{{ asset('sounds/bell.mp3') }}" preload="auto"></audio>
-
-    <!-- Audio Test Button -->
-    <button id="testAudioBtn"
-        style="position: fixed; top: 10px; right: 10px; z-index: 9999; background: #007bff; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer;">
-        🔔 Test Audio
-    </button>
+    {{-- <audio id="callSound" src="{{ asset('sounds/bell.mp3') }}" preload="auto"></audio> --}}
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <script>
         // Audio notification functions
-        function playCallSound() {
-            const audio = document.getElementById('callSound');
-            if (audio) {
-                audio.currentTime = 0;
-                const playPromise = audio.play();
+        // function playCallSound() {
+        //     const audio = document.getElementById('callSound');
+        //     if (audio) {
+        //         audio.currentTime = 0;
+        //         const playPromise = audio.play();
 
-                if (playPromise !== undefined) {
-                    playPromise.then(() => {
-                        console.log('Audio played successfully');
-                    }).catch(error => {
-                        console.log('Audio play failed:', error);
-                        // Try to show notification instead
-                        alert('Audio blocked by browser. Please click "Test Audio" button first to enable audio.');
-                    });
-                }
-            }
-        }
+        //         if (playPromise !== undefined) {
+        //             playPromise.then(() => {
+        //                 console.log('Audio played successfully');
+        //             }).catch(error => {
+        //                 console.log('Audio play failed:', error);
+        //             });
+        //         }
+        //     }
+        // }
 
-        function speakText(text) {
-            if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'id-ID';
-                utterance.rate = 0.9;
-                utterance.pitch = 1;
-                speechSynthesis.speak(utterance);
-            }
-        }
+        // function speakText(text) {
+        //     if ('speechSynthesis' in window) {
+        //         const utterance = new SpeechSynthesisUtterance(text);
+        //         utterance.lang = 'id-ID';
+        //         utterance.rate = 0.9;
+        //         utterance.pitch = 1;
+        //         speechSynthesis.speak(utterance);
+        //     }
+        // }
 
         // Test audio button functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const testBtn = document.getElementById('testAudioBtn');
-            testBtn.addEventListener('click', function() {
-                console.log('Testing audio...');
-                playCallSound();
-                speakText('Testing audio sistem antrian');
-            });
-        });
+        // document.addEventListener('DOMContentLoaded', function() {
+        //     const testBtn = document.getElementById('testAudioBtn');
+        //     testBtn.addEventListener('click', function() {
+        //         console.log('Testing audio...');
+        //         playCallSound();
+        //         speakText('Testing audio sistem antrian');
+        //     });
+        // });
 
         // Update waktu dan tanggal
         function updateDateTime() {
