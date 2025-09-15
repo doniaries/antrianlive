@@ -433,12 +433,28 @@
             }
 
             .logo {
-                <header class="header"><div class="logo">@if ($logoUrl)
-                    <img src="{{ $logoUrl }}" alt="Logo Instansi" style="height: 48px; width: auto; border-radius: 0; background: none; box-shadow: none;">
-                @else
-                    <div class="logo-icon"><i class="fas fa-list-ol text-white text-xl"></i></div>
-                @endif
-                <div class="logo-text">{{ $namaInstansi }}</div></div><div class="datetime"><div id="current-time" class="time">--:--:--</div><div id="current-date" class="date">--</div></div></header></div>.logo-text {
+                <header class="header">
+                    <div class="logo">
+                        @if ($logoUrl)
+                            <img src="{{ $logoUrl }}" alt="Logo Instansi"
+                                style="height: 40px; width: auto; border-radius: 8px; background: none;">
+                        @else
+                            <div class="logo-icon">
+                                <i class="fas fa-list-ol text-white text-xl"></i>
+                            </div>
+                        @endif
+                        <div class="logo-text">{{ $namaInstansi }}</div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="text-xl font-bold text-white">{{ env('APP_NAME', 'Sistem Antrian Digital') }}</div>
+                    </div>
+                
+                    <div class="datetime">
+                        <div id="current-time" class="time">--:--:--</div>
+                        <div id="current-date" class="date">--</div>
+                    </div>
+                </header>.logo-text {
                     font-size: 1rem;
                 }
 
@@ -565,6 +581,11 @@
             @endif
             <div class="logo-text">{{ $namaInstansi }}</div>
         </div>
+        
+        <div class="text-center">
+            <div class="text-xl font-bold text-white">{{ env('APP_NAME', 'Sistem Antrian Digital') }}</div>
+        </div>
+
         <div class="datetime">
             <div id="current-time" class="time">--:--:--</div>
             <div id="current-date" class="date">--</div>
