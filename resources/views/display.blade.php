@@ -139,10 +139,6 @@
             grid-row: 1 / 2;
         }
 
-        .next-card {
-            grid-column: 1 / 2;
-            grid-row: 2 / 3;
-        }
 
         .services-card {
             grid-column: 2;
@@ -153,14 +149,18 @@
         }
 
         .running-teks-card {
-            grid-column: 1 / 2;
-            grid-row: 2 / 3;
+            grid-column: 1 / 3;
+            grid-row: 3 / 4;
             min-height: 60px;
             display: flex;
             align-items: center;
             overflow: hidden;
             position: relative;
             margin-top: 0.5rem;
+            background-color: #1e293b;
+            border-radius: 12px;
+            padding: 1rem;
+            border: 1px solid #334155;
         }
 
         .running-teks-container {
@@ -170,15 +170,6 @@
             display: flex;
             align-items: center;
             gap: 2rem;
-        }
-
-        .running-teks-item {
-            display: inline-block;
-            padding: 0.5rem 1rem;
-            background: rgba(59, 130, 246, 0.1);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            border-radius: 6px;
-            margin-right: 2rem;
         }
 
         @keyframes scroll-left {
@@ -597,23 +588,38 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
-        .running-text {
-            background: linear-gradient(to right, #3b82f6, #06b6d4);
-            padding: 1rem 0;
-            overflow: hidden;
-            margin-top: 2rem;
+        /* Running Text Fade Animation */
+        .running-text-fade {
+            background: rgba(59, 130, 246, 0.1);
+            border-top: 1px solid rgba(59, 130, 246, 0.2);
+            backdrop-filter: blur(10px);
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
         }
 
-        .marquee {
-            white-space: nowrap;
-            animation: marquee 25s linear infinite;
-            font-size: 1.1rem;
-            color: #0f172a;
+        .running-text-content {
+            animation: fadeInOut 8s ease-in-out infinite;
+            color: #374151;
             font-weight: 500;
+            font-size: 0.875rem;
         }
 
-        .marquee i {
-            margin-right: 1rem;
+        @keyframes fadeInOut {
+
+            0%,
+            100% {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            10%,
+            90% {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .footer {
@@ -686,7 +692,6 @@
 
             .calling-card,
             .video-card,
-            .next-card,
             .services-card {
                 grid-column: 1 / 2;
                 grid-row: auto;
@@ -756,17 +761,46 @@
 
             @media (max-width: 480px) {
                 .main-container {
-                    gap: 0.375rem;
-                    padding: 0.375rem;
-                }
+                gap: 0.375rem;
+                padding: 0.375rem;
+                grid-template-columns: 1fr !important;
+                grid-template-rows: auto auto auto auto !important;
+                height: calc(100vh - 60px) !important;
+            }
+            
+            .calling-card,
+            .video-card,
+            .services-card {
+                grid-column: 1 / 2 !important;
+                min-height: 150px !important;
+                max-height: none !important;
+            }
+            
+            .calling-card {
+                grid-row: 1 / 2 !important;
+            }
+            
+            .video-card {
+                grid-row: 2 / 3 !important;
+            }
+            
+            .services-card {
+                grid-row: 3 / 4 !important;
+                max-height: 180px !important;
+            }
+            
+            #running-text {
+                grid-column: 1 / 2 !important;
+                grid-row: 4 / 5 !important;
+            }
 
-                .queue-number {
-                    font-size: 2rem;
-                }
+            .queue-number {
+                font-size: 2rem;
+            }
 
-                .services-grid {
-                    grid-template-columns: 1fr 1fr;
-                }
+            .services-grid {
+                grid-template-columns: 1fr 1fr;
+            }
             }
 
             /* Hide scrollbar for better appearance */
@@ -813,6 +847,133 @@
                 font-style: italic;
                 padding: 2rem;
             }
+
+            /* Layout untuk mode 1920x1080 */
+            @media screen and (min-width: 1920px) {
+                .main-container {
+                    grid-template-columns: 1fr 1fr !important;
+                    grid-template-rows: 1.5fr 1fr auto !important;
+                    gap: 1rem !important;
+                    height: calc(100vh - 70px) !important;
+                    padding: 0.75rem !important;
+                }
+
+                .calling-card {
+                    grid-column: 1 / 2 !important;
+                    grid-row: 1 / 2 !important;
+                    height: 100% !important;
+                    min-height: 300px !important;
+                }
+
+                .video-card {
+                    grid-column: 2 / 3 !important;
+                    grid-row: 1 / 2 !important;
+                    height: 100% !important;
+                    min-height: 300px !important;
+                }
+
+                .services-card {
+                    grid-column: 1 / 3 !important;
+                    grid-row: 2 / 3 !important;
+                    height: 100% !important;
+                    max-height: 200px !important;
+                    min-height: 150px !important;
+                }
+            }
+
+            /* Layout untuk fullscreen - header tetap terlihat */
+        :fullscreen .main-container,
+        :-webkit-full-screen .main-container,
+        :-moz-full-screen .main-container {
+            grid-template-columns: 1fr 1fr !important;
+            grid-template-rows: 1.5fr 1fr auto !important;
+            height: calc(100vh - 70px) !important;
+            gap: 0.75rem !important;
+            padding: 0.5rem !important;
+        }
+
+            /* Running teks dengan tabel */
+            .running-text-table {
+                display: flex;
+                align-items: center;
+                gap: 2rem;
+                white-space: nowrap;
+                animation: scroll-left 30s linear infinite;
+                padding: 10px 0;
+            }
+
+            .running-text-item {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 12px 20px;
+                background: rgba(59, 130, 246, 0.1);
+                border: 1px solid rgba(59, 130, 246, 0.3);
+                border-radius: 8px;
+                font-size: 1rem;
+                font-weight: 500;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+
+            .running-text-item i {
+                color: #ffd700;
+                font-size: 1.2rem;
+            }
+
+            @keyframes scroll-left {
+                0% {
+                    transform: translateX(100%);
+                }
+
+                100% {
+                    transform: translateX(-100%);
+                }
+            }
+
+            /* Enhanced running text for 1920x1080 */
+            @media screen and (min-width: 1920px) {
+                .running-text {
+                    height: 120px !important;
+                    padding: 15px 0 !important;
+                }
+
+                .running-text-table {
+                    gap: 3rem;
+                    padding: 10px 0;
+                }
+
+                .running-text-item {
+                    font-size: 1.2rem;
+                    padding: 12px 20px;
+                    background: rgba(59, 130, 246, 0.15);
+                    border: 1px solid rgba(59, 130, 246, 0.4);
+                }
+
+                .running-text-item i {
+                    color: #ffd700;
+                    margin-right: 10px;
+                }
+            }
+
+            /* Fullscreen optimizations */
+            :fullscreen .running-text,
+            :-webkit-full-screen .running-text,
+            :-moz-full-screen .running-text {
+                height: 100px !important;
+            }
+
+            :fullscreen .running-text-table,
+            :-webkit-full-screen .running-text-table,
+            :-moz-full-screen .running-text-table {
+                gap: 2.5rem;
+            }
+
+            :fullscreen .running-text-item,
+            :-webkit-full-screen .running-text-item,
+            :-moz-full-screen .running-text-item {
+                font-size: 1.1rem;
+                padding: 10px 18px;
+            }
     </style>
 </head>
 
@@ -843,9 +1004,9 @@
 
     <!-- Main Content -->
     <div class="main-container"
-        style="grid-template-columns: 1fr 1fr; grid-template-rows: 1.5fr 1fr; gap: 1rem; height: calc(100vh - 70px); padding: 1rem; overflow: hidden;">
+        style="grid-template-columns: 1fr 1fr; grid-template-rows: 1.2fr 0.8fr auto; gap: 0.75rem; height: calc(100vh - 70px); padding: 0.5rem; overflow: hidden; min-height: 0;">
         <!-- Sedang Dipanggil Card -->
-        <div class="card calling-card" style="grid-column: 1 / 2; grid-row: 1 / 2; height: 100%;">
+        <div class="card calling-card" style="grid-column: 1 / 2; grid-row: 1 / 2; height: 100%; min-height: 200px;">
             <h2 class="card-title">
                 <div class="card-icon" style="background-color: #3b82f6;">
                     <i class="fas fa-volume-up text-white"></i>
@@ -882,7 +1043,7 @@
 
         <!-- Informasi Layanan Card -->
         <div class="card services-card"
-            style="grid-column: 1 / 3; grid-row: 2 / 3; height: 100%; max-height: 250px; overflow-y: auto;">
+            style="grid-column: 1 / 3; grid-row: 2 / 3; height: 100%; min-height: 150px; max-height: 200px; overflow-y: auto;">
             <h2 class="card-title">
                 <div class="card-icon" style="background-color: #10b981;">
                     <i class="fas fa-info-circle text-white"></i>
@@ -893,13 +1054,14 @@
                 <div class="no-data">Memuat data layanan...</div>
             </div>
         </div>
-    </div>
 
-    <!-- Running Text -->
-    <div class="running-text">
-        <div class="marquee" id="running-text">
-            <i class="fas fa-info-circle"></i>
-            Sistem Antrian Digital - Selamat datang di layanan kami
+        <!-- Running Text -->
+        <div class="running-text-fade" id="running-text"
+            style="grid-column: 1 / 3; grid-row: 3 / 4; padding: 0.5rem 1rem; text-align: center; margin-top: 0.25rem;">
+            <div class="running-text-content">
+                <i class="fas fa-info-circle text-blue-400 mr-2"></i>
+                <span class="text-sm">Sistem Antrian Digital - Selamat datang di layanan kami</span>
+            </div>
         </div>
     </div>
 
@@ -1010,12 +1172,14 @@
             if (typeof fetchQueueData === 'function') {
                 fetchQueueData();
                 loadVideo(); // Load video saat halaman dimuat
+                loadRunningTeks(); // Load running teks
 
                 // Set up polling with error handling
                 setInterval(() => {
                     fetchQueueData().catch(console.error);
                     loadVideo(); // Reload video setiap 30 detik
-                }, 30000); // Poll every 30 seconds for video
+                    loadRunningTeks(); // Reload running teks setiap 30 detik
+                }, 30000); // Poll every 30 seconds
             }
         });
 
@@ -1119,6 +1283,75 @@
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
             const match = url.match(regExp);
             return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        // Running teks functionality dengan fade animation
+        async function loadRunningTeks() {
+            try {
+                const response = await fetch('/api/running-teks', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Cache-Control': 'no-cache'
+                    }
+                });
+
+                if (!response.ok) {
+                    return; // Silent fail - tidak tampilkan error
+                }
+
+                const data = await response.json();
+                const runningTextContainer = document.getElementById('running-text');
+
+                if (!data.running_teks || data.running_teks.length === 0) {
+                    runningTextContainer.innerHTML = `
+                        <div class="running-text-content">
+                            <i class="fas fa-info-circle text-blue-400 mr-2"></i>
+                            <span class="text-sm">Sistem Antrian Digital - Selamat datang di layanan kami</span>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Filter hanya yang aktif
+                const activeItems = data.running_teks.filter(item => item.is_active);
+
+                if (activeItems.length === 0) {
+                    runningTextContainer.innerHTML = `
+                        <div class="running-text-content">
+                            <i class="fas fa-info-circle text-blue-400 mr-2"></i>
+                            <span class="text-sm">Sistem Antrian Digital - Selamat datang di layanan kami</span>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Rotasi teks dengan fade animation
+                let currentIndex = 0;
+                const updateText = () => {
+                    const item = activeItems[currentIndex];
+                    runningTextContainer.innerHTML = `
+                        <div class="running-text-content">
+                            <i class="fas fa-info-circle text-blue-400 mr-2"></i>
+                            <span class="text-sm">${item.text}</span>
+                        </div>
+                    `;
+                    currentIndex = (currentIndex + 1) % activeItems.length;
+                };
+
+                updateText();
+                setInterval(updateText, 4000); // Ganti teks setiap 4 detik
+
+            } catch (error) {
+                // Silent fail - tampilkan default text tanpa error
+                const runningTextContainer = document.getElementById('running-text');
+                runningTextContainer.innerHTML = `
+                    <div class="running-text-content">
+                        <i class="fas fa-info-circle text-blue-400 mr-2"></i>
+                        <span class="text-sm">Sistem Antrian Digital - Selamat datang di layanan kami</span>
+                    </div>
+                `;
+            }
         }
 
         // Enhanced fetch function with comprehensive error handling
