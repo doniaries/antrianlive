@@ -12,7 +12,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $profil->nama_aplikasi ?? 'Ambil Tiket Antrian' }} - {{ $profil->nama_instansi ?? 'Sistem Antrian' }}</title>
+    <title>{{ $profil->nama_aplikasi ?? 'Ambil Tiket Antrian' }} - {{ $profil->nama_instansi ?? 'Sistem Antrian' }}
+    </title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @php
         $faviconUrl = $profil && $profil->favicon ? asset('storage/' . $profil->favicon) : '/favicon.ico';

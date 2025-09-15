@@ -344,14 +344,16 @@
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
+            border: 3px solid rgba(255, 255, 255, .3);
             border-radius: 50%;
             border-top-color: #fff;
             animation: spin 1s ease-in-out infinite;
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .no-data {
@@ -456,12 +458,13 @@
 
     <!-- Audio Element -->
     <audio id="callSound" src="{{ asset('sounds/bell.mp3') }}" preload="auto"></audio>
-    
+
     <!-- Audio Test Button -->
-    <button id="testAudioBtn" style="position: fixed; top: 10px; right: 10px; z-index: 9999; background: #007bff; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer;">
+    <button id="testAudioBtn"
+        style="position: fixed; top: 10px; right: 10px; z-index: 9999; background: #007bff; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer;">
         🔔 Test Audio
     </button>
-    
+
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -472,7 +475,7 @@
             if (audio) {
                 audio.currentTime = 0;
                 const playPromise = audio.play();
-                
+
                 if (playPromise !== undefined) {
                     playPromise.then(() => {
                         console.log('Audio played successfully');
@@ -538,7 +541,7 @@
             window.addEventListener('antrian-called', function(event) {
                 const data = event.detail;
                 console.log('Received antrian-called event:', data);
-                
+
                 // Update display immediately
                 if (data.number) {
                     document.getElementById('current-number').textContent = data.number;
@@ -546,16 +549,17 @@
                 if (data.counter) {
                     document.getElementById('current-counter').textContent = data.counter;
                 }
-                
+
                 // Update running text
                 const runningText = document.querySelector('.marquee');
                 if (runningText) {
-                    runningText.innerHTML = `<i class="fas fa-info-circle"></i> Sedang dipanggil: ${data.number} di ${data.counter}. Silakan menunggu jika nomor Anda belum dipanggil.`;
+                    runningText.innerHTML =
+                        `<i class="fas fa-info-circle"></i> Sedang dipanggil: ${data.number} di ${data.counter}. Silakan menunggu jika nomor Anda belum dipanggil.`;
                 }
-                
+
                 // Play sound
                 playCallSound();
-                
+
                 // Speak the announcement
                 const textToSpeak = `Nomor antrian ${data.number}, silakan ke ${data.counter}`;
                 setTimeout(() => {
@@ -567,7 +571,7 @@
             window.addEventListener('queue-called', function(event) {
                 const data = event.detail;
                 console.log('Received queue-called event:', data);
-                
+
                 // Update display immediately
                 if (data.number) {
                     document.getElementById('current-number').textContent = data.number;
@@ -575,16 +579,17 @@
                 if (data.counter) {
                     document.getElementById('current-counter').textContent = data.counter;
                 }
-                
+
                 // Update running text
                 const runningText = document.querySelector('.marquee');
                 if (runningText) {
-                    runningText.innerHTML = `<i class="fas fa-info-circle"></i> Sedang dipanggil: ${data.number} di ${data.counter}. Silakan menunggu jika nomor Anda belum dipanggil.`;
+                    runningText.innerHTML =
+                        `<i class="fas fa-info-circle"></i> Sedang dipanggil: ${data.number} di ${data.counter}. Silakan menunggu jika nomor Anda belum dipanggil.`;
                 }
-                
+
                 // Play sound
                 playCallSound();
-                
+
                 // Speak the announcement
                 const textToSpeak = `Nomor antrian ${data.number}, silakan ke ${data.counter}`;
                 setTimeout(() => {
@@ -596,10 +601,10 @@
             if (typeof Livewire !== 'undefined') {
                 Livewire.on('antrian-called', function(data) {
                     console.log('Received Livewire antrian-called event:', data);
-                    
+
                     // Fetch fresh data from API
                     fetchQueueData();
-                    
+
                     // Create and dispatch browser event
                     const event = new CustomEvent('antrian-called', {
                         detail: data
@@ -609,10 +614,10 @@
 
                 Livewire.on('queue-called', function(data) {
                     console.log('Received Livewire queue-called event:', data);
-                    
+
                     // Fetch fresh data from API
                     fetchQueueData();
-                    
+
                     // Create and dispatch browser event
                     const event = new CustomEvent('queue-called', {
                         detail: data
@@ -641,11 +646,11 @@
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     }
                 });
-                
+
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
-                
+
                 const data = await response.json();
                 updateDisplay(data);
             } catch (error) {
@@ -692,10 +697,10 @@
                 data.services.forEach(service => {
                     const serviceItem = document.createElement('div');
                     serviceItem.className = 'service-item';
-                    
+
                     const currentCalled = data.currentCalled.find(q => q.service_id === service.id);
                     const nextQueue = data.nextQueues.find(q => q.service_id === service.id);
-                    
+
                     serviceItem.innerHTML = `
                         <div class="service-name">${service.name}</div>
                         <div class="service-current">${currentCalled ? currentCalled.formatted_number : '---'}</div>
@@ -712,7 +717,7 @@
             // Update running text
             const runningText = document.getElementById('running-text');
             if (data.currentCalled && data.currentCalled.length > 0) {
-                const calls = data.currentCalled.map(q => 
+                const calls = data.currentCalled.map(q =>
                     `${q.formatted_number} di ${q.counter_name || 'Loket'}`
                 ).join(', ');
                 runningText.innerHTML = `
