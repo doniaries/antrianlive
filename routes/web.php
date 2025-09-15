@@ -63,86 +63,90 @@ Route::get('/display', function () {
     return view('display', compact('profil'));
 })->name('display');
 
-// API endpoint untuk data display
-Route::get('/api/display-data', function () {
-    $today = now()->format('Y-m-d');
-    
-    // Get all active services
-    $services = \App\Models\Service::where('is_active', true)
-        ->orderBy('name')
-        ->get();
-    
-    // Get current called queues
-    $currentCalled = \App\Models\Antrian::with(['service', 'counter'])
-        ->whereDate('created_at', $today)
-        ->where('status', 'called')
-        ->orderBy('called_at', 'desc')
-        ->get()
-        ->map(function ($antrian) {
+// API endpoint untuk data display (optimized)
+    Route::get('/api/display-data', function () {
+        $today = now()->format('Y-m-d');
+        
+        // Get all active services with single query
+        $services = \App\Models\Service::where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name', 'code']);
+        
+        // Get current called queues with optimized query
+        $currentCalled = \App\Models\Antrian::with(['service:id,name', 'counter:id,name'])
+            ->whereDate('created_at', $today)
+            ->where('status', 'called')
+            ->orderBy('called_at', 'desc')
+            ->limit(5)
+            ->get(['id', 'service_id', 'counter_id', 'formatted_number', 'called_at'])
+            ->map(function ($antrian) {
+                return [
+                    'id' => $antrian->id,
+                    'service_id' => $antrian->service_id,
+                    'formatted_number' => $antrian->formatted_number,
+                    'service_name' => $antrian->service->name,
+                    'counter_name' => $antrian->counter?->name,
+                    'called_at' => $antrian->called_at,
+                ];
+            });
+
+        // Get next queues efficiently
+        $nextQueues = collect();
+        $serviceIds = $services->pluck('id');
+        
+        foreach ($serviceIds as $serviceId) {
+            $nextQueue = \App\Models\Antrian::where('service_id', $serviceId)
+                ->whereDate('created_at', $today)
+                ->where('status', 'waiting')
+                ->orderBy('queue_number')
+                ->first(['id', 'service_id', 'formatted_number', 'queue_number']);
+                
+            if ($nextQueue) {
+                $service = $services->firstWhere('id', $serviceId);
+                $nextQueues->push([
+                    'id' => $nextQueue->id,
+                    'service_id' => $serviceId,
+                    'service_name' => $service->name,
+                    'formatted_number' => $nextQueue->formatted_number,
+                    'queue_number' => $nextQueue->queue_number,
+                ]);
+            }
+        }
+
+        // Format services data efficiently
+        $servicesData = $services->map(function ($service) use ($today) {
+            // Get range with single query per service
+            $queues = \App\Models\Antrian::where('service_id', $service->id)
+                ->whereDate('created_at', $today)
+                ->orderBy('queue_number')
+                ->get(['queue_number']);
+                
+            $range = '';
+            if ($queues->count() > 0) {
+                $first = $queues->first()->queue_number;
+                $last = $queues->last()->queue_number;
+                $range = $service->code . str_pad($first, 3, '0', STR_PAD_LEFT) . ' - ' . 
+                         $service->code . str_pad($last, 3, '0', STR_PAD_LEFT);
+            }
+
             return [
-                'id' => $antrian->id,
-                'service_id' => $antrian->service_id,
-                'formatted_number' => $antrian->formatted_number,
-                'service_name' => $antrian->service->name,
-                'counter_name' => $antrian->counter?->name,
-                'called_at' => $antrian->called_at,
+                'id' => $service->id,
+                'name' => $service->name,
+                'code' => $service->code,
+                'range' => $range,
             ];
         });
 
-    // Get next queues for each service
-    $nextQueues = collect();
-    foreach ($services as $service) {
-        $nextQueue = \App\Models\Antrian::where('service_id', $service->id)
-            ->whereDate('created_at', $today)
-            ->where('status', 'waiting')
-            ->orderBy('queue_number')
-            ->first();
-            
-        if ($nextQueue) {
-            $nextQueues->push([
-                'id' => $nextQueue->id,
-                'service_id' => $service->id,
-                'service_name' => $service->name,
-                'formatted_number' => $nextQueue->formatted_number,
-                'queue_number' => $nextQueue->queue_number,
-            ]);
-        }
-    }
-
-    // Format services data
-    $servicesData = $services->map(function ($service) use ($today) {
-        // Get current range for this service
-        $firstQueue = \App\Models\Antrian::where('service_id', $service->id)
-            ->whereDate('created_at', $today)
-            ->orderBy('queue_number')
-            ->first();
-            
-        $lastQueue = \App\Models\Antrian::where('service_id', $service->id)
-            ->whereDate('created_at', $today)
-            ->orderBy('queue_number', 'desc')
-            ->first();
-            
-        $range = '';
-        if ($firstQueue && $lastQueue) {
-            $range = $service->code . str_pad($firstQueue->queue_number, 3, '0', STR_PAD_LEFT) . ' - ' . 
-                     $service->code . str_pad($lastQueue->queue_number, 3, '0', STR_PAD_LEFT);
-        }
-
-        return [
-            'id' => $service->id,
-            'name' => $service->name,
-            'code' => $service->code,
-            'range' => $range,
-        ];
-    });
-
-    return response()->json([
-        'currentCalled' => $currentCalled,
-        'nextQueues' => $nextQueues,
-        'services' => $servicesData,
-        'timestamp' => now()->toDateTimeString(),
-    ]);
-})->name('api.display-data');
+        return response()->json([
+            'currentCalled' => $currentCalled,
+            'nextQueues' => $nextQueues,
+            'services' => $servicesData,
+            'timestamp' => now()->toDateTimeString(),
+        ])->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+           ->header('Pragma', 'no-cache')
+           ->header('Expires', '0')
+           ->header('Content-Type', 'application/json');
+    })->name('api.display-data');
 
 // Route untuk tiket front (alternatif tampilan ambil tiket)
 Route::get('/tiket-front', function () {
