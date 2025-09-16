@@ -120,6 +120,9 @@ class CounterManager extends Component
             $newStatus = $counter->status === 'buka' ? 'tutup' : 'buka';
             $counter->update(['status' => $newStatus]);
             
+            // Broadcast the status update
+            event(new \App\Events\CounterStatusUpdated($counter->fresh()));
+            
             session()->flash('message', 'Status loket berhasil diperbarui.');
             return;
         }
@@ -138,9 +141,11 @@ class CounterManager extends Component
 
         // Sync services
         $counter->services()->sync($this->selectedServices);
+        
+        // Broadcast the status update
+        event(new \App\Events\CounterStatusUpdated($counter->fresh()));
 
         session()->flash('message', 'Loket berhasil diperbarui.');
-        $this->closeModal();
     }
 
     public function delete($id)

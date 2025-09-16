@@ -122,21 +122,36 @@
         }
 
         .counter-item {
-            background: white;
-            border-radius: 0.75rem;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border: 1px solid #e5e7eb;
-            transition: all 0.2s ease;
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease-in-out;
+        }
+
+        .counter-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
 
         .counter-item:last-child {
             margin-bottom: 0;
         }
 
+        .ticket-form {
+            display: block;
+            width: 100%;
+        }
+
+        .ticket-form button:disabled {
+            background: #e5e7eb !important;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        
         .counter-item:hover {
-            border-color: var(--primary);
-            transform: translateX(4px);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
 
         .counter-name {
@@ -264,22 +279,38 @@
                         <div class="service-header">
                             <h2 class="service-title">{{ $service->name }}</h2>
                         </div>
-                        <div class="counters-list">
+                        <div class="counters-list space-y-4">
                             @forelse($service->counters as $counter)
-                                <div class="counter-item">
-                                    <div class="counter-name">
-                                        <i class="fas fa-desktop text-indigo-500"></i>
-                                        {{ $counter->name }}
+                                @php
+                                    $statusClass = [
+                                        'buka' => ['icon' => 'fa-check-circle', 'color' => 'text-green-500', 'bg' => 'bg-green-100', 'text' => 'Buka'],
+                                        'tutup' => ['icon' => 'fa-times-circle', 'color' => 'text-red-500', 'bg' => 'bg-red-100', 'text' => 'Tutup'],
+                                        'istirahat' => ['icon' => 'fa-coffee', 'color' => 'text-yellow-500', 'bg' => 'bg-yellow-100', 'text' => 'Istirahat']
+                                    ][$counter->status] ?? ['icon' => 'fa-question-circle', 'color' => 'text-gray-500', 'bg' => 'bg-gray-100', 'text' => 'Tidak Diketahui'];
+                                    $isOpen = $counter->status === 'buka';
+                                @endphp
+                                <div class="counter-item bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-200 border-l-4 border-{{ $isOpen ? 'green-500' : 'gray-200' }}">
+                                    <div class="flex flex-col">
+                                        <div class="flex justify-between items-center mb-3">
+                                            <span class="text-lg font-semibold text-gray-800">
+                                                Loket {{ $counter->name }}
+                                            </span>
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $statusClass['bg'] }} {{ $statusClass['color'] }}">
+                                                <i class="fas {{ $statusClass['icon'] }} mr-1"></i>
+                                                {{ $statusClass['text'] }}
+                                            </span>
+                                        </div>
+                                        <form id="ticketForm-{{ $service->id }}-{{ $counter->id }}" method="POST"
+                                            action="{{ route('queue.ticket.take') }}" class="ticket-form w-full">
+                                            @csrf
+                                            <input type="hidden" name="service_id" value="{{ $service->id }}">
+                                            <input type="hidden" name="counter_id" value="{{ $counter->id }}">
+                                            <button type="submit" class="w-full py-4 px-6 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl text-lg font-semibold transition-all duration-200 transform hover:scale-[1.02] flex items-center justify-center space-x-3 {{ !$isOpen ? 'opacity-70 cursor-not-allowed' : '' }}" {{ !$isOpen ? 'disabled' : '' }}>
+                                                <i class="fas fa-ticket-alt text-xl"></i>
+                                                <span>AMBIL TIKET</span>
+                                            </button>
+                                        </form>
                                     </div>
-                                    <form id="ticketForm-{{ $service->id }}-{{ $counter->id }}" method="POST"
-                                        action="{{ route('queue.ticket.take') }}" class="ticket-form">
-                                        @csrf
-                                        <input type="hidden" name="service_id" value="{{ $service->id }}">
-                                        <input type="hidden" name="counter_id" value="{{ $counter->id }}">
-                                        <button type="submit" class="btn-ticket">
-                                            <i class="fas fa-ticket-alt"></i> Ambil Tiket
-                                        </button>
-                                    </form>
                                 </div>
                             @empty
                                 <div class="text-center py-4 text-gray-500">
