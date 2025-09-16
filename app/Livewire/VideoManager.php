@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Video;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
@@ -86,38 +87,46 @@ class VideoManager extends Component
         try {
             $data = [
                 'type' => $this->type,
-                'is_active' => $this->is_active,
+                'is_active' => true, // Always set as active when created/updated
             ];
 
             if ($this->type === 'youtube') {
-                $data['url'] = $this->url;
+                // Clean and validate YouTube URL
+                $data['url'] = Video::cleanYoutubeUrl($this->url);
+                
+                // If we have an existing file video, delete the file
+                if ($this->editId) {
+                    $oldVideo = Video::find($this->editId);
+                    if ($oldVideo && $oldVideo->type === 'file' && $oldVideo->url) {
+                        Storage::disk('public')->delete($oldVideo->url);
+                    }
+                }
             } else {
                 if ($this->video_file) {
-                    // Hapus file lama jika sedang mengedit
+                    // Delete old video if exists
                     if ($this->editId) {
                         $oldVideo = Video::find($this->editId);
                         if ($oldVideo && $oldVideo->type === 'file' && $oldVideo->url) {
-                            $oldPath = storage_path('app/public/' . $oldVideo->url);
-                            if (file_exists($oldPath)) {
-                                unlink($oldPath);
-                            }
+                            Storage::disk('public')->delete($oldVideo->url);
                         }
                     }
-                    
+
                     $path = $this->video_file->store('videos', 'public');
                     $data['url'] = $path;
-                } else if ($this->editId) {
-                    // Jika mengedit tanpa mengubah file, pertahankan URL yang ada
-                    $existing = Video::find($this->editId);
-                    if ($existing && $existing->type === 'file') {
-                        $data['url'] = $existing->url;
-                    }
+                } elseif (!$this->editId) {
+                    throw new \Exception('File video harus diunggah');
                 }
             }
 
-            $video = Video::updateOrCreate(['id' => $this->editId], $data);
+            if ($this->editId) {
+                $video = Video::findOrFail($this->editId);
+                $video->update($data);
+                $message = 'Video berhasil diperbarui';
+            } else {
+                $video = Video::create($data);
+                $message = 'Video berhasil ditambahkan';
+            }
 
-            $message = $this->editId ? 'Video berhasil diperbarui.' : 'Video berhasil ditambahkan.';
             session()->flash('message', $message);
 
             $this->closeModal();
