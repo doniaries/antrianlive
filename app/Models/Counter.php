@@ -19,7 +19,45 @@ class Counter extends Model
     protected $fillable = [
         'name',
         'description',
+        'status',
+        'open_time',
+        'close_time',
     ];
+
+    protected $casts = [
+        'open_time' => 'datetime',
+        'close_time' => 'datetime',
+    ];
+
+    const STATUS_BUKA = 'buka';
+    const STATUS_TUTUP = 'tutup';
+    const STATUS_ISTIRAHAT = 'istirahat';
+
+    public static function getStatuses()
+    {
+        return [
+            self::STATUS_BUKA => 'Buka',
+            self::STATUS_TUTUP => 'Tutup',
+            self::STATUS_ISTIRAHAT => 'Istirahat',
+        ];
+    }
+
+    public function isAvailable()
+    {
+        if ($this->status === self::STATUS_TUTUP) {
+            return false;
+        }
+
+        if ($this->open_time && $this->close_time) {
+            $now = now();
+            $openTime = now()->setTimeFromTimeString($this->open_time);
+            $closeTime = now()->setTimeFromTimeString($this->close_time);
+            
+            return $now->between($openTime, $closeTime);
+        }
+
+        return $this->status === self::STATUS_BUKA;
+    }
 
     /**
      * Mendefinisikan relasi Many-to-Many ke model Service.

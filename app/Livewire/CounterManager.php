@@ -14,6 +14,9 @@ class CounterManager extends Component
 
     public $name = '';
     public $description = '';
+    public $status = 'buka';
+    public $open_time = '08:00';
+    public $close_time = '17:00';
     public $selectedServices = [];
     public $counterId = null;
     public $isEditMode = false;
@@ -21,12 +24,16 @@ class CounterManager extends Component
     
     protected $listeners = [
         'showCounterModal' => 'openModal',
-        'hideCounterModal' => 'closeModal'
+        'hideCounterModal' => 'closeModal',
+        'toggleCounterStatus' => 'update'
     ];
 
     protected $rules = [
         'name' => 'required|string|max:255',
         'description' => 'nullable|string|max:500',
+        'status' => 'required|in:buka,tutup,istirahat',
+        'open_time' => 'required|date_format:H:i',
+        'close_time' => 'required|date_format:H:i|after:open_time',
         'selectedServices' => 'array',
         'selectedServices.*' => 'exists:services,id',
     ];
@@ -34,6 +41,9 @@ class CounterManager extends Component
     protected $validationAttributes = [
         'name' => 'Nama Loket',
         'description' => 'Deskripsi',
+        'status' => 'Status',
+        'open_time' => 'Jam Buka',
+        'close_time' => 'Jam Tutup',
         'selectedServices' => 'Layanan',
     ];
 
@@ -58,6 +68,9 @@ class CounterManager extends Component
     {
         $this->name = '';
         $this->description = '';
+        $this->status = 'buka';
+        $this->open_time = '08:00';
+        $this->close_time = '17:00';
         $this->selectedServices = [];
         $this->counterId = null;
         $this->isEditMode = false;
@@ -71,6 +84,9 @@ class CounterManager extends Component
         $counter = Counter::create([
             'name' => $this->name,
             'description' => $this->description,
+            'status' => $this->status,
+            'open_time' => $this->open_time,
+            'close_time' => $this->close_time,
         ]);
 
         // Attach services
@@ -84,24 +100,40 @@ class CounterManager extends Component
 
     public function edit($id)
     {
-        $this->resetValidation();
-        $counter = Counter::with('services')->findOrFail($id);
+        $counter = Counter::findOrFail($id);
         $this->counterId = $id;
         $this->name = $counter->name;
         $this->description = $counter->description;
+        $this->status = $counter->status;
+        $this->open_time = $counter->open_time ? $counter->open_time->format('H:i') : '08:00';
+        $this->close_time = $counter->close_time ? $counter->close_time->format('H:i') : '17:00';
         $this->selectedServices = $counter->services->pluck('id')->toArray();
         $this->isEditMode = true;
         $this->showModal = true;
     }
 
-    public function update()
+    public function update($id = null)
     {
+        if ($id) {
+            $counter = Counter::findOrFail($id);
+            // Toggle between 'buka' and 'tutup' when called from toggle
+            $newStatus = $counter->status === 'buka' ? 'tutup' : 'buka';
+            $counter->update(['status' => $newStatus]);
+            
+            session()->flash('message', 'Status loket berhasil diperbarui.');
+            return;
+        }
+
+        // Regular update from form
         $this->validate();
 
         $counter = Counter::find($this->counterId);
         $counter->update([
             'name' => $this->name,
             'description' => $this->description,
+            'status' => $this->status,
+            'open_time' => $this->open_time,
+            'close_time' => $this->close_time,
         ]);
 
         // Sync services

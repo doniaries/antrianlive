@@ -84,6 +84,10 @@
                             class="px-6 py-4 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                             Layanan
                         </th>
+                        <th
+                            class="px-6 py-4 text-center text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                            Status
+                        </th>
                         {{-- <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                             Dibuat
                         </th> --}}
@@ -112,9 +116,63 @@
                                     @endforeach
                                 </div>
                             </td>
+                            
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                @php
+                                    $statusColors = [
+                                        'buka' => 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+                                        'tutup' => 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+                                        'istirahat' => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                                    ];
+                                    $statusLabels = [
+                                        'buka' => 'Buka',
+                                        'tutup' => 'Tutup',
+                                        'istirahat' => 'Istirahat'
+                                    ];
+                                    $statusClass = $statusColors[$counter->status] ?? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+                                    $statusLabel = $statusLabels[$counter->status] ?? 'Tidak Diketahui';
+                                @endphp
+                                <div class="flex flex-col items-center space-y-1">
+                                    <span class="px-3 py-1 text-xs font-medium rounded-full {{ $statusClass }} whitespace-nowrap">
+                                        {{ $statusLabel }}
+                                    </span>
+                                    @if($counter->open_time && $counter->close_time)
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ $counter->open_time }} - {{ $counter->close_time }}
+                                        </span>
+                                    @endif
+                                </div>
+                            </td>
 
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <div class="flex space-x-2">
+                                <div class="flex items-center space-x-3">
+                                    <!-- Toggle Switch -->
+                                    <div 
+                                        x-data="{ isActive: {{ $counter->status === 'buka' ? 'true' : 'false' }} }"
+                                        class="relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-200 cursor-pointer"
+                                        :class="{ 'bg-green-500': isActive, 'bg-gray-300 dark:bg-gray-600': !isActive }"
+                                        @click="
+                                            isActive = !isActive;
+                                            $wire.call('update', {{ $counter->id }});
+                                        "
+                                        x-tooltip="Klik untuk {{ $counter->status === 'buka' ? 'menonaktifkan' : 'mengaktifkan' }} loket"
+                                    >
+                                        <input 
+                                            type="checkbox" 
+                                            class="absolute w-0 h-0 opacity-0"
+                                            :checked="isActive"
+                                        >
+                                        <span 
+                                            class="inline-block w-4 h-4 transform transition-transform duration-200 ease-in-out bg-white rounded-full shadow-md"
+                                            :class="{ 'translate-x-6': isActive, 'translate-x-1': !isActive }"
+                                        >
+                                        </span>
+                                        <span class="sr-only">
+                                            {{ $counter->status === 'buka' ? 'Nonaktifkan' : 'Aktifkan' }} Loket
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="flex space-x-2">
                                     <button wire:click="edit({{ $counter->id }})"
                                         class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105"
                                         title="Edit">
@@ -138,6 +196,7 @@
                                         </svg>
                                         Hapus
                                     </button>
+                                    </div>
                                 </div>
                             </td>
                         </tr>
@@ -228,6 +287,39 @@
                                     Pilih layanan yang akan ditangani oleh loket ini
                                 </p>
                             </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="col-span-1">
+                                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                        Status Loket
+                                    </label>
+                                    <select wire:model="status"
+                                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-150">
+                                        <option value="buka">Buka</option>
+                                        <option value="tutup">Tutup</option>
+                                        <option value="istirahat">Istirahat</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="col-span-1">
+                                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                        Jam Buka
+                                    </label>
+                                    <input wire:model="open_time" type="time"
+                                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-150">
+                                </div>
+                                
+                                <div class="col-span-1">
+                                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                        Jam Tutup
+                                    </label>
+                                    <input wire:model="close_time" type="time"
+                                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-150">
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                Status "Buka" akan otomatis menyesuaikan dengan jam operasional yang ditentukan
+                            </p>
                         </div>
 
                         <div class="mt-6 flex justify-end space-x-3">
