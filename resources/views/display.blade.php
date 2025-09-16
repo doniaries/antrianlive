@@ -118,7 +118,8 @@
         /* --- Main Layout --- */
         .main-container {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* Equal width columns */
+            grid-template-columns: 1fr 1fr;
+            /* Equal width columns */
             grid-template-rows: auto 1fr;
             gap: 1rem;
             min-height: calc(100vh - 60px);
@@ -198,9 +199,10 @@
             border-radius: 12px;
             background: #000;
             width: 100%;
-            aspect-ratio: 16/9; /* Maintain video aspect ratio */
+            aspect-ratio: 16/9;
+            /* Maintain video aspect ratio */
         }
-        
+
         .video-container iframe {
             width: 100%;
             height: 100%;
@@ -246,7 +248,8 @@
 
         .calling-card .card-title {
             color: var(--text-primary);
-            font-size: 2rem;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
         }
 
         .calling-card .card-title i {
@@ -295,22 +298,23 @@
         }
 
         .current-service {
-            font-size: 1.75rem;
+            font-size: 1.25rem;
             font-weight: 600;
             color: var(--text-primary);
-            margin: 0.75rem 0;
-            padding: 0.5rem 1rem;
+            margin: 0.25rem 0;
+            padding: 0.5rem 0.75rem;
             background: rgba(255, 255, 255, 0.05);
             border-radius: 8px;
             width: 100%;
             box-sizing: border-box;
+            line-height: 1.2;
         }
 
         .current-number {
-            font-size: 5rem;
+            font-size: 2.5rem;
             font-weight: 800;
             color: var(--primary);
-            margin: 1rem 0;
+            margin: 0.25rem 0;
             line-height: 1.1;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
@@ -365,13 +369,23 @@
         /* --- Services Card --- */
         .services-card .card-title i {
             color: var(--accent-green);
+            margin-right: 0.5rem;
+        }
+
+        .services-card .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
         }
 
         .services-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 0.9rem;
-            padding: 0.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.25rem;
+            padding: 0.75rem;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .services-grid::-webkit-scrollbar {
@@ -390,15 +404,16 @@
         .service-item {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--card-border);
-            border-radius: 10px;
-            padding: 1rem 0.5rem;
-            min-height: 100px;
+            border-radius: 12px;
+            padding: 1.25rem 0.75rem;
+            min-height: 120px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
             transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .calling-content {
@@ -408,9 +423,10 @@
             align-items: center;
             height: 100%;
             width: 100%;
-            padding: 1rem;
+            padding: 0.5rem;
             flex: 1;
             text-align: center;
+            gap: 0.5rem;
         }
 
         .service-item:hover {
@@ -419,17 +435,20 @@
         }
 
         .service-name {
-            font-size: 1.1rem;
+            font-size: 1.25rem;
             font-weight: 600;
-            margin-bottom: 0.35rem;
+            margin-bottom: 0.5rem;
             color: var(--text-primary);
+            line-height: 1.3;
         }
 
         .service-current {
-            font-size: 1.8rem;
+            font-size: 2rem;
             font-weight: 700;
             color: var(--primary);
             line-height: 1.2;
+            margin: 0.25rem 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .service-item.active {
@@ -534,7 +553,7 @@
 
             .queue-service,
             .queue-counter {
-                font-size: 2rem;
+                font-size: 1.5rem;
             }
         }
 
@@ -589,11 +608,22 @@
             }
 
             .services-grid {
-                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+                gap: 0.9rem;
+                padding: 0.5rem;
+            }
+
+            .service-item {
+                min-height: 100px;
+                padding: 1rem 0.5rem;
+            }
+
+            .service-name {
+                font-size: 1.1rem;
             }
 
             .service-current {
-                font-size: 2rem;
+                font-size: 1.8rem;
             }
         }
     </style>
