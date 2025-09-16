@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Antrian Digital</title>
     @php
-        // Mock data for Blade variables since we are not in a Laravel environment
+        // Mock data for Blade variables
         class Profil
         {
             public static function first()
@@ -19,28 +19,30 @@
             }
         }
         $profil = Profil::first();
-        $faviconUrl = $profil && $profil->favicon ? asset('storage/' . $profil->favicon) : '/favicon.ico';
-        $logoUrl = $profil && $profil->logo ? asset('storage/' . $profil->logo) : null;
-        $namaInstansi = $profil && $profil->nama_instansi ? $profil->nama_instansi : 'Sistem Antrian Digital';
+        $faviconUrl = $profil->favicon ? asset('storage/' . $profil->favicon) : '/favicon.ico';
+        $logoUrl = $profil->logo ? asset('storage/' . $profil->logo) : null;
+        $namaInstansi = $profil->nama_instansi ?: 'Sistem Antrian Digital';
     @endphp
     <link rel="icon" href="{{ $faviconUrl }}" type="image/x-icon">
-    <link rel="shortcut icon" href="{{ $faviconUrl }}" type="image/x-icon">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
 
         :root {
-            --bg-gradient: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --card-border: rgba(255, 255, 255, 0.1);
-            --text-primary: #f8fafc;
-            --text-secondary: #cbd5e1;
-            --accent-blue: #3b82f6;
-            --accent-cyan: #06b6d4;
-            --accent-amber: #fbbf24;
-            --accent-red: #ef4444;
-            --accent-green: #22c55e;
+            --bg-main: #eef2f6;
+            /* Blue Gray 100 */
+            --bg-panel: #ffffff;
+            --primary-blue: #0d47a1;
+            /* Deep Blue */
+            --primary-blue-light: #1976d2;
+            /* Lighter Blue */
+            --accent-yellow: #ffab00;
+            /* Amber */
+            --text-dark: #212121;
+            --text-light: #ffffff;
+            --border-color: #d1d9e2;
+            --header-height: 70px;
         }
 
         * {
@@ -50,33 +52,31 @@
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
-            background: var(--bg-gradient);
-            background-image: url('https://images.unsplash.com/photo-1593814681464-e5873a069f2d?q=80&w=2070&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            color: var(--text-primary);
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-dark);
             height: 100vh;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* --- Header --- */
-        .header {
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 0.5rem 2rem;
-            border-bottom: 1px solid var(--card-border);
+        /* --- Header & Footer --- */
+        .header,
+        .footer {
+            background-color: var(--primary-blue);
+            color: var(--text-light);
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            height: 60px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            justify-content: space-between;
+            padding: 0 2rem;
+            flex-shrink: 0;
+            width: 100%;
+            z-index: 10;
+        }
+
+        .header {
+            height: var(--header-height);
         }
 
         .logo {
@@ -85,17 +85,8 @@
             gap: 1rem;
         }
 
-        .logo-img {
-            height: 45px;
-            width: 45px;
-            object-fit: contain;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 5px;
-        }
-
         .logo-text {
-            font-size: 1.5rem;
+            font-size: 1.75rem;
             font-weight: 700;
         }
 
@@ -106,380 +97,29 @@
         .time {
             font-size: 2rem;
             font-weight: 700;
-            color: var(--accent-amber);
-            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
         }
 
         .date {
             font-size: 1rem;
-            color: var(--text-secondary);
+            opacity: 0.8;
         }
 
-        /* --- Main Layout --- */
-        .main-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            /* Equal width columns */
-            grid-template-rows: auto 1fr;
-            gap: 1rem;
-            min-height: calc(100vh - 60px);
-            padding: 0.75rem;
-            padding-top: 70px;
-            box-sizing: border-box;
-            margin: 0;
-            width: 100%;
-        }
-
-        /* --- Card Base Style --- */
-        .card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            border: 1px solid var(--card-border);
-            backdrop-filter: blur(12px);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .card-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            flex-shrink: 0;
-            color: var(--text-secondary);
-        }
-
-        .card-title i {
-            font-size: 1.5rem;
-            width: 30px;
-            text-align: center;
-        }
-
-        /* --- Grid Item Placement --- */
-        .calling-card {
-            grid-column: 1 / 2;
-            grid-row: 1 / 2;
-            margin: 0;
-            padding: 1.25rem;
-            min-height: 360px;
-            max-height: 400px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        .video-card {
-            grid-column: 2 / 3;
-            grid-row: 1 / 2;
-            height: 100%;
-            min-height: 360px;
-            max-height: 400px;
-            display: flex;
-            flex-direction: column;
-            margin: 0;
-            padding: 0.75rem;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        .video-container {
-            flex: 1;
-            min-height: 0;
-            position: relative;
-            overflow: hidden;
-            border-radius: 12px;
-            background: #000;
-            width: 100%;
-            aspect-ratio: 16/9;
-            /* Maintain video aspect ratio */
-        }
-
-        .video-container iframe {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            border: none;
-        }
-
-        .services-card {
-            grid-column: 1 / 3;
-            grid-row: 2 / 3;
-            max-height: 50vh;
-            overflow-y: auto;
-            margin: 0;
-            padding: 0.75rem;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        .running-text-wrapper {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: rgba(15, 23, 42, 0.9);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid var(--card-border);
-            padding: 0.75rem 0;
-            z-index: 1000;
+        .footer {
             overflow: hidden;
             white-space: nowrap;
+            padding: 0.75rem 0;
         }
 
-        /* --- Calling Card --- */
-        .calling-card {
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            border: 2px solid var(--accent-blue);
-            box-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
-        }
-
-        .calling-card .card-title {
-            color: var(--text-primary);
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .calling-card .card-title i {
-            color: var(--accent-blue);
-        }
-
-        .queue-number {
-            font-size: 14vw;
-            /* Responsive font size */
-            font-weight: 800;
-            line-height: 1;
-            color: var(--accent-amber);
-            text-shadow: 0 0 40px rgba(251, 191, 36, 0.7);
-            margin: 2rem 0;
-            animation: pulse-glow 2s infinite ease-in-out;
-        }
-
-        @keyframes pulse-glow {
-
-            0%,
-            100% {
-                transform: scale(1);
-                text-shadow: 0 0 40px rgba(251, 191, 36, 0.7);
-            }
-
-            50% {
-                transform: scale(1.05);
-                text-shadow: 0 0 60px rgba(251, 191, 36, 1);
-            }
-        }
-
-        .queue-service {
-            font-size: 2.5rem;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .queue-counter {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .queue-counter i {
-            color: var(--accent-cyan);
-        }
-
-        .current-service {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin: 0.25rem 0;
-            padding: 0.5rem 0.75rem;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            width: 100%;
-            box-sizing: border-box;
-            line-height: 1.2;
-        }
-
-        .current-number {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--primary);
-            margin: 0.25rem 0;
-            line-height: 1.1;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        /* --- Video Card --- */
-        .video-card .card-title i {
-            color: var(--accent-red);
-        }
-
-        .video-container {
-            flex-grow: 1;
-            background: #000;
-            border-radius: 8px;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .video-container iframe,
-        .video-container video {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            border: none;
-        }
-
-        .video-placeholder {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #64748b;
-            background: rgba(30, 41, 59, 0.5);
-            z-index: 1;
-        }
-
-        .video-placeholder i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            color: #475569;
-        }
-
-        /* --- Services Card --- */
-        .services-card .card-title i {
-            color: var(--accent-green);
-            margin-right: 0.5rem;
-        }
-
-        .services-card .card-title {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-        }
-
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.25rem;
-            padding: 0.75rem;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        .services-grid::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .services-grid::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .services-grid::-webkit-scrollbar-thumb {
-            background: var(--accent-blue);
-            border-radius: 3px;
-        }
-
-        .service-item {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--card-border);
-            border-radius: 12px;
-            padding: 1.25rem 0.75rem;
-            min-height: 120px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .calling-content {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-            width: 100%;
-            padding: 0.5rem;
-            flex: 1;
-            text-align: center;
-            gap: 0.5rem;
-        }
-
-        .service-item:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent-cyan);
-        }
-
-        .service-name {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--text-primary);
-            line-height: 1.3;
-        }
-
-        .service-current {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary);
-            line-height: 1.2;
-            margin: 0.25rem 0;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        .service-item.active {
-            border-color: var(--accent-amber);
-            background: rgba(251, 191, 36, 0.1);
-            animation: blink-border 2s infinite;
-        }
-
-        @keyframes blink-border {
-            50% {
-                border-color: transparent;
-            }
-        }
-
-        /* --- Running Text --- */
         .running-text-content {
             display: inline-block;
             font-size: 1.25rem;
-            font-weight: 500;
-            color: var(--text-primary);
             padding-left: 100%;
             animation: marquee 30s linear infinite;
         }
 
         .running-text-content span {
             margin: 0 2rem;
-        }
-
-        .running-text-content i {
-            color: var(--accent-amber);
-            margin-right: 0.5rem;
         }
 
         @keyframes marquee {
@@ -492,138 +132,261 @@
             }
         }
 
-        /* --- Fullscreen Button --- */
-        #fullscreen-btn {
-            position: fixed;
-            bottom: 100px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: var(--card-bg);
-            color: white;
-            border: 1px solid var(--card-border);
-            cursor: pointer;
-            z-index: 9999;
+        /* --- Main Layout --- */
+        .main-container {
+            flex-grow: 1;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            overflow: hidden;
+        }
+
+        .main-display {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* --- Panels --- */
+        .panel {
+            background-color: var(--bg-panel);
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            background-color: var(--primary-blue-light);
+            color: var(--text-light);
+            padding: 0.75rem 1.5rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .panel-body {
+            padding: 1.5rem;
+            flex-grow: 1;
+        }
+
+        /* --- Calling Panel --- */
+        .calling-panel {
+            flex-grow: 1;
+        }
+
+        .calling-panel .panel-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .label {
+            font-size: 2rem;
+            font-weight: 500;
+            color: #555;
+        }
+
+        #current-number {
+            font-size: clamp(10rem, 22vh, 18rem);
+            font-weight: 900;
+            color: var(--text-dark);
+            line-height: 1;
+            margin: 1rem 0;
+            color: var(--accent-yellow);
+            -webkit-text-stroke: 4px var(--text-dark);
+            text-shadow: 6px 6px 0 var(--text-dark);
+        }
+
+        #current-counter {
+            font-size: 4rem;
+            font-weight: 700;
+        }
+
+        /* --- Video Panel --- */
+        .video-panel .panel-body {
+            padding: 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .video-container {
+            width: 100%;
+            height: 100%;
+            min-height: 280px;
+            max-height: 400px;
+            aspect-ratio: 16/9;
+            background: #000;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(5px);
-            font-size: 1.25rem;
+            margin: 0 auto;
         }
 
-        #fullscreen-btn:hover {
-            transform: scale(1.1);
-            background: var(--accent-blue);
-            border-color: var(--accent-blue);
+        .video-container iframe,
+        .video-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border: none;
         }
 
-        /* --- Responsive Design --- */
-        @media (max-width: 1200px) {
+        .video-placeholder {
+            color: #888;
+            text-align: center;
+        }
+
+        .video-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* --- History Panel --- */
+        .history-panel {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #history-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            flex-grow: 1;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-item:nth-child(odd) {
+            background-color: #f7f9fc;
+        }
+
+        .history-number {
+            font-size: 2.25rem;
+            font-weight: 700;
+        }
+
+        .history-counter {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        /* -- Animation for New Call -- */
+        .new-call-main {
+            animation: highlight-main 1s ease;
+        }
+
+        @keyframes highlight-main {
+            0% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .new-call-item {
+            background-color: var(--accent-yellow) !important;
+            color: var(--text-dark);
+            animation: highlight-item 2s ease forwards;
+        }
+
+        @keyframes highlight-item {
+            0% {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+
+            40% {
+                transform: translateX(0);
+                opacity: 1;
+                background-color: var(--accent-yellow);
+            }
+
+            100% {
+                background-color: var(--bg-panel);
+            }
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 1024px) {
             .main-container {
                 grid-template-columns: 1fr;
-                grid-template-rows: auto auto auto;
-                padding-bottom: 80px;
-                /* Space for running text */
+                overflow-y: auto;
             }
 
-            .calling-card,
-            .video-card,
-            .services-card {
-                grid-column: 1 / 2;
-                grid-row: auto;
+            .main-display {
+                order: 1;
             }
 
-            .calling-card {
-                height: 40vh;
+            .history-panel {
+                order: 2;
+                min-height: 300px;
             }
 
-            .video-card {
-                height: 35vh;
+            .calling-panel {
+                min-height: 400px;
             }
 
-            .services-card {
-                flex-grow: 1;
+            #current-number {
+                font-size: 25vw;
             }
 
-            .queue-number {
-                font-size: 20vw;
-            }
-
-            .queue-service,
-            .queue-counter {
-                font-size: 1.5rem;
+            #current-counter {
+                font-size: 8vw;
             }
         }
 
         @media (max-width: 768px) {
-            .header {
-                padding: 0.5rem 1rem;
-                height: 60px;
-                position: fixed;
-                z-index: 1000;
+            :root {
+                --header-height: 60px;
+            }
+
+            .header,
+            .footer {
+                padding: 0 1rem;
             }
 
             .logo-text {
-                font-size: 1.2rem;
+                font-size: 1.25rem;
             }
 
             .time {
                 font-size: 1.5rem;
             }
 
-            .date {
-                font-size: 0.8rem;
-            }
-
             .main-container {
                 padding: 1rem;
-                padding-top: 70px;
                 gap: 1rem;
-                margin-top: 60px;
             }
 
-            .card {
-                padding: 1rem;
-            }
-
-            .calling-card {
-                min-height: 250px;
-                height: auto;
-            }
-
-            .video-card {
-                min-height: 200px;
-                height: auto;
-            }
-
-            .queue-number {
-                font-size: 25vw;
-            }
-
-            .queue-service,
-            .queue-counter {
-                font-size: 1.5rem;
-            }
-
-            .services-grid {
-                grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-                gap: 0.9rem;
-                padding: 0.5rem;
-            }
-
-            .service-item {
-                min-height: 100px;
-                padding: 1rem 0.5rem;
-            }
-
-            .service-name {
+            .panel-header {
                 font-size: 1.1rem;
+                padding: 0.5rem 1rem;
             }
 
-            .service-current {
-                font-size: 1.8rem;
+            .panel-body {
+                padding: 1rem;
             }
         }
     </style>
@@ -632,12 +395,8 @@
 <body>
     <header class="header">
         <div class="logo">
-            @if ($logoUrl)
-                <img src="{{ $logoUrl }}" alt="Logo Instansi" class="logo-img">
-            @else
-                <i class="fas fa-list-ol fa-2x"></i>
-            @endif
-            <div class="logo-text">{{ $namaInstansi }}</div>
+            <i class="fas fa-layer-group fa-2x"></i>
+            <span class="logo-text">{{ $namaInstansi }}</span>
         </div>
         <div class="datetime">
             <div id="current-time" class="time">--:--:--</div>
@@ -645,104 +404,75 @@
         </div>
     </header>
 
-    <div class="main-container">
-        <div class="card calling-card">
-            <h2 class="card-title">
-                <i class="fas fa-bullhorn"></i>
-                Sedang Dipanggil
-            </h2>
-            <div class="queue-number" id="current-number">---</div>
-            <div class="queue-service" id="current-service">-</div>
-            <div class="queue-counter">
-                <i class="fas fa-desktop"></i>
-                <span id="current-counter">-</span>
+    <main class="main-container">
+        <div class="main-display">
+            <div class="panel calling-panel">
+                <div class="panel-header">NOMOR ANTRIAN</div>
+                <div class="panel-body">
+                    <div id="calling-content">
+                        <span class="label">Nomor</span>
+                        <div id="current-number">---</div>
+                        <span class="label">Silakan Menuju</span>
+                        <div id="current-counter">-</div>
+                    </div>
+                </div>
             </div>
-        </div>
-
-        <div class="card video-card">
-            <h2 class="card-title">
-                <i class="fab fa-youtube"></i>
-                Video Informasi
-            </h2>
-            <div class="video-container">
-                <div id="video-player" class="video-player">
-                    <div class="video-placeholder">
-                        <i class="fas fa-play-circle"></i>
-                        <div>Memuat video...</div>
+            <div class="panel video-panel">
+                <div class="panel-body">
+                    <div id="video-player" class="video-container">
+                        <div class="video-placeholder">
+                            <i class="fas fa-play-circle"></i>
+                            <div>Memuat video...</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="card services-card">
-            <h2 class="card-title">
-                <i class="fas fa-users"></i>
-                Dalam Antrian
-            </h2>
-            <div class="services-grid" id="services-container">
-                <div class="no-data">Memuat data layanan...</div>
-            </div>
+        <div class="panel history-panel">
+            <div class="panel-header">RIWAYAT PANGGILAN</div>
+            <ul id="history-list">
+            </ul>
         </div>
-    </div>
+    </main>
 
-    <div class="running-text-wrapper">
-        <div class="running-text-content" id="running-text-content">
-            <span><i class="fas fa-info-circle"></i> Memuat informasi...</span>
-        </div>
-    </div>
-
-    <button id="fullscreen-btn" title="Toggle Fullscreen">
-        <i class="fas fa-expand-arrows-alt"></i>
-    </button>
+    <footer class="footer">
+        <div class="running-text-content" id="running-text-content"></div>
+    </footer>
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <script>
-        // --- UTILITY FUNCTIONS ---
-        function safeQuerySelector(selector) {
-            const element = document.querySelector(selector);
-            if (!element) console.warn(`Element not found: ${selector}`);
-            return element;
-        }
+        // --- State Management ---
+        let lastCalledNumber = null;
+        let callHistory = [];
+        const MAX_HISTORY = 5;
 
+        // --- UTILITY FUNCTIONS ---
         function safeGetElementById(id) {
-            const element = document.getElementById(id);
-            if (!element) console.warn(`Element not found: ${id}`);
-            return element;
+            return document.getElementById(id);
         }
 
         // --- CORE FUNCTIONS ---
-
-        // 1. Update Date and Time
         function updateDateTime() {
             const now = new Date();
             const timeEl = safeGetElementById('current-time');
             const dateEl = safeGetElementById('current-date');
-            if (!timeEl || !dateEl) return;
-
-            const timeString = now.toLocaleTimeString('id-ID', {
-                hour12: false
+            if (timeEl) timeEl.textContent = now.toLocaleTimeString('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
             });
-            timeEl.textContent = timeString;
-
-            const dateString = now.toLocaleDateString('id-ID', {
+            if (dateEl) dateEl.textContent = now.toLocaleDateString('id-ID', {
                 weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
+                day: 'numeric',
+                month: 'long'
             });
-            dateEl.textContent = dateString;
         }
 
-        // 2. Fetch and Update Queue Data
         async function fetchQueueData() {
             try {
-                const response = await fetch('/api/display-data?t=' + Date.now(), {
-                    headers: {
-                        'Accept': 'application/json',
-                        'Cache-Control': 'no-cache'
-                    }
-                });
+                const response = await fetch('/api/display-data?t=' + Date.now());
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const data = await response.json();
                 updateDisplay(data);
@@ -751,163 +481,127 @@
             }
         }
 
-        // 3. Update Display with Fetched Data
         function updateDisplay(data) {
-            const currentNumberEl = safeGetElementById('current-number');
-            const currentCounterEl = safeGetElementById('current-counter');
-            const currentServiceEl = safeGetElementById('current-service');
-            const servicesContainer = safeGetElementById('services-container');
-
-            if (!data) return;
-
-            // Update currently called number
             const currentCall = data.currentCalled && data.currentCalled.length > 0 ? data.currentCalled[0] : null;
-            if (currentCall) {
-                if (currentNumberEl.textContent !== currentCall.formatted_number) {
-                    currentNumberEl.textContent = currentCall.formatted_number;
-                }
-                currentCounterEl.textContent = currentCall.counter_name || 'Loket';
-                currentServiceEl.textContent = currentCall.service_name || '-';
-            } else {
-                currentNumberEl.textContent = '---';
-                currentCounterEl.textContent = '-';
-                currentServiceEl.textContent = '-';
-            }
 
-            // Update services grid
-            if (servicesContainer) {
-                if (data.services && data.services.length > 0) {
-                    servicesContainer.innerHTML = data.services.map(service => {
-                        const isBeingCalled = currentCall && currentCall.service_id === service.id;
-                        return `
-                            <div class="service-item ${isBeingCalled ? 'active' : ''}" data-service-id="${service.id}">
-                                <div class="service-name">${service.name}</div>
-                                <div class="service-current">${isBeingCalled ? currentCall.formatted_number : '---'}</div>
-                            </div>
-                        `;
-                    }).join('');
-                } else {
-                    servicesContainer.innerHTML = '<div class="no-data">Tidak ada layanan aktif</div>';
+            if (currentCall && currentCall.formatted_number !== lastCalledNumber) {
+                lastCalledNumber = currentCall.formatted_number;
+
+                // Update main display with animation
+                const callingContent = safeGetElementById('calling-content');
+                safeGetElementById('current-number').textContent = currentCall.formatted_number;
+                safeGetElementById('current-counter').textContent = currentCall.counter_name || 'Loket';
+                callingContent.classList.remove('new-call-main');
+                void callingContent.offsetWidth; // Trigger reflow
+                callingContent.classList.add('new-call-main');
+
+                // Update and render history
+                callHistory.unshift({
+                    number: currentCall.formatted_number,
+                    counter: currentCall.counter_name || 'Loket'
+                });
+                if (callHistory.length > MAX_HISTORY) {
+                    callHistory.pop();
                 }
+                renderHistory();
+            } else if (!currentCall && lastCalledNumber !== null) {
+                // Handle case when there are no calls
+                lastCalledNumber = null;
+                safeGetElementById('current-number').textContent = '---';
+                safeGetElementById('current-counter').textContent = '-';
             }
         }
 
-        // 4. Load Video Player
+        function renderHistory() {
+            const historyListEl = safeGetElementById('history-list');
+            if (!historyListEl) return;
+
+            historyListEl.innerHTML = callHistory.map((call, index) => `
+                <li class="history-item ${index === 0 ? 'new-call-item' : ''}">
+                    <span class="history-number">${call.number}</span>
+                    <span class="history-counter">${call.counter}</span>
+                </li>
+            `).join('');
+
+            // Remove animation class after it finishes
+            const newItem = historyListEl.querySelector('.new-call-item');
+            if (newItem) {
+                setTimeout(() => {
+                    newItem.classList.remove('new-call-item');
+                }, 2000);
+            }
+        }
+
         let currentVideoId = null;
         async function loadVideo() {
             const videoPlayer = safeGetElementById('video-player');
-            if (!videoPlayer) return;
-
             try {
-                const response = await fetch('/api/video', {
-                    headers: {
-                        'Accept': 'application/json',
-                        'Cache-Control': 'no-cache'
-                    }
-                });
-                if (!response.ok) throw new Error('Video API request failed');
+                const response = await fetch('/api/video');
+                if (!response.ok) return;
                 const data = await response.json();
 
                 if (!data.success || !data.video) {
-                    videoPlayer.innerHTML =
-                        `<div class="video-placeholder"><i class="fas fa-video-slash"></i><div>Tidak ada video aktif</div></div>`;
+                    if (currentVideoId !== null) {
+                        videoPlayer.innerHTML =
+                            `<div class="video-placeholder"><i class="fas fa-video-slash"></i><div>Tidak ada video aktif</div></div>`;
+                    }
+                    currentVideoId = null;
                     return;
                 }
-
-                if (currentVideoId === data.video.id) return; // Don't reload the same video
+                if (currentVideoId === data.video.id) return;
                 currentVideoId = data.video.id;
 
                 if (data.video.type === 'youtube') {
-                    const youtubeUrl = new URL(data.video.url);
-                    youtubeUrl.searchParams.set('autoplay', '1');
-                    youtubeUrl.searchParams.set('mute', '1'); // Mute is required for autoplay in most browsers
-                    youtubeUrl.searchParams.set('loop', '1');
-                    youtubeUrl.searchParams.set('playlist', youtubeUrl.searchParams.get(
-                        'v')); // Required for loop to work
-                    videoPlayer.innerHTML =
-                        `<iframe src="${youtubeUrl.toString()}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+                    // The URL is already processed by the model to be an embed URL
+                    videoPlayer.innerHTML = 
+                        `<iframe src="${data.video.url}" 
+                                allow="autoplay; encrypted-media" 
+                                allowfullscreen 
+                                loading="lazy"
+                                style="width: 100%; height: 100%; border: none;">
+                        </iframe>`;
                 } else if (data.video.type === 'file') {
-                    videoPlayer.innerHTML = `<video autoplay loop muted playsinline src="${data.video.url}"></video>`;
+                    videoPlayer.innerHTML = 
+                        `<video autoplay loop muted playsinline 
+                                style="width: 100%; height: 100%; object-fit: contain;">
+                            <source src="${data.video.url}" type="video/mp4">
+                            Browser Anda tidak mendukung pemutaran video.
+                        </video>`;
                 }
             } catch (error) {
                 console.error('Error loading video:', error);
-                videoPlayer.innerHTML =
-                    `<div class="video-placeholder"><i class="fas fa-exclamation-triangle"></i><div>Gagal memuat video</div></div>`;
+                currentVideoId = null;
             }
         }
 
-        // 5. Load and Animate Running Text
         async function loadRunningTeks() {
             const contentEl = safeGetElementById('running-text-content');
-            if (!contentEl) return;
             try {
-                const response = await fetch('/api/running-teks', {
-                    headers: {
-                        'Accept': 'application/json',
-                        'Cache-Control': 'no-cache'
-                    }
-                });
-                if (!response.ok) throw new Error('Running Teks API failed');
+                const response = await fetch('/api/running-teks');
+                if (!response.ok) return;
                 const data = await response.json();
-
-                let texts =
-                    "<span><i class='fas fa-info-circle'></i> Selamat Datang di Sistem Antrian Digital Kami.</span>";
+                let texts = "<span>Selamat Datang di Layanan Kami</span>";
                 if (data.running_teks && data.running_teks.length > 0) {
-                    texts = data.running_teks.map(item =>
-                        `<span><i class='fas fa-info-circle'></i> ${item.text}</span>`).join('');
+                    texts = data.running_teks.map(item => `<span>${item.text}</span>`).join('');
                 }
-
-                // Duplicate content for seamless loop
                 contentEl.innerHTML = texts + texts;
-
-                // Adjust animation duration based on content width
-                const wrapperWidth = contentEl.parentElement.offsetWidth;
-                const contentWidth = contentEl.scrollWidth / 2; // width of a single set of texts
-                const duration = (contentWidth + wrapperWidth) / 100; // Adjust 100 to change speed
-                contentEl.style.animationDuration = `${Math.max(duration, 20)}s`;
-
             } catch (error) {
                 console.error("Failed to load running text:", error);
             }
         }
 
-        // --- FULLSCREEN TOGGLE ---
-        function setupFullscreenButton() {
-            const fullscreenBtn = safeGetElementById('fullscreen-btn');
-            const icon = fullscreenBtn.querySelector('i');
-
-            function updateIcon() {
-                const isInFullscreen = !!document.fullscreenElement;
-                icon.className = isInFullscreen ? 'fas fa-compress' : 'fas fa-expand-arrows-alt';
-                fullscreenBtn.title = isInFullscreen ? 'Keluar Fullscreen' : 'Masuk Fullscreen';
-            }
-
-            fullscreenBtn.addEventListener('click', () => {
-                if (!document.fullscreenElement) {
-                    document.documentElement.requestFullscreen().catch(err => console.error(err));
-                } else {
-                    document.exitFullscreen();
-                }
-            });
-
-            document.addEventListener('fullscreenchange', updateIcon);
-            updateIcon(); // Initial check
-        }
-
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
-            // Initial calls
             updateDateTime();
             fetchQueueData();
             loadVideo();
             loadRunningTeks();
-            setupFullscreenButton();
+            renderHistory();
 
-            // Set intervals for updates
-            setInterval(updateDateTime, 1000); // Every second for the clock
-            setInterval(fetchQueueData, 3000); // Every 3 seconds for queue data
-            setInterval(loadVideo, 5 * 60 * 1000); // Every 5 minutes for video
-            setInterval(loadRunningTeks, 5 * 60 * 1000); // Every 5 minutes for running text
+            setInterval(updateDateTime, 1000);
+            setInterval(fetchQueueData, 3000);
+            setInterval(loadVideo, 5 * 60 * 1000);
+            setInterval(loadRunningTeks, 5 * 60 * 1000);
         });
     </script>
 </body>
