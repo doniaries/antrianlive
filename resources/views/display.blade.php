@@ -540,7 +540,7 @@
                 if (!response.ok) return;
                 const data = await response.json();
 
-                if (!data.success || !data.video) {
+                if (!data?.success || !data?.video || !data.video.url) {
                     if (currentVideoId !== null) {
                         videoPlayer.innerHTML =
                             `<div class="video-placeholder"><i class="fas fa-video-slash"></i><div>Tidak ada video aktif</div></div>`;
@@ -552,14 +552,26 @@
                 currentVideoId = data.video.id;
 
                 if (data.video.type === 'youtube') {
-                    // The URL is already processed by the model to be an embed URL
-                    videoPlayer.innerHTML = 
-                        `<iframe src="${data.video.url}" 
-                                allow="autoplay; encrypted-media" 
-                                allowfullscreen 
-                                loading="lazy"
-                                style="width: 100%; height: 100%; border: none;">
-                        </iframe>`;
+                    // Extract video ID from YouTube URL
+                    let videoId = '';
+                    const url = data.video.url || '';
+                    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+                    const match = url.match(regExp);
+                    
+                    if (match && match[2].length === 11) {
+                        videoId = match[2];
+                        const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0`;
+                        videoPlayer.innerHTML = 
+                            `<iframe src="${embedUrl}" 
+                                    allow="autoplay; encrypted-media" 
+                                    allowfullscreen 
+                                    loading="lazy"
+                                    style="width: 100%; height: 100%; border: none;">
+                            </iframe>`;
+                    } else {
+                        videoPlayer.innerHTML = 
+                            '<div class="video-placeholder"><i class="fas fa-exclamation-triangle"></i><div>Format URL YouTube tidak valid</div></div>';
+                    }
                 } else if (data.video.type === 'file') {
                     videoPlayer.innerHTML = 
                         `<video autoplay loop muted playsinline 
