@@ -164,11 +164,13 @@
             grid-column: 1 / 2;
             grid-row: 1 / 2;
             margin-top: 0;
-            padding: 0.75rem;
+            padding: 1.25rem;
             min-height: 360px;
             max-height: 400px;
             display: flex;
             flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
         .video-card {
@@ -274,10 +276,6 @@
         }
 
         .queue-counter {
-            font-size: 2.5rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-            margin-top: 1rem;
             display: flex;
             align-items: center;
             gap: 1rem;
@@ -285,6 +283,27 @@
 
         .queue-counter i {
             color: var(--accent-cyan);
+        }
+
+        .current-service {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0.75rem 0;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .current-number {
+            font-size: 5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 1rem 0;
+            line-height: 1.1;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         /* --- Video Card --- */
@@ -379,8 +398,10 @@
             justify-content: center;
             align-items: center;
             height: 100%;
-            padding: 0.5rem;
+            width: 100%;
+            padding: 1rem;
             flex: 1;
+            text-align: center;
         }
 
         .service-item:hover {
