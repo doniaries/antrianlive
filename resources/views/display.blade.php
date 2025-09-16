@@ -118,7 +118,7 @@
         /* --- Main Layout --- */
         .main-container {
             display: grid;
-            grid-template-columns: 1.5fr 1fr;
+            grid-template-columns: 1fr 1fr; /* Equal width columns */
             grid-template-rows: auto 1fr;
             gap: 1rem;
             min-height: calc(100vh - 60px);
@@ -126,6 +126,7 @@
             padding-top: 70px;
             box-sizing: border-box;
             margin: 0;
+            width: 100%;
         }
 
         /* --- Card Base Style --- */
@@ -163,7 +164,7 @@
         .calling-card {
             grid-column: 1 / 2;
             grid-row: 1 / 2;
-            margin-top: 0;
+            margin: 0;
             padding: 1.25rem;
             min-height: 360px;
             max-height: 400px;
@@ -171,6 +172,8 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .video-card {
@@ -181,17 +184,21 @@
             max-height: 400px;
             display: flex;
             flex-direction: column;
-            margin-top: 0;
+            margin: 0;
             padding: 0.75rem;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .video-container {
             flex: 1;
-            min-height: 0; /* Allow container to shrink */
+            min-height: 0;
             position: relative;
             overflow: hidden;
-            border-radius: 8px;
+            border-radius: 12px;
             background: #000;
+            width: 100%;
+            aspect-ratio: 16/9; /* Maintain video aspect ratio */
         }
         
         .video-container iframe {
@@ -208,8 +215,10 @@
             grid-row: 2 / 3;
             max-height: 50vh;
             overflow-y: auto;
-            margin-top: 0;
-            padding: 0.5rem;
+            margin: 0;
+            padding: 0.75rem;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .running-text-wrapper {
