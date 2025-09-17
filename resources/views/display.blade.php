@@ -163,14 +163,14 @@
             flex-grow: 1;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            grid-template-rows: 65% 35%;
+            grid-template-rows: 60% 40%;
             grid-template-areas:
                 "calling video"
                 "history history";
             gap: 1rem;
             padding: 1rem;
             overflow: hidden;
-            max-height: calc(100vh - var(--header-height) - 50px);
+            max-height: calc(100vh - var(--header-height) - 60px);
         }
 
         /* --- Panel Styling --- */
@@ -241,6 +241,7 @@
         /* --- History Panel --- */
         .history-panel {
             grid-area: history;
+            font-size: 1.2rem;
         }
 
         .history-panel .panel-body {
@@ -249,10 +250,11 @@
 
         /* History grid per layanan */
         #history-list {
-            padding: 1rem;
+            padding: 1.5rem;
             margin: 0;
             flex-grow: 1;
             overflow-y: auto;
+            max-height: 100%;
         }
 
         .history-grid {
@@ -327,15 +329,16 @@
             padding: 0.6rem 0.75rem;
             border-bottom: 1px dashed var(--border-color);
             transition: background-color 0.3s ease;
+            font-size: 1.4rem;
         }
 
         .history-number {
-            font-size: 1.25rem;
+            font-size: 1.5rem;
             font-weight: 800;
         }
 
         .history-counter {
-            font-size: 0.95rem;
+            font-size: 1.2rem;
             font-weight: 600;
             color: var(--text-muted);
         }
