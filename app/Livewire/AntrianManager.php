@@ -508,6 +508,21 @@ class AntrianManager extends Component
         // Broadcast event untuk reload halaman display
         $this->dispatch('antrian-reset');
     }
+    
+    /**
+     * Membersihkan riwayat panggilan di display
+     */
+    public function clearCallHistory()
+    {
+        $this->dispatch('notify', [
+            'type' => 'success',
+            'message' => "Membersihkan riwayat panggilan"
+        ]);
+        
+        // Broadcast event khusus untuk membersihkan riwayat panggilan
+        // Menggunakan nama event yang sama dengan yang didengarkan di display.blade.php
+        $this->dispatch('clear-call-history-event');
+    }
 
     /**
      * Handler untuk event reset-antrian

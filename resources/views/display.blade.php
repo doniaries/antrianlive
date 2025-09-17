@@ -1017,16 +1017,46 @@
                 document.addEventListener('fullscreenchange', updateIcon);
             }
 
+            // Fungsi untuk menampilkan notifikasi
+            function showNotification(message, type = 'info') {
+                // Buat elemen notifikasi
+                const notification = document.createElement('div');
+                notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
+                    type === 'success' ? 'bg-green-500' : 
+                    type === 'error' ? 'bg-red-500' : 
+                    type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
+                } text-white`;
+                notification.innerHTML = message;
+                
+                // Tambahkan ke body
+                document.body.appendChild(notification);
+                
+                // Hilangkan setelah 3 detik
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    notification.style.transition = 'opacity 0.5s ease';
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 500);
+                }, 3000);
+            }
+            
             // Fungsi untuk reload halaman
             function reloadPage(resetHistory = false) {
-                // Jika resetHistory true, tidak perlu menyimpan riwayat panggilan
-                if (!resetHistory && callHistory && callHistory.length > 0) {
-                    // Simpan riwayat panggilan ke sessionStorage sementara (akan bertahan selama reload)
-                    sessionStorage.setItem('tempCallHistory', JSON.stringify(callHistory));
-                } else if (resetHistory) {
+                // Jika resetHistory true, hapus semua riwayat panggilan
+                if (resetHistory) {
+                    console.log('Menghapus semua riwayat panggilan...');
                     // Hapus riwayat panggilan dari sessionStorage dan localStorage
                     sessionStorage.removeItem('tempCallHistory');
                     localStorage.removeItem('callHistory');
+                    // Reset array callHistory
+                    callHistory = [];
+                    // Hapus juga data nomor terakhir yang dipanggil
+                    localStorage.removeItem('lastCalledNumber');
+                    localStorage.removeItem('lastCalledCounter');
+                } else if (callHistory && callHistory.length > 0) {
+                    // Simpan riwayat panggilan ke sessionStorage sementara (akan bertahan selama reload)
+                    sessionStorage.setItem('tempCallHistory', JSON.stringify(callHistory));
                 }
                 
                 // Reload halaman
@@ -1052,8 +1082,46 @@
                 // Setup Livewire event listener untuk reset antrian
                 if (window.Livewire) {
                     window.Livewire.on('antrian-reset', () => {
-                        console.log('Antrian telah direset, me-reload halaman display dan menghapus riwayat...');
-                        reloadPage(true); // Parameter true untuk menghapus riwayat
+                        console.log('Antrian telah direset, menghapus riwayat panggilan...');
+                        
+                        // Hapus semua data riwayat dari localStorage dan sessionStorage
+                        localStorage.clear(); // Hapus semua data localStorage
+                        sessionStorage.clear(); // Hapus semua data sessionStorage
+                        
+                        // Reset array callHistory
+                        callHistory = [];
+                        
+                        // Kosongkan tampilan riwayat
+                        const historyContainer = document.getElementById('history-container');
+                        if (historyContainer) {
+                            historyContainer.innerHTML = '';
+                        }
+                        
+                        // Reload halaman untuk memastikan semua perubahan diterapkan
+                        window.location.reload();
+                    });
+                    
+                    // Event listener untuk membersihkan riwayat panggilan (Livewire event)
+                    window.Livewire.on('clear-call-history-event', function() {
+                        console.log('Membersihkan riwayat panggilan dengan Livewire event...');
+                        
+                        // Hapus data riwayat dari localStorage dan sessionStorage
+                        localStorage.removeItem('callHistory');
+                        localStorage.removeItem('lastCalledNumber');
+                        localStorage.removeItem('lastCalledCounter');
+                        sessionStorage.removeItem('tempCallHistory');
+                        
+                        // Reset array callHistory
+                        callHistory = [];
+                        
+                        // Kosongkan tampilan riwayat
+                        const historyContainer = document.getElementById('history-container');
+                        if (historyContainer) {
+                            historyContainer.innerHTML = '';
+                        }
+                        
+                        // Tampilkan notifikasi sukses
+                        showNotification('Riwayat panggilan berhasil dibersihkan', 'success');
                     });
                 }
             });

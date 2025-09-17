@@ -51,13 +51,26 @@
                         onclick="return confirm('Yakin ingin mereset semua antrian hari ini?')"
                         class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center">
                         <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                            </path>
                         </svg>
                         Reset Antrian
                     </button>
+                    
+                    <!-- Bersihkan Riwayat Button -->
+                    <button wire:click="clearCallHistory"
+                        onclick="return confirm('Yakin ingin membersihkan riwayat panggilan?')"
+                        class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center">
+                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                            </path>
+                        </svg>
+                        Bersihkan Riwayat
+                    </button>
 
-                    <div class="text-right">
+                    {{-- <div class="text-right">
                         <p class="text-sm font-medium text-gray-900 dark:text-white">{{ auth()->user()->name }}</p>
                         <p class="text-xs text-gray-500 dark:text-gray-400">
                             @if (auth()->user()->isSuperAdmin())
@@ -72,7 +85,7 @@
                                 </span>
                             @endif
                         </p>
-                    </div>
+                    </div> --}}
 
                 </div>
             </div>
@@ -406,10 +419,10 @@ $serviceCode = $antrian->service->code;
         if (audio) {
             // Handle browser autoplay policy
             audio.currentTime = 0;
-            
+
             // Try to play with user interaction context
             const playPromise = audio.play();
-            
+
             if (playPromise !== undefined) {
                 playPromise.then(() => {
                     console.log('Audio played successfully');
@@ -433,7 +446,7 @@ $serviceCode = $antrian->service->code;
             if (speechSynthesis.speaking) {
                 speechSynthesis.cancel();
             }
-            
+
             const text = `Nomor antrian ${number}, silakan ke ${counter || 'loket'}`;
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'id-ID';
@@ -441,11 +454,11 @@ $serviceCode = $antrian->service->code;
             utterance.pitch = 1;
             // Maximize voice volume for clearer announcements (0.0 - 1.0)
             utterance.volume = 1;
-            
+
             utterance.onstart = () => console.log('Speech started');
             utterance.onend = () => console.log('Speech ended');
             utterance.onerror = (e) => console.log('Speech error:', e);
-            
+
             speechSynthesis.speak(utterance);
         } else {
             console.log('Speech synthesis not supported');
@@ -474,7 +487,9 @@ $serviceCode = $antrian->service->code;
                 audio.removeEventListener('ended', onEnded);
                 speakNumber(number, service, counter);
             };
-            audio.addEventListener('ended', onEnded, { once: true });
+            audio.addEventListener('ended', onEnded, {
+                once: true
+            });
 
             const playPromise = audio.play();
             if (playPromise !== undefined) {
@@ -495,23 +510,28 @@ $serviceCode = $antrian->service->code;
     // Event listeners for Livewire events - Enhanced debugging
     document.addEventListener('livewire:initialized', function() {
         console.log('Livewire initialized, setting up event listeners');
-        
+
         // Listen for antrian-called event with detailed debugging
         Livewire.on('antrian-called', (data) => {
             console.log('=== ANTrian-called EVENT RECEIVED ===');
             console.log('Event data:', data);
             console.log('Data type:', typeof data);
             console.log('Data keys:', Object.keys(data || {}));
-            
+
             // Handle array format from Livewire
             let eventData = Array.isArray(data) ? data[0] : data;
-            
+
             if (eventData && eventData.number) {
                 console.log('✅ Playing sound for number:', eventData.number);
                 playAndSpeak(eventData.number, eventData.service, eventData.counter);
                 // Show the floating current call card with emphasis, just like first call
-                try { showCurrentCall(eventData.number, eventData.service || 'Layanan', eventData.counter || 'Loket'); } catch (e) { console.log('showCurrentCall not available', e); }
-                
+                try {
+                    showCurrentCall(eventData.number, eventData.service || 'Layanan', eventData
+                        .counter || 'Loket');
+                } catch (e) {
+                    console.log('showCurrentCall not available', e);
+                }
+
                 // Also dispatch browser event for additional handling
                 window.dispatchEvent(new CustomEvent('antrian-called-browser', {
                     detail: eventData
@@ -525,16 +545,21 @@ $serviceCode = $antrian->service->code;
         Livewire.on('queue-called', (data) => {
             console.log('=== QUEUE-called EVENT RECEIVED ===');
             console.log('Event data:', data);
-            
+
             // Handle array format from Livewire
             let eventData = Array.isArray(data) ? data[0] : data;
-            
+
             if (eventData && eventData.number) {
                 console.log('✅ Playing sound for queue:', eventData.number);
                 playAndSpeak(eventData.number, eventData.service, eventData.counter);
                 // Show the floating current call card with emphasis as well
-                try { showCurrentCall(eventData.number, eventData.service || 'Layanan', eventData.counter || 'Loket'); } catch (e) { console.log('showCurrentCall not available', e); }
-                
+                try {
+                    showCurrentCall(eventData.number, eventData.service || 'Layanan', eventData
+                        .counter || 'Loket');
+                } catch (e) {
+                    console.log('showCurrentCall not available', e);
+                }
+
                 // Also dispatch browser event for additional handling
                 window.dispatchEvent(new CustomEvent('queue-called-browser', {
                     detail: eventData
@@ -587,17 +612,17 @@ $serviceCode = $antrian->service->code;
     // Test audio function
     function testAudio() {
         console.log('Testing audio...');
-        
+
         // Test bell sound
         const audio = document.getElementById('callSound');
         if (audio) {
             console.log('Audio element found, src:', audio.src);
             console.log('Audio duration:', audio.duration);
-            
+
             // Try to play
             audio.currentTime = 0;
             const playPromise = audio.play();
-            
+
             if (playPromise !== undefined) {
                 playPromise.then(() => {
                     console.log('Test audio played successfully');
@@ -610,18 +635,18 @@ $serviceCode = $antrian->service->code;
             console.log('Audio element not found');
             alert('Audio element not found');
         }
-        
+
         // Test speech synthesis
         if ('speechSynthesis' in window) {
             const text = 'Test audio berhasil, nomor antrian A001, silakan ke loket 1';
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'id-ID';
             utterance.rate = 0.8;
-            
+
             utterance.onstart = () => console.log('Speech test started');
             utterance.onend = () => console.log('Speech test ended');
             utterance.onerror = (e) => console.log('Speech test error:', e);
-            
+
             speechSynthesis.speak(utterance);
         } else {
             console.log('Speech synthesis not supported');
