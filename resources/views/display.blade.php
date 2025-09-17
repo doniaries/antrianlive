@@ -6,22 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Antrian Digital</title>
     @php
-        // Mock data for Blade variables
-        class Profil
-        {
-            public static function first()
-            {
-                return (object) [
-                    'favicon' => null,
-                    'logo' => null,
-                    'nama_instansi' => 'Nama Instansi Anda',
-                ];
-            }
-        }
-        $profil = Profil::first();
-        $faviconUrl = $profil->favicon ? asset('storage/' . $profil->favicon) : '/favicon.ico';
-        $logoUrl = $profil->logo ? asset('storage/' . $profil->logo) : null;
-        $namaInstansi = $profil->nama_instansi ?: 'Sistem Antrian Digital';
+        // Ambil pengaturan profil dari database
+        $profil = \App\Models\Profil::query()->first();
+        $faviconUrl = $profil && $profil->favicon ? asset('storage/' . $profil->favicon) : '/favicon.ico';
+        $logoUrl = $profil && $profil->logo ? asset('storage/' . $profil->logo) : null;
+        $namaInstansi =
+            $profil && $profil->nama_instansi ? $profil->nama_instansi : config('app.name', 'Sistem Antrian Digital');
+        $appName = config('app.name', env('APP_NAME', 'Sistem Antrian'));
     @endphp
     <link rel="icon" href="{{ $faviconUrl }}" type="image/x-icon">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -92,6 +83,14 @@
             font-weight: 700;
         }
 
+        .header-center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-weight: 700;
+            color: var(--text-light);
+        }
+
         .datetime {
             text-align: right;
         }
@@ -107,9 +106,19 @@
             color: var(--text-muted);
         }
 
+        /* Running text container for better visibility */
+        .running-text-container {
+            width: 100%;
+            overflow: hidden;
+            background-color: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 0.5rem 0.75rem;
+        }
+
         .running-text-content {
             display: inline-block;
-            font-size: 1.1rem;
+            font-size: 1.4rem;
             padding-left: 100%;
             animation: marquee 30s linear infinite;
             white-space: nowrap;
@@ -182,7 +191,8 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 1rem; /* slightly tighter to fit content */
+            padding: 1rem;
+            /* slightly tighter to fit content */
         }
 
         .label {
@@ -197,11 +207,12 @@
             line-height: 1;
             margin: 0.75rem 0;
             color: var(--secondary-accent);
-            text-shadow: 0 0 30px rgba(245, 158, 11, 0.7);
+            /* Glow mengikuti warna layanan via CSS variable */
+            text-shadow: 0 0 30px var(--glow-color, rgba(245, 158, 11, 0.8));
         }
 
         #current-counter {
-            font-size: 2.25rem;
+            font-size: 5rem;
             font-weight: 600;
             color: var(--text-light);
         }
@@ -215,12 +226,68 @@
             padding: 0;
         }
 
+        /* History grid per layanan */
         #history-list {
-            list-style-type: none;
-            padding: 0;
+            padding: 1rem;
             margin: 0;
             flex-grow: 1;
             overflow-y: auto;
+        }
+
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        @media (max-width: 1280px) {
+            .history-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .history-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .service-card {
+            background: rgba(31, 41, 55, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+
+        .service-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .service-title {
+            font-weight: 700;
+        }
+
+        .service-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.15rem;
+        }
+
+        .service-badge {
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 0.15rem 0.5rem;
+            border-radius: 999px;
+            border: 1px solid currentColor;
+        }
+
+        .service-card-body {
+            padding: 0.5rem 0.75rem;
         }
 
         #history-list::-webkit-scrollbar {
@@ -236,20 +303,20 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid var(--border-color);
+            padding: 0.6rem 0.75rem;
+            border-bottom: 1px dashed var(--border-color);
             transition: background-color 0.3s ease;
         }
 
         .history-number {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: var(--primary-accent);
+            font-size: 1.25rem;
+            font-weight: 800;
         }
 
         .history-counter {
-            font-size: 1.1rem;
-            font-weight: 500;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-muted);
         }
 
         /* --- Video Panel --- */
@@ -261,6 +328,41 @@
 
         .video-panel .panel-body {
             padding: 0;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Styling untuk kontrol video */
+        .youtube-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .video-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10;
+        }
+        
+        .control-btn {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .control-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: scale(1.1);
         }
 
         .video-container {
@@ -278,6 +380,21 @@
             height: 100%;
             border: none;
             object-fit: cover;
+        }
+        
+        .file-video-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+        }
+        
+        .file-video-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         .video-placeholder {
@@ -338,18 +455,20 @@
         @keyframes pulse-glow {
             0% {
                 transform: scale(1);
-                text-shadow: 0 0 10px rgba(245, 158, 11, 0.6), 0 0 0 rgba(245, 158, 11, 0);
-                filter: drop-shadow(0 0 0 rgba(245, 158, 11, 0));
+                text-shadow: 0 0 10px var(--glow-color, rgba(245, 158, 11, 0.6)), 0 0 0 rgba(0, 0, 0, 0);
+                filter: drop-shadow(0 0 0 var(--glow-color, rgba(0, 0, 0, 0)));
             }
+
             40% {
                 transform: scale(1.08);
-                text-shadow: 0 0 30px rgba(245, 158, 11, 0.9), 0 0 60px rgba(245, 158, 11, 0.6);
-                filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.6));
+                text-shadow: 0 0 30px var(--glow-color, rgba(245, 158, 11, 0.95)), 0 0 60px var(--glow-color, rgba(245, 158, 11, 0.7));
+                filter: drop-shadow(0 0 10px var(--glow-color, rgba(245, 158, 11, 0.7)));
             }
+
             100% {
                 transform: scale(1);
-                text-shadow: 0 0 10px rgba(245, 158, 11, 0.6), 0 0 0 rgba(245, 158, 11, 0);
-                filter: drop-shadow(0 0 0 rgba(245, 158, 11, 0));
+                text-shadow: 0 0 10px var(--glow-color, rgba(245, 158, 11, 0.6)), 0 0 0 rgba(0, 0, 0, 0);
+                filter: drop-shadow(0 0 0 var(--glow-color, rgba(0, 0, 0, 0)));
             }
         }
 
@@ -413,9 +532,15 @@
 <body>
     <header class="header">
         <div class="logo">
-            <i class="fas fa-layer-group fa-2x"></i>
+            @if ($logoUrl)
+                <img src="{{ $logoUrl }}" alt="Logo"
+                    style="height:40px;width:auto;border-radius:6px;object-fit:contain;">
+            @else
+                <i class="fas fa-layer-group fa-2x"></i>
+            @endif
             <span class="logo-text">{{ $namaInstansi }}</span>
         </div>
+        <div class="header-center">{{ $appName }}</div>
         <div class="datetime">
             <div id="current-time" class="time">--:--:--</div>
             <div id="current-date" class="date">--</div>
@@ -450,14 +575,15 @@
         <div class="panel history-panel">
             <div class="panel-header">Riwayat Panggilan</div>
             <div class="panel-body">
-                <ul id="history-list">
-                </ul>
+                <div id="history-list"></div>
             </div>
         </div>
     </main>
 
     <footer class="footer">
-        <div class="running-text-content" id="running-text-content"></div>
+        <div class="running-text-container" aria-label="Informasi Berjalan">
+            <div class="running-text-content" id="running-text-content"></div>
+        </div>
     </footer>
 
     <button id="fullscreen-btn" title="Toggle Fullscreen">
@@ -472,11 +598,59 @@
         let callHistory = [];
         const MAX_HISTORY = 5;
         let currentVideoId = null;
+        let lastEventSignature = null; // to detect recalls/updates even when number is the same
 
         // --- UTILITY FUNCTIONS ---
         const safeGetElementById = (id) => document.getElementById(id);
 
         // --- CORE FUNCTIONS ---
+        function extractServiceCode(num) {
+            if (!num) return null;
+            const match = String(num).match(/^[A-Za-z]+/);
+            return match ? match[0].toUpperCase() : null;
+        }
+
+        function getServiceColor(code) {
+            // Map service codes to consistent colors
+            // PU: merah, PS: biru, PA: hijau; fallback: oranye
+            const map = {
+                'PU': {
+                    color: '#ef4444',
+                    glow: 'rgba(239, 68, 68, 0.7)'
+                },
+                'PS': {
+                    color: '#3b82f6',
+                    glow: 'rgba(59, 130, 246, 0.7)'
+                },
+                'PA': {
+                    color: '#22c55e',
+                    glow: 'rgba(34, 197, 94, 0.7)'
+                },
+            };
+            if (code && map[code]) return map[code];
+            return {
+                color: '#f59e0b',
+                glow: 'rgba(245, 158, 11, 0.7)'
+            };
+        }
+
+        function applyServiceColorToCurrent(codeOrNumber) {
+            const numberEl = safeGetElementById('current-number');
+            const code = extractServiceCode(codeOrNumber) || codeOrNumber;
+            const {
+                color,
+                glow
+            } = getServiceColor(code);
+            if (numberEl) {
+                numberEl.style.color = color;
+                // Set CSS variable for glow color so CSS/animation follows service color
+                numberEl.style.setProperty('--glow-color', glow);
+            }
+            return {
+                color
+            };
+        }
+
         function loadLastCalledFromStorage() {
             try {
                 const num = localStorage.getItem('lastCalledNumber');
@@ -487,6 +661,8 @@
                     const counterEl = safeGetElementById('current-counter');
                     if (numberEl) numberEl.textContent = num;
                     if (counterEl) counterEl.textContent = counter || 'Loket';
+                    // Apply color based on service code from stored number
+                    applyServiceColorToCurrent(num);
                 }
             } catch (e) {
                 console.warn('localStorage unavailable');
@@ -497,8 +673,9 @@
             try {
                 localStorage.setItem('lastCalledNumber', num);
                 if (counter) localStorage.setItem('lastCalledCounter', counter);
-            } catch (e) { }
+            } catch (e) {}
         }
+
         function updateDateTime() {
             const now = new Date();
             const timeEl = safeGetElementById('current-time');
@@ -526,36 +703,69 @@
             }
         }
 
+        function buildEventSignature(item) {
+            if (!item) return null;
+            const candidates = [
+                item.updated_at,
+                item.called_at,
+                item.recalled_at,
+                item.updatedAt,
+                item.timestamp,
+                item.recall_count,
+                item.recalled_times,
+                item.status_updated_at,
+            ];
+            const sigExtra = candidates.filter(Boolean).join('|');
+            return `${item.formatted_number || ''}#${sigExtra}`;
+        }
+
         function updateDisplay(data) {
             const currentCall = data.currentCalled && data.currentCalled.length > 0 ? data.currentCalled[0] : null;
 
-            if (currentCall && currentCall.formatted_number !== lastCalledNumber) {
-                lastCalledNumber = currentCall.formatted_number;
+            if (currentCall) {
+                const newSignature = buildEventSignature(currentCall);
+                const isRecallFlag = !!(currentCall.is_recall || currentCall.recall || currentCall.recalled || (currentCall.recall_count && currentCall.recall_count > 0));
+                const isNewNumber = currentCall.formatted_number !== lastCalledNumber;
+                const isRecallBySignature = (!!newSignature && newSignature !== lastEventSignature && !isNewNumber);
+                const shouldProcess = isNewNumber || isRecallFlag || isRecallBySignature;
 
-                const callingContent = safeGetElementById('calling-content');
-                const numberEl = safeGetElementById('current-number');
-                numberEl.textContent = currentCall.formatted_number;
-                safeGetElementById('current-counter').textContent = currentCall.counter_name || 'Loket';
+                if (shouldProcess) {
+                    if (isNewNumber) lastCalledNumber = currentCall.formatted_number;
+                    if (newSignature) lastEventSignature = newSignature;
 
-                callingContent.classList.remove('new-call-main');
-                void callingContent.offsetWidth; // Trigger reflow
-                callingContent.classList.add('new-call-main');
+                    const callingContent = safeGetElementById('calling-content');
+                    const numberEl = safeGetElementById('current-number');
+                    numberEl.textContent = currentCall.formatted_number;
+                    safeGetElementById('current-counter').textContent = currentCall.counter_name || 'Loket';
 
-                // Emphasize the current number with a pulse/glow effect
-                numberEl.classList.remove('call-highlight');
-                void numberEl.offsetWidth; // Trigger reflow for restarting animation
-                numberEl.classList.add('call-highlight');
+                    // Determine service code and apply color to the big number
+                    const code = (currentCall.service_code || extractServiceCode(currentCall.formatted_number));
+                    const { color } = applyServiceColorToCurrent(code);
 
-                // Persist to storage so it survives refresh
-                saveLastCalledToStorage(currentCall.formatted_number, currentCall.counter_name || 'Loket');
+                    callingContent.classList.remove('new-call-main');
+                    void callingContent.offsetWidth; // Trigger reflow
+                    callingContent.classList.add('new-call-main');
 
-                callHistory.unshift({
-                    number: currentCall.formatted_number,
-                    counter: currentCall.counter_name || 'Loket'
-                });
-                if (callHistory.length > MAX_HISTORY) callHistory.pop();
-                renderHistory();
-            } else if (!currentCall) {
+                    // Emphasize the current number with a pulse/glow effect
+                    numberEl.classList.remove('call-highlight');
+                    void numberEl.offsetWidth; // Trigger reflow for restarting animation
+                    numberEl.classList.add('call-highlight');
+
+                    // Persist to storage so it survives refresh
+                    saveLastCalledToStorage(currentCall.formatted_number, currentCall.counter_name || 'Loket');
+
+                    callHistory.unshift({
+                        number: currentCall.formatted_number,
+                        counter: currentCall.counter_name || 'Loket',
+                        serviceCode: code,
+                        serviceName: currentCall.service_name || (currentCall.service && currentCall.service.name) || code || 'Layanan',
+                        color,
+                        recall: !isNewNumber // if it's the same number, treat as recall
+                    });
+                    if (callHistory.length > MAX_HISTORY) callHistory.pop();
+                    renderHistory();
+                }
+            } else {
                 // Do not clear the display; keep showing the last called number (from memory/storage)
             }
         }
@@ -564,16 +774,49 @@
             const historyListEl = safeGetElementById('history-list');
             if (!historyListEl) return;
 
-            historyListEl.innerHTML = callHistory.map((call, index) => `
-                <li class="history-item ${index === 0 ? 'new-call-item' : ''}">
-                    <span class="history-number">${call.number}</span>
-                    <span class="history-counter">${call.counter}</span>
-                </li>
-            `).join('');
+            // Group by serviceCode
+            const groups = {};
+            for (const item of callHistory) {
+                const code = item.serviceCode || extractServiceCode(item.number) || 'OTHER';
+                if (!groups[code]) groups[code] = { items: [], name: item.serviceName || code };
+                groups[code].items.push(item);
+            }
 
-            const newItem = historyListEl.querySelector('.new-call-item');
-            if (newItem) {
-                setTimeout(() => newItem.classList.remove('new-call-item'), 2000);
+            // Build cards
+            const cardsHtml = Object.entries(groups).map(([code, group]) => {
+                const { color } = getServiceColor(code);
+                const badgeStyle = `color:${color}`;
+                const recallCount = group.items.filter(it => it.recall).length;
+                const itemsHtml = group.items.slice(0, 5).map((call, idx) => {
+                    const itemColor = (call.color) ? call.color : getServiceColor(code).color;
+                    return `
+                        <div class="history-item ${idx === 0 ? 'new-call-item' : ''}">
+                            <span class="history-number" style="color:${itemColor}">${call.number}</span>
+                            <span class="history-counter">${call.counter}${call.recall ? ' • <span style="color:#f59e0b;font-weight:600;">Panggilan Ulang</span>' : ''}</span>
+                        </div>`;
+                }).join('');
+
+                return `
+                    <div class="service-card">
+                        <div class="service-card-header">
+                            <div>
+                                <div class="service-title">${group.name}</div>
+                                ${recallCount > 0 ? `<div class=\"service-subtitle\" style=\"color:#f59e0b\">Panggilan ulang: ${recallCount}</div>` : ''}
+                            </div>
+                            <div class="service-badge" style="${badgeStyle}">${code}</div>
+                        </div>
+                        <div class="service-card-body">
+                            ${itemsHtml || '<div class="history-item"><span class="history-counter">Belum ada panggilan</span></div>'}
+                        </div>
+                    </div>`;
+            }).join('');
+
+            historyListEl.innerHTML = `<div class="history-grid">${cardsHtml}</div>`;
+
+            // Remove highlight class after animation time
+            const newItems = historyListEl.querySelectorAll('.new-call-item');
+            if (newItems && newItems.length) {
+                setTimeout(() => newItems.forEach(el => el.classList.remove('new-call-item')), 2000);
             }
         }
 
@@ -588,7 +831,7 @@
                 if (!data?.success || !data?.video?.url) {
                     if (currentVideoId !== null) {
                         videoContainer.innerHTML =
-                            `<div class="video-placeholder"><i class="fas fa-video-slash"></i><div>Tidak ada video aktif</div></div>`;
+                            '<div class="video-placeholder"><i class="fas fa-video-slash"></i><div>Tidak ada video aktif</div></div>';
                     }
                     currentVideoId = null;
                     return;
@@ -601,28 +844,65 @@
                     const match = data.video.url.match(regExp);
                     const videoId = (match && match[2].length === 11) ? match[2] : null;
                     if (videoId) {
+                        // Tambahkan controls=1 dan enablejsapi=1 untuk kontrol volume dan API
                         const embedUrl =
-                            `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&rel=0`;
-                        videoContainer.innerHTML =
-                            `<iframe src="${embedUrl}"
-                                title="YouTube video"
-                                frameborder="0"
-                                allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
-                                referrerpolicy="strict-origin-when-cross-origin"
-                                loading="lazy"
-                                allowfullscreen></iframe>`;
+                            `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=1&rel=0&enablejsapi=1`;
+                        
+                        // Tambahkan div container untuk kontrol volume tambahan
+                        videoContainer.innerHTML = `
+                            <div class="youtube-container">
+                                <iframe id="youtube-player-${videoId}" 
+                                    src="${embedUrl}"
+                                    title="YouTube video"
+                                    frameborder="0"
+                                    allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+                                    referrerpolicy="strict-origin-when-cross-origin"
+                                    loading="lazy"
+                                    allowfullscreen></iframe>
+                                <div class="video-controls">
+                                    <button id="toggle-mute" class="control-btn">
+                                        <i class="fas fa-volume-mute"></i>
+                                    </button>
+                                </div>
+                            </div>`;
+                            
+                            // Tambahkan event listener untuk tombol mute/unmute setelah DOM dirender
+                            setTimeout(() => {
+                                const toggleBtn = document.getElementById('toggle-mute');
+                                const iframe = document.getElementById('youtube-player-' + videoId);
+                                const icon = toggleBtn?.querySelector('i');
+                                
+                                if (toggleBtn && iframe && icon) {
+                                    toggleBtn.addEventListener('click', function() {
+                                        // Kirim pesan ke iframe YouTube untuk toggle mute
+                                        const isMuted = icon.classList.contains('fa-volume-mute');
+                                        
+                                        if (iframe.contentWindow) {
+                                            if (isMuted) {
+                                                iframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
+                                                icon.classList.remove('fa-volume-mute');
+                                                icon.classList.add('fa-volume-up');
+                                            } else {
+                                                iframe.contentWindow.postMessage('{"event":"command","func":"mute","args":""}', '*');
+                                                icon.classList.remove('fa-volume-up');
+                                                icon.classList.add('fa-volume-mute');
+                                            }
+                                        }
+                                    });
+                                }
+                            }, 1000);
                     } else {
-                        videoContainer.innerHTML =
-                            `<div class="video-placeholder"><i class="fas fa-exclamation-triangle"></i><div>URL YouTube tidak valid</div></div>`;
+                        videoContainer.innerHTML = 
+                            '<div class="video-placeholder"><i class="fas fa-exclamation-triangle"></i><div>URL YouTube tidak valid</div></div>';
                     }
                 } else if (data.video.type === 'file') {
-                    videoContainer.innerHTML =
-                    `<video autoplay loop muted playsinline preload="auto" src="${data.video.url}"></video>`;
+                    videoContainer.innerHTML = 
+                        '<div class="file-video-container"><video autoplay loop muted playsinline preload="auto" controls src="' + data.video.url + '"></video></div>';
                 }
             } catch (error) {
                 console.error('Error loading video:', error);
-                videoContainer.innerHTML =
-                    `<div class="video-placeholder"><i class="fas fa-exclamation-triangle"></i><div>Gagal memuat video</div></div>`;
+                videoContainer.innerHTML = 
+                    '<div class="video-placeholder"><i class="fas fa-exclamation-triangle"></i><div>Gagal memuat video</div></div>';
                 currentVideoId = null;
             }
         }

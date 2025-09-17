@@ -446,6 +446,8 @@ $serviceCode = $antrian->service->code;
             utterance.lang = 'id-ID';
             utterance.rate = 0.8;
             utterance.pitch = 1;
+            // Maximize voice volume for clearer announcements (0.0 - 1.0)
+            utterance.volume = 1;
             
             utterance.onstart = () => console.log('Speech started');
             utterance.onend = () => console.log('Speech ended');
@@ -460,10 +462,41 @@ $serviceCode = $antrian->service->code;
     // Function to play sound and speak number
     function playAndSpeak(number, service, counter) {
         console.log('Playing sound for:', number, service, counter);
-        playCallSound();
-        setTimeout(() => {
+        const audio = document.getElementById('callSound');
+
+        // If no bell audio element, speak immediately
+        if (!audio) {
+            console.log('Bell audio element not found, speaking immediately');
             speakNumber(number, service, counter);
-        }, 500);
+            return;
+        }
+
+        try {
+            // Reset and ensure max volume for bell
+            audio.currentTime = 0;
+            audio.volume = 1;
+
+            // Speak only after bell finishes
+            const onEnded = () => {
+                audio.removeEventListener('ended', onEnded);
+                speakNumber(number, service, counter);
+            };
+            audio.addEventListener('ended', onEnded, { once: true });
+
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    console.log('Bell audio playing...');
+                }).catch(error => {
+                    console.log('Bell audio play failed, speaking immediately:', error);
+                    audio.removeEventListener('ended', onEnded);
+                    speakNumber(number, service, counter);
+                });
+            }
+        } catch (e) {
+            console.log('Error during bell playback, speaking immediately:', e);
+            speakNumber(number, service, counter);
+        }
     }
 
     // Event listeners for Livewire events - Enhanced debugging
@@ -483,6 +516,8 @@ $serviceCode = $antrian->service->code;
             if (eventData && eventData.number) {
                 console.log('✅ Playing sound for number:', eventData.number);
                 playAndSpeak(eventData.number, eventData.service, eventData.counter);
+                // Show the floating current call card with emphasis, just like first call
+                try { showCurrentCall(eventData.number, eventData.service || 'Layanan', eventData.counter || 'Loket'); } catch (e) { console.log('showCurrentCall not available', e); }
                 
                 // Also dispatch browser event for additional handling
                 window.dispatchEvent(new CustomEvent('antrian-called-browser', {
@@ -504,6 +539,8 @@ $serviceCode = $antrian->service->code;
             if (eventData && eventData.number) {
                 console.log('✅ Playing sound for queue:', eventData.number);
                 playAndSpeak(eventData.number, eventData.service, eventData.counter);
+                // Show the floating current call card with emphasis as well
+                try { showCurrentCall(eventData.number, eventData.service || 'Layanan', eventData.counter || 'Loket'); } catch (e) { console.log('showCurrentCall not available', e); }
                 
                 // Also dispatch browser event for additional handling
                 window.dispatchEvent(new CustomEvent('queue-called-browser', {

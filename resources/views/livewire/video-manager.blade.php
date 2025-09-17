@@ -194,18 +194,6 @@
             <!-- Modal Body -->
             <div class="p-6">
                 <form wire:submit.prevent="store" class="space-y-5">
-                    <!-- URL Video -->
-                    <div>
-                        <label for="url" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            URL Video
-                        </label>
-                        <input type="url" wire:model="url" id="url"
-                            class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                            placeholder="https://www.youtube.com/watch?v=... atau path file">
-                        @error('url')
-                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
-                        @enderror
-                    </div>
 
                     <!-- Tipe Video -->
                     <div>
@@ -240,6 +228,23 @@
                             </div>
                         @endif
                     </div>
+
+                    <!-- URL Video -->
+                    <div>
+                        <label for="url" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            URL Video
+                        </label>
+                        <input type="url" wire:model="url" id="url"
+                            class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+                            placeholder="https://www.youtube.com/watch?v=... atau path file">
+                        @error('url')
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+
+
+
 
                     <!-- Status Aktif -->
                     <div>

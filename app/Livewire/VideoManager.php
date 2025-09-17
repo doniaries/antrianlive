@@ -30,7 +30,17 @@ class VideoManager extends Component
         ];
 
         if ($this->type === 'youtube') {
-            $rules['url'] = 'required|url|max:500';
+            $rules['url'] = [
+                'required',
+                'max:500',
+                function ($attribute, $value, $fail) {
+                    // Validasi URL YouTube
+                    $pattern = '/^(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/|youtube\.com\/user\/[^\/]+\/[^\/]+\/|youtube\.com\/[^\/]+\?v=)([^&?\s]{11}).*$/';
+                    if (!preg_match($pattern, $value)) {
+                        $fail('URL YouTube tidak valid. Gunakan format https://www.youtube.com/watch?v=XXXXXXXXXXX atau https://youtu.be/XXXXXXXXXXX');
+                    }
+                }
+            ];
         } else {
             if (!$this->editId) {
                 $rules['video_file'] = 'required|file|mimes:mp4,mkv,avi,mov|max:51200'; // 50MB

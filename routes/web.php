@@ -183,7 +183,7 @@ Route::get('/display', function () {
                 'success' => true,
                 'video' => [
                     'id' => $video->id,
-                    'url' => $video->video_url,
+                    'url' => $video->type === 'file' ? asset('storage/' . $video->url) : $video->url,
                     'type' => $video->type,
                     'is_active' => (bool)$video->is_active,
                     'created_at' => $video->created_at->toDateTimeString(),
