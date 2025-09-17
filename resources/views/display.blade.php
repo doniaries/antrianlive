@@ -1,22 +1,22 @@
-<!DOCTYPE html>
-<html lang="id">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Antrian Digital</title>
-    @php
-        // Ambil pengaturan profil dari database
-        $profil = \App\Models\Profil::query()->first();
-        $faviconUrl = $profil && $profil->favicon ? asset('storage/' . $profil->favicon) : '/favicon.ico';
-        $logoUrl = $profil && $profil->logo ? asset('storage/' . $profil->logo) : null;
-        $namaInstansi =
-            $profil && $profil->nama_instansi ? $profil->nama_instansi : config('app.name', 'Sistem Antrian Digital');
-        $appName = config('app.name', env('APP_NAME', 'Sistem Antrian'));
-    @endphp
-    <link rel="icon" href="{{ $faviconUrl }}" type="image/x-icon">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+@section('title', 'Sistem Antrian Digital')
+
+@php
+    // Ambil pengaturan profil dari database
+    $profil = \App\Models\Profil::query()->first();
+    $faviconUrl = $profil && $profil->favicon ? asset('storage/' . $profil->favicon) : '/favicon.ico';
+    $logoUrl = $profil && $profil->logo ? asset('storage/' . $profil->logo) : null;
+    $namaInstansi =
+        $profil && $profil->nama_instansi ? $profil->nama_instansi : config('app.name', 'Sistem Antrian Digital');
+    $appName = config('app.name', env('APP_NAME', 'Sistem Antrian'));
+@endphp
+
+@section('fonts')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+@endsection
+
+@section('styles')
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
 
@@ -47,7 +47,12 @@
             display: flex;
             flex-direction: column;
         }
+    </style>
+@endsection
 
+@section('content')
+
+    <style>
         /* --- Header & Footer --- */
         .header,
         .footer {
@@ -88,6 +93,7 @@
             left: 50%;
             transform: translateX(-50%);
             font-weight: 700;
+            font-size: 1.8rem;
             color: var(--text-light);
         }
 
@@ -110,23 +116,32 @@
         .running-text-container {
             width: 100%;
             overflow: hidden;
-            background-color: #0a1a2f; /* Biru gelap */
+            background-color: #0a1a2f;
+            /* Biru gelap */
             border: none;
             border-radius: 0;
-            padding: 0.75rem 0;
+            padding: 0;
             margin: 0;
             position: relative;
             left: 0;
             right: 0;
+            z-index: 100;
+            height: 60px;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.3);
         }
 
         .running-text-content {
             display: inline-block;
-            font-size: 1.8rem; /* Ukuran huruf diperbesar */
-            font-weight: 500;
+            font-size: 2.2rem;
+            /* Ukuran huruf diperbesar */
+            font-weight: 600;
             padding-left: 100%;
-            animation: marquee 60s linear infinite; /* Diperlambat dari 30s menjadi 60s */
+            animation: marquee 50s linear infinite;
+            /* Kecepatan dioptimalkan */
             white-space: nowrap;
+            color: #ffffff;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
+            line-height: 60px;
         }
 
         .running-text-content span {
@@ -148,13 +163,14 @@
             flex-grow: 1;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            grid-template-rows: 60% 40%;
+            grid-template-rows: 65% 35%;
             grid-template-areas:
                 "calling video"
                 "history history";
-            gap: 1.5rem;
-            padding: 1.5rem;
+            gap: 1rem;
+            padding: 1rem;
             overflow: hidden;
+            max-height: calc(100vh - var(--header-height) - 50px);
         }
 
         /* --- Panel Styling --- */
@@ -336,21 +352,21 @@
             overflow: hidden;
             position: relative;
         }
-        
+
         /* Styling untuk kontrol video */
         .youtube-container {
             position: relative;
             width: 100%;
             height: 100%;
         }
-        
+
         .video-controls {
             position: absolute;
             bottom: 20px;
             right: 20px;
             z-index: 10;
         }
-        
+
         .control-btn {
             background: rgba(0, 0, 0, 0.7);
             color: white;
@@ -364,7 +380,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
-        
+
         .control-btn:hover {
             background: rgba(0, 0, 0, 0.9);
             transform: scale(1.1);
@@ -386,7 +402,7 @@
             border: none;
             object-fit: cover;
         }
-        
+
         .file-video-container {
             width: 100%;
             height: 100%;
@@ -395,7 +411,7 @@
             justify-content: center;
             background: #000;
         }
-        
+
         .file-video-container video {
             width: 100%;
             height: 100%;
@@ -532,278 +548,305 @@
             }
         }
     </style>
-</head>
+    </head>
 
-<body>
-    <header class="header">
-        <div class="logo">
-            @if ($logoUrl)
-                <img src="{{ $logoUrl }}" alt="Logo"
-                    style="height:40px;width:auto;border-radius:6px;object-fit:contain;">
-            @else
-                <i class="fas fa-layer-group fa-2x"></i>
-            @endif
-            <span class="logo-text">{{ $namaInstansi }}</span>
-        </div>
-        <div class="header-center">{{ $appName }}</div>
-        <div class="datetime">
-            <div id="current-time" class="time">--:--:--</div>
-            <div id="current-date" class="date">--</div>
-        </div>
-    </header>
-
-    <main class="main-container">
-        <div class="panel calling-panel">
-            <div class="panel-header">Panggilan Antrian</div>
-            <div class="panel-body">
-                <div id="calling-content">
-                    <span class="label">Nomor Antrian</span>
-                    <div id="current-number">---</div>
-                    <span class="label">Silakan Menuju</span>
-                    <div id="current-counter">-</div>
-                </div>
+    <body>
+        <header class="header">
+            <div class="logo">
+                @if ($logoUrl)
+                    <img src="{{ $logoUrl }}" alt="Logo"
+                        style="height:40px;width:auto;border-radius:6px;object-fit:contain;">
+                @else
+                    <i class="fas fa-layer-group fa-2x"></i>
+                @endif
+                <span class="logo-text">{{ $namaInstansi }}</span>
             </div>
-        </div>
+            <div class="header-center">{{ $appName }}</div>
+            <div class="datetime">
+                <div id="current-time" class="time">--:--:--</div>
+                <div id="current-date" class="date">--</div>
+            </div>
+        </header>
 
-        <div class="panel video-panel">
-            <div class="panel-header">Informasi Video</div>
-            <div class="panel-body">
-                <div id="video-container" class="video-container">
-                    <div class="video-placeholder">
-                        <i class="fas fa-spinner fa-spin"></i>
-                        <div>Memuat video...</div>
+        <main class="main-container">
+            <div class="panel calling-panel">
+                <div class="panel-body">
+                    <div id="calling-content">
+                        <span class="label">Nomor Antrian</span>
+                        <div id="current-number">---</div>
+                        <span class="label">Silakan Menuju</span>
+                        <div id="current-counter">-</div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="panel history-panel">
-            <div class="panel-header">Riwayat Panggilan</div>
-            <div class="panel-body">
-                <div id="history-list"></div>
+            <div class="panel video-panel">
+                <div class="panel-body">
+                    <div id="video-container" class="video-container">
+                        <div class="video-placeholder">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <div>Memuat video...</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </main>
 
-    <footer class="footer" style="width: 100vw; margin: 0; padding: 0; left: 0; right: 0; position: relative;">
-        <div class="running-text-container" aria-label="Informasi Berjalan">
-            <div class="running-text-content" id="running-text-content"></div>
-        </div>
-    </footer>
+            <div class="panel history-panel">
+                <div class="panel-body">
+                    <div id="history-list"></div>
+                </div>
+            </div>
+        </main>
 
-    <button id="fullscreen-btn" title="Toggle Fullscreen">
-        <i class="fas fa-expand"></i>
-    </button>
+        <footer class="footer" style="width: 100vw; margin: 0; padding: 0; left: 0; right: 0; position: fixed; bottom: 0; height: 60px; display: block; z-index: 1000;">
+            <div class="running-text-container" aria-label="Informasi Berjalan" style="display: block; height: 60px; line-height: 60px; visibility: visible; overflow: visible; width: 100%;">
+                <div class="running-text-content" id="running-text-content" style="visibility: visible; font-size: 24px;"></div>
+            </div>
+        </footer>
 
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+        <button id="fullscreen-btn" title="Toggle Fullscreen">
+            <i class="fas fa-expand"></i>
+        </button>
 
-    <script>
-        // --- State Management ---
-        let lastCalledNumber = null;
-        let callHistory = [];
-const MAX_HISTORY = 30; // Jumlah maksimum riwayat yang disimpan (ditingkatkan)
-        let currentVideoId = null;
-        let lastEventSignature = null; // to detect recalls/updates even when number is the same
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        // --- UTILITY FUNCTIONS ---
-        const safeGetElementById = (id) => document.getElementById(id);
+        <script>
+            // --- State Management ---
+            let lastCalledNumber = null;
+            let callHistory = [];
+            const MAX_HISTORY = 30; // Jumlah maksimum riwayat yang disimpan (ditingkatkan)
+            let currentVideoId = null;
+            let lastEventSignature = null; // to detect recalls/updates even when number is the same
 
-        // --- CORE FUNCTIONS ---
-        function extractServiceCode(num) {
-            if (!num) return null;
-            const match = String(num).match(/^[A-Za-z]+/);
-            return match ? match[0].toUpperCase() : null;
-        }
+            // --- UTILITY FUNCTIONS ---
+            const safeGetElementById = (id) => document.getElementById(id);
 
-        function getServiceColor(code) {
-            // Map service codes to consistent colors
-            // PU: merah, PS: biru, PA: hijau; fallback: oranye
-            const map = {
-                'PU': {
-                    color: '#ef4444',
-                    glow: 'rgba(239, 68, 68, 0.7)'
-                },
-                'PS': {
-                    color: '#3b82f6',
-                    glow: 'rgba(59, 130, 246, 0.7)'
-                },
-                'PA': {
-                    color: '#22c55e',
-                    glow: 'rgba(34, 197, 94, 0.7)'
-                },
-            };
-            if (code && map[code]) return map[code];
-            return {
-                color: '#f59e0b',
-                glow: 'rgba(245, 158, 11, 0.7)'
-            };
-        }
-
-        function applyServiceColorToCurrent(codeOrNumber) {
-            const numberEl = safeGetElementById('current-number');
-            const code = extractServiceCode(codeOrNumber) || codeOrNumber;
-            const {
-                color,
-                glow
-            } = getServiceColor(code);
-            if (numberEl) {
-                numberEl.style.color = color;
-                // Set CSS variable for glow color so CSS/animation follows service color
-                numberEl.style.setProperty('--glow-color', glow);
+            // --- CORE FUNCTIONS ---
+            function extractServiceCode(num) {
+                if (!num) return null;
+                const match = String(num).match(/^[A-Za-z]+/);
+                return match ? match[0].toUpperCase() : null;
             }
-            return {
-                color
-            };
-        }
 
-        function loadLastCalledFromStorage() {
-            try {
-                const num = localStorage.getItem('lastCalledNumber');
-                const counter = localStorage.getItem('lastCalledCounter');
-                if (num) {
-                    lastCalledNumber = num;
-                    const numberEl = safeGetElementById('current-number');
-                    const counterEl = safeGetElementById('current-counter');
-                    if (numberEl) numberEl.textContent = num;
-                    if (counterEl) counterEl.textContent = counter || 'Loket';
-                    // Apply color based on service code from stored number
-                    applyServiceColorToCurrent(num);
+            function getServiceColor(code) {
+                // Map service codes to consistent colors
+                // PU: merah, PS: biru, PA: hijau; fallback: oranye
+                const map = {
+                    'PU': {
+                        color: '#ef4444',
+                        glow: 'rgba(239, 68, 68, 0.7)'
+                    },
+                    'PS': {
+                        color: '#3b82f6',
+                        glow: 'rgba(59, 130, 246, 0.7)'
+                    },
+                    'PA': {
+                        color: '#22c55e',
+                        glow: 'rgba(34, 197, 94, 0.7)'
+                    },
+                };
+                if (code && map[code]) return map[code];
+                return {
+                    color: '#f59e0b',
+                    glow: 'rgba(245, 158, 11, 0.7)'
+                };
+            }
+
+            function applyServiceColorToCurrent(codeOrNumber) {
+                const numberEl = safeGetElementById('current-number');
+                const code = extractServiceCode(codeOrNumber) || codeOrNumber;
+                const {
+                    color,
+                    glow
+                } = getServiceColor(code);
+                if (numberEl) {
+                    numberEl.style.color = color;
+                    // Set CSS variable for glow color so CSS/animation follows service color
+                    numberEl.style.setProperty('--glow-color', glow);
                 }
-            } catch (e) {
-                console.warn('localStorage unavailable');
+                return {
+                    color
+                };
             }
-        }
 
-        function saveLastCalledToStorage(num, counter) {
-            try {
-                localStorage.setItem('lastCalledNumber', num);
-                if (counter) localStorage.setItem('lastCalledCounter', counter);
-            } catch (e) {}
-        }
-
-        function updateDateTime() {
-            const now = new Date();
-            const timeEl = safeGetElementById('current-time');
-            const dateEl = safeGetElementById('current-date');
-            if (timeEl) timeEl.textContent = now.toLocaleTimeString('id-ID', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            });
-            if (dateEl) dateEl.textContent = now.toLocaleDateString('id-ID', {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long'
-            });
-        }
-
-        async function fetchQueueData() {
-            try {
-                const response = await fetch('/api/display-data?t=' + Date.now());
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const data = await response.json();
-                updateDisplay(data);
-            } catch (error) {
-                console.error("Failed to fetch queue data:", error);
-            }
-        }
-
-        function buildEventSignature(item) {
-            if (!item) return null;
-            const candidates = [
-                item.updated_at,
-                item.called_at,
-                item.recalled_at,
-                item.updatedAt,
-                item.timestamp,
-                item.recall_count,
-                item.recalled_times,
-                item.status_updated_at,
-            ];
-            const sigExtra = candidates.filter(Boolean).join('|');
-            return `${item.formatted_number || ''}#${sigExtra}`;
-        }
-
-        function updateDisplay(data) {
-            const currentCall = data.currentCalled && data.currentCalled.length > 0 ? data.currentCalled[0] : null;
-
-            if (currentCall) {
-                const newSignature = buildEventSignature(currentCall);
-                const isRecallFlag = !!(currentCall.is_recall || currentCall.recall || currentCall.recalled || (currentCall.recall_count && currentCall.recall_count > 0));
-                const isNewNumber = currentCall.formatted_number !== lastCalledNumber;
-                const isRecallBySignature = (!!newSignature && newSignature !== lastEventSignature && !isNewNumber);
-                const shouldProcess = isNewNumber || isRecallFlag || isRecallBySignature;
-
-                if (shouldProcess) {
-                    // Hanya update lastCalledNumber jika nomor baru
-                    if (isNewNumber) lastCalledNumber = currentCall.formatted_number;
-                    if (newSignature) lastEventSignature = newSignature;
-
-                    const callingContent = safeGetElementById('calling-content');
-                    const numberEl = safeGetElementById('current-number');
-                    numberEl.textContent = currentCall.formatted_number;
-                    safeGetElementById('current-counter').textContent = currentCall.counter_name || 'Loket';
-
-                    // Determine service code and apply color to the big number
-                    const code = (currentCall.service_code || extractServiceCode(currentCall.formatted_number));
-                    const { color } = applyServiceColorToCurrent(code);
-
-                    callingContent.classList.remove('new-call-main');
-                    void callingContent.offsetWidth; // Trigger reflow
-                    callingContent.classList.add('new-call-main');
-
-                    // Emphasize the current number with a pulse/glow effect
-                    numberEl.classList.remove('call-highlight');
-                    void numberEl.offsetWidth; // Trigger reflow for restarting animation
-                    numberEl.classList.add('call-highlight');
-
-                    // Persist to storage so it survives refresh
-                    saveLastCalledToStorage(currentCall.formatted_number, currentCall.counter_name || 'Loket');
-
-                    // Tambahkan ke riwayat dengan flag recall yang tepat
-                    callHistory.unshift({
-                        number: currentCall.formatted_number,
-                        counter: currentCall.counter_name || 'Loket',
-                        serviceCode: code,
-                        serviceName: currentCall.service_name || (currentCall.service && currentCall.service.name) || code || 'Layanan',
-                        color,
-                        recall: isRecallFlag || isRecallBySignature // Tandai sebagai recall jika memang recall
-                    });
-                    if (callHistory.length > MAX_HISTORY) callHistory.pop();
-                    renderHistory();
+            function loadLastCalledFromStorage() {
+                try {
+                    const num = localStorage.getItem('lastCalledNumber');
+                    const counter = localStorage.getItem('lastCalledCounter');
+                    if (num) {
+                        lastCalledNumber = num;
+                        const numberEl = safeGetElementById('current-number');
+                        const counterEl = safeGetElementById('current-counter');
+                        if (numberEl) numberEl.textContent = num;
+                        if (counterEl) counterEl.textContent = counter || 'Loket';
+                        // Apply color based on service code from stored number
+                        applyServiceColorToCurrent(num);
+                    }
+                } catch (e) {
+                    console.warn('localStorage unavailable');
                 }
-            } else {
-                // Do not clear the display; keep showing the last called number (from memory/storage)
-            }
-        }
-
-        function renderHistory() {
-            const historyListEl = safeGetElementById('history-list');
-            if (!historyListEl) return;
-
-            // Group by serviceCode
-            const groups = {};
-            for (const item of callHistory) {
-                const code = item.serviceCode || extractServiceCode(item.number) || 'OTHER';
-                if (!groups[code]) groups[code] = { items: [], name: item.serviceName || code };
-                groups[code].items.push(item);
             }
 
-            // Build cards
-            const cardsHtml = Object.entries(groups).map(([code, group]) => {
-                const { color } = getServiceColor(code);
-                const badgeStyle = `color:${color}`;
-                const recallCount = group.items.filter(it => it.recall).length;
-                const itemsHtml = group.items.slice(0, 5).map((call, idx) => {
-                    const itemColor = (call.color) ? call.color : getServiceColor(code).color;
-                    return `
+            function saveLastCalledToStorage(num, counter) {
+                try {
+                    localStorage.setItem('lastCalledNumber', num);
+                    if (counter) localStorage.setItem('lastCalledCounter', counter);
+                } catch (e) {}
+            }
+
+            function updateDateTime() {
+                const now = new Date();
+                const timeEl = safeGetElementById('current-time');
+                const dateEl = safeGetElementById('current-date');
+                if (timeEl) timeEl.textContent = now.toLocaleTimeString('id-ID', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                if (dateEl) dateEl.textContent = now.toLocaleDateString('id-ID', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long'
+                });
+            }
+
+            async function fetchQueueData() {
+                try {
+                    const response = await fetch('/api/display-data?t=' + Date.now());
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    const data = await response.json();
+                    updateDisplay(data);
+                } catch (error) {
+                    console.error("Failed to fetch queue data:", error);
+                }
+            }
+
+            function buildEventSignature(item) {
+                if (!item) return null;
+                const candidates = [
+                    item.updated_at,
+                    item.called_at,
+                    item.recalled_at,
+                    item.updatedAt,
+                    item.timestamp,
+                    item.recall_count,
+                    item.recalled_times,
+                    item.status_updated_at,
+                ];
+                const sigExtra = candidates.filter(Boolean).join('|');
+                return `${item.formatted_number || ''}#${sigExtra}`;
+            }
+
+            function updateDisplay(data) {
+                const currentCall = data.currentCalled && data.currentCalled.length > 0 ? data.currentCalled[0] : null;
+
+                // Load history from localStorage if it exists and callHistory is empty
+                if (callHistory.length === 0) {
+                    try {
+                        const savedHistory = localStorage.getItem('callHistory');
+                        if (savedHistory) {
+                            callHistory = JSON.parse(savedHistory);
+                            renderHistory();
+                        }
+                    } catch (e) {
+                        console.warn('Error loading call history from localStorage:', e);
+                    }
+                }
+
+                if (currentCall) {
+                    const newSignature = buildEventSignature(currentCall);
+                    const isRecallFlag = !!(currentCall.is_recall || currentCall.recall || currentCall.recalled || (currentCall
+                        .recall_count && currentCall.recall_count > 0));
+                    const isNewNumber = currentCall.formatted_number !== lastCalledNumber;
+                    const isRecallBySignature = (!!newSignature && newSignature !== lastEventSignature && !isNewNumber);
+                    const shouldProcess = isNewNumber || isRecallFlag || isRecallBySignature;
+
+                    if (shouldProcess) {
+                        // Hanya update lastCalledNumber jika nomor baru
+                        if (isNewNumber) lastCalledNumber = currentCall.formatted_number;
+                        if (newSignature) lastEventSignature = newSignature;
+
+                        const callingContent = safeGetElementById('calling-content');
+                        const numberEl = safeGetElementById('current-number');
+                        numberEl.textContent = currentCall.formatted_number;
+                        safeGetElementById('current-counter').textContent = currentCall.counter_name || 'Loket';
+
+                        // Determine service code and apply color to the big number
+                        const code = (currentCall.service_code || extractServiceCode(currentCall.formatted_number));
+                        const {
+                            color
+                        } = applyServiceColorToCurrent(code);
+
+                        callingContent.classList.remove('new-call-main');
+                        void callingContent.offsetWidth; // Trigger reflow
+                        callingContent.classList.add('new-call-main');
+
+                        // Emphasize the current number with a pulse/glow effect
+                        numberEl.classList.remove('call-highlight');
+                        void numberEl.offsetWidth; // Trigger reflow for restarting animation
+                        numberEl.classList.add('call-highlight');
+
+                        // Persist to storage so it survives refresh
+                        saveLastCalledToStorage(currentCall.formatted_number, currentCall.counter_name || 'Loket');
+
+                        // Tambahkan ke riwayat dengan flag recall yang tepat
+                        callHistory.unshift({
+                            number: currentCall.formatted_number,
+                            counter: currentCall.counter_name || 'Loket',
+                            serviceCode: code,
+                            serviceName: currentCall.service_name || (currentCall.service && currentCall.service
+                                .name) || code || 'Layanan',
+                            color,
+                            recall: isRecallFlag || isRecallBySignature // Tandai sebagai recall jika memang recall
+                        });
+                        if (callHistory.length > MAX_HISTORY) callHistory.pop();
+                        
+                        // Save history to localStorage
+                        try {
+                            localStorage.setItem('callHistory', JSON.stringify(callHistory));
+                        } catch (e) {
+                            console.warn('Error saving call history to localStorage:', e);
+                        }
+                        
+                        renderHistory();
+                    }
+                } else {
+                    // Do not clear the display; keep showing the last called number (from memory/storage)
+                }
+            }
+
+            function renderHistory() {
+                const historyListEl = safeGetElementById('history-list');
+                if (!historyListEl) return;
+
+                // Group by serviceCode
+                const groups = {};
+                for (const item of callHistory) {
+                    const code = item.serviceCode || extractServiceCode(item.number) || 'OTHER';
+                    if (!groups[code]) groups[code] = {
+                        items: [],
+                        name: item.serviceName || code
+                    };
+                    groups[code].items.push(item);
+                }
+
+                // Build cards
+                const cardsHtml = Object.entries(groups).map(([code, group]) => {
+                    const {
+                        color
+                    } = getServiceColor(code);
+                    const badgeStyle = `color:${color}`;
+                    const recallCount = group.items.filter(it => it.recall).length;
+                    const itemsHtml = group.items.slice(0, 5).map((call, idx) => {
+                        const itemColor = (call.color) ? call.color : getServiceColor(code).color;
+                        return `
                         <div class="history-item ${idx === 0 ? 'new-call-item' : ''}">
                             <span class="history-number" style="color:${itemColor}">${call.number}</span>
                             <span class="history-counter">${call.counter}${call.recall ? ' • <span style="color:#f59e0b;font-weight:600;">Panggilan Ulang</span>' : ''}</span>
                         </div>`;
-                }).join('');
+                    }).join('');
 
-                return `
+                    return `
                     <div class="service-card">
                         <div class="service-card-header">
                             <div>
@@ -816,49 +859,49 @@ const MAX_HISTORY = 30; // Jumlah maksimum riwayat yang disimpan (ditingkatkan)
                             ${itemsHtml || '<div class="history-item"><span class="history-counter">Belum ada panggilan</span></div>'}
                         </div>
                     </div>`;
-            }).join('');
+                }).join('');
 
-            historyListEl.innerHTML = `<div class="history-grid">${cardsHtml}</div>`;
+                historyListEl.innerHTML = `<div class="history-grid">${cardsHtml}</div>`;
 
-            // Remove highlight class after animation time
-            const newItems = historyListEl.querySelectorAll('.new-call-item');
-            if (newItems && newItems.length) {
-                setTimeout(() => newItems.forEach(el => el.classList.remove('new-call-item')), 2000);
-            }
-        }
-
-        async function loadVideo() {
-            const videoContainer = safeGetElementById('video-container');
-            if (!videoContainer) return;
-            try {
-                const response = await fetch('/api/video');
-                if (!response.ok) throw new Error('API request failed');
-                const data = await response.json();
-
-                if (!data?.success || !data?.video?.url) {
-                    if (currentVideoId !== null) {
-                        videoContainer.innerHTML =
-                            '<div class="video-placeholder"><i class="fas fa-video-slash"></i><div>Tidak ada video aktif</div></div>';
-                    }
-                    currentVideoId = null;
-                    return;
+                // Remove highlight class after animation time
+                const newItems = historyListEl.querySelectorAll('.new-call-item');
+                if (newItems && newItems.length) {
+                    setTimeout(() => newItems.forEach(el => el.classList.remove('new-call-item')), 2000);
                 }
-                if (currentVideoId === data.video.id) return;
-                currentVideoId = data.video.id;
+            }
 
-                if (data.video.type === 'youtube') {
-                    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-                    const match = data.video.url.match(regExp);
-                    const videoId = (match && match[2].length === 11) ? match[2] : null;
-                    if (videoId) {
-                        // Tambahkan controls=1 dan enablejsapi=1 untuk kontrol volume dan API
-                        const embedUrl =
-                            `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&loop=1&playlist=${videoId}&controls=1&rel=0&enablejsapi=1`;
-                        
-                        // Tambahkan div container untuk kontrol volume tambahan
-                        videoContainer.innerHTML = `
+            async function loadVideo() {
+                const videoContainer = safeGetElementById('video-container');
+                if (!videoContainer) return;
+                try {
+                    const response = await fetch('/api/video');
+                    if (!response.ok) throw new Error('API request failed');
+                    const data = await response.json();
+
+                    if (!data?.success || !data?.video?.url) {
+                        if (currentVideoId !== null) {
+                            videoContainer.innerHTML =
+                                '<div class="video-placeholder"><i class="fas fa-video-slash"></i><div>Tidak ada video aktif</div></div>';
+                        }
+                        currentVideoId = null;
+                        return;
+                    }
+                    if (currentVideoId === data.video.id) return;
+                    currentVideoId = data.video.id;
+
+                    if (data.video.type === 'youtube') {
+                        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+                        const match = data.video.url.match(regExp);
+                        const videoId = (match && match[2].length === 11) ? match[2] : null;
+                        if (videoId) {
+                            // Tambahkan controls=1 dan enablejsapi=1 untuk kontrol volume dan API
+                            const embedUrl =
+                                `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&loop=1&playlist=${videoId}&controls=1&rel=0&enablejsapi=1`;
+
+                            // Tambahkan div container untuk kontrol volume tambahan
+                            videoContainer.innerHTML = `
                             <div class="youtube-container">
-                                <iframe id="youtube-player-${videoId}" 
+                                <iframe id="youtube-player-${videoId}"
                                     src="${embedUrl}"
                                     title="YouTube video"
                                     frameborder="0"
@@ -872,25 +915,28 @@ const MAX_HISTORY = 30; // Jumlah maksimum riwayat yang disimpan (ditingkatkan)
                                     </button>
                                 </div>
                             </div>`;
-                            
+
                             // Tambahkan event listener untuk tombol mute/unmute setelah DOM dirender
                             setTimeout(() => {
                                 const toggleBtn = document.getElementById('toggle-mute');
                                 const iframe = document.getElementById('youtube-player-' + videoId);
                                 const icon = toggleBtn?.querySelector('i');
-                                
+
                                 if (toggleBtn && iframe && icon) {
                                     toggleBtn.addEventListener('click', function() {
                                         // Kirim pesan ke iframe YouTube untuk toggle mute
                                         const isMuted = icon.classList.contains('fa-volume-mute');
-                                        
+
                                         if (iframe.contentWindow) {
                                             if (isMuted) {
-                                                iframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
+                                                iframe.contentWindow.postMessage(
+                                                    '{"event":"command","func":"unMute","args":""}', '*'
+                                                    );
                                                 icon.classList.remove('fa-volume-mute');
                                                 icon.classList.add('fa-volume-up');
                                             } else {
-                                                iframe.contentWindow.postMessage('{"event":"command","func":"mute","args":""}', '*');
+                                                iframe.contentWindow.postMessage(
+                                                    '{"event":"command","func":"mute","args":""}', '*');
                                                 icon.classList.remove('fa-volume-up');
                                                 icon.classList.add('fa-volume-mute');
                                             }
@@ -898,72 +944,74 @@ const MAX_HISTORY = 30; // Jumlah maksimum riwayat yang disimpan (ditingkatkan)
                                     });
                                 }
                             }, 1000);
-                    } else {
-                        videoContainer.innerHTML = 
-                            '<div class="video-placeholder"><i class="fas fa-exclamation-triangle"></i><div>URL YouTube tidak valid</div></div>';
+                        } else {
+                            videoContainer.innerHTML =
+                                '<div class="video-placeholder"><i class="fas fa-exclamation-triangle"></i><div>URL YouTube tidak valid</div></div>';
+                        }
+                    } else if (data.video.type === 'file') {
+                        videoContainer.innerHTML =
+                            '<div class="file-video-container"><video autoplay loop muted playsinline preload="auto" controls src="' +
+                            data.video.url + '"></video></div>';
                     }
-                } else if (data.video.type === 'file') {
-                    videoContainer.innerHTML = 
-                        '<div class="file-video-container"><video autoplay loop muted playsinline preload="auto" controls src="' + data.video.url + '"></video></div>';
+                } catch (error) {
+                    console.error('Error loading video:', error);
+                    videoContainer.innerHTML =
+                        '<div class="video-placeholder"><i class="fas fa-exclamation-triangle"></i><div>Gagal memuat video</div></div>';
+                    currentVideoId = null;
                 }
-            } catch (error) {
-                console.error('Error loading video:', error);
-                videoContainer.innerHTML = 
-                    '<div class="video-placeholder"><i class="fas fa-exclamation-triangle"></i><div>Gagal memuat video</div></div>';
-                currentVideoId = null;
             }
-        }
 
-        async function loadRunningTeks() {
-            const contentEl = safeGetElementById('running-text-content');
-            try {
-                const response = await fetch('/api/running-teks');
-                if (!response.ok) return;
-                const data = await response.json();
-                let texts = "<span>Selamat Datang di Layanan Kami</span>";
-                if (data.running_teks?.length > 0) {
-                    texts = data.running_teks.map(item => `<span>${item.text}</span>`).join('');
+            async function loadRunningTeks() {
+                const contentEl = safeGetElementById('running-text-content');
+                try {
+                    const response = await fetch('/api/running-teks');
+                    if (!response.ok) return;
+                    const data = await response.json();
+                    let texts = "<span>Selamat Datang di Layanan Kami</span>";
+                    if (data.running_teks?.length > 0) {
+                        texts = data.running_teks.map(item => `<span>${item.text}</span>`).join('');
+                    }
+                    contentEl.innerHTML = texts + texts;
+                } catch (error) {
+                    console.error("Failed to load running text:", error);
                 }
-                contentEl.innerHTML = texts + texts;
-            } catch (error) {
-                console.error("Failed to load running text:", error);
             }
-        }
 
-        function setupFullscreen() {
-            const btn = safeGetElementById('fullscreen-btn');
-            const icon = btn.querySelector('i');
+            function setupFullscreen() {
+                const btn = safeGetElementById('fullscreen-btn');
+                const icon = btn.querySelector('i');
 
-            function updateIcon() {
-                icon.className = document.fullscreenElement ? 'fas fa-compress' : 'fas fa-expand';
-            }
-            btn.addEventListener('click', () => {
-                if (!document.fullscreenElement) {
-                    document.documentElement.requestFullscreen();
-                } else {
-                    document.exitFullscreen();
+                function updateIcon() {
+                    icon.className = document.fullscreenElement ? 'fas fa-compress' : 'fas fa-expand';
                 }
+                btn.addEventListener('click', () => {
+                    if (!document.fullscreenElement) {
+                        document.documentElement.requestFullscreen();
+                    } else {
+                        document.exitFullscreen();
+                    }
+                });
+                document.addEventListener('fullscreenchange', updateIcon);
+            }
+
+            // --- INITIALIZATION ---
+            document.addEventListener('DOMContentLoaded', () => {
+                // Restore last called number/counter before any API calls
+                loadLastCalledFromStorage();
+                updateDateTime();
+                fetchQueueData();
+                loadVideo();
+                loadRunningTeks();
+                renderHistory();
+                setupFullscreen();
+
+                setInterval(updateDateTime, 1000);
+                setInterval(fetchQueueData, 3000);
+                setInterval(loadVideo, 5 * 60 * 1000);
+                setInterval(loadRunningTeks, 5 * 60 * 1000);
             });
-            document.addEventListener('fullscreenchange', updateIcon);
-        }
+        </script>
+    @endsection
 
-        // --- INITIALIZATION ---
-        document.addEventListener('DOMContentLoaded', () => {
-            // Restore last called number/counter before any API calls
-            loadLastCalledFromStorage();
-            updateDateTime();
-            fetchQueueData();
-            loadVideo();
-            loadRunningTeks();
-            renderHistory();
-            setupFullscreen();
-
-            setInterval(updateDateTime, 1000);
-            setInterval(fetchQueueData, 3000);
-            setInterval(loadVideo, 5 * 60 * 1000);
-            setInterval(loadRunningTeks, 5 * 60 * 1000);
-        });
-    </script>
-</body>
-
-</html>
+    @section('body_class', 'font-sans antialiased')
+    @section('container_class', '')

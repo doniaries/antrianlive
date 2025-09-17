@@ -1,35 +1,34 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
+@extends('layouts.app')
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+@section('html_attributes', 'class="h-full"')
 
-    <title>{{ config('app.name', 'Antrian Live') }}</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script>
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia(
-                '(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-    </script>
+@section('title', config('app.name', 'Antrian Live'))
 
-    @php
-        $profil = \App\Models\Profil::first();
-        $faviconUrl = $profil && $profil->favicon ? asset('storage/' . $profil->favicon) : '/favicon.ico';
-    @endphp
-    <link rel="icon" href="{{ $faviconUrl }}" sizes="any">
-    <link rel="icon" href="{{ $faviconUrl }}" type="image/x-icon">
-    <link rel="apple-touch-icon" href="{{ $faviconUrl }}">
+@section('scripts_head')
+<script>
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia(
+            '(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+</script>
+@endsection
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+@section('favicon_extra')
+@php
+    $profil = \App\Models\Profil::first();
+    $faviconUrl = $profil && $profil->favicon ? asset('storage/' . $profil->favicon) : '/favicon.ico';
+@endphp
+<link rel="apple-touch-icon" href="{{ $faviconUrl }}">
+<link rel="icon" href="{{ $faviconUrl }}" sizes="any">
+@endsection
 
-    <!-- Styles -->
+@section('fonts')
+<link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+@endsection
+
+@section('styles')
     <style>
         /*! tailwindcss v4.0.14 | MIT License | https://tailwindcss.com */
         @layer theme {
@@ -1856,13 +1855,14 @@
                 <div class="flex items-center space-x-4">
                     @if (Route::has('login'))
                         @auth
-                            <a href="{{ url('/dashboard') }}" target="_blank"
+                            <span class="text-sm font-medium text-white">{{ Auth::user()->name }}</span>
+                            <a href="{{ url('/dashboard') }}"
                                 class="px-4 py-2 text-sm font-medium text-white hover:text-indigo-300">Dashboard</a>
                         @else
-                            <a href="{{ route('login') }}" target="_blank"
+                            <a href="{{ route('login') }}"
                                 class="px-4 py-2 text-sm font-medium text-white hover:text-indigo-300">Login</a>
                             @if (Route::has('register'))
-                                <a href="{{ route('register') }}" target="_blank"
+                                <a href="{{ route('register') }}"
                                     class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700">Register</a>
                             @endif
                         @endauth
@@ -1906,7 +1906,7 @@
                 Kelola antrian dengan mudah dan efisien. Dapatkan nomor antrian secara online dan pantau pergerakannya
                 secara real-time.
             </p>
-            <div class="mt-8 flex justify-center space-x-4">
+            <div class="mt-8 flex flex-wrap justify-center gap-4">
                 <a href="{{ route('display') }}" target="_blank"
                     class="inline-flex items-center px-6 py-3 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
@@ -1928,6 +1928,7 @@
                     Ambil Tiket
                 </a>
             </div>
-</body>
+@endsection
 
-</html>
+@section('body_class', 'font-sans antialiased')
+@section('container_class', 'min-h-screen bg-gray-100 dark:bg-gray-900')

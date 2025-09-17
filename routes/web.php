@@ -4,8 +4,8 @@ use Illuminate\Support\Facades\Route;
 
 // Route untuk welcome page - menampilkan welcome jika belum login, redirect ke dashboard jika sudah login
 Route::get('/', function () {
-    if (auth()->check()) {
-        return redirect()->route('dashboard');
+    if (Auth::check()) {
+        return redirect('/dashboard');
     }
     return view('welcome');
 })->name('welcome');

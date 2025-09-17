@@ -1,37 +1,39 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" @yield('html_attributes', 'class="dark"')>
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>@yield('title', config('app.name', 'Laravel'))</title>
 
         <!-- Favicon -->
         @php
             $profil = \App\Models\Profil::first();
+            $faviconUrl = $profil && $profil->favicon ? asset('storage/' . $profil->favicon) : '/favicon.ico';
         @endphp
-        @if($profil && $profil->favicon)
-            <link rel="icon" href="{{ asset('storage/' . $profil->favicon) }}" type="image/x-icon">
-            <link rel="shortcut icon" href="{{ asset('storage/' . $profil->favicon) }}" type="image/x-icon">
-        @else
-            <link rel="icon" href="/favicon.ico" type="image/x-icon">
-            <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
-        @endif
+        <link rel="icon" href="{{ $faviconUrl }}" type="image/x-icon">
+        <link rel="shortcut icon" href="{{ $faviconUrl }}" type="image/x-icon">
+        @yield('favicon_extra')
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        @yield('fonts')
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @yield('scripts_head')
 
         <!-- Styles -->
         @livewireStyles
+        @yield('styles')
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
-            @if (isset($header))
+    <body class="@yield('body_class', 'font-sans antialiased')">
+        <div class="@yield('container_class', 'min-h-screen bg-gray-100 dark:bg-gray-900')">
+            @hasSection('custom_header')
+                @yield('custom_header')
+            @elseif(isset($header))
                 <header class="bg-white dark:bg-gray-800 shadow">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                         {{ $header }}
@@ -40,14 +42,19 @@
             @endif
 
             <!-- Page Content -->
-            <main>
+            <main class="@yield('main_class')">
                 {{ $slot ?? '' }}
                 @yield('content')
             </main>
+            
+            @hasSection('custom_footer')
+                @yield('custom_footer')
+            @endif
         </div>
 
         @stack('modals')
-
+        @yield('before_scripts')
         @livewireScripts
+        @yield('after_scripts')
     </body>
 </html>

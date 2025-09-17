@@ -5,46 +5,44 @@
     $services = Service::with('counters')->where('is_active', true)->get();
     $profil = Profil::first();
 @endphp
-<!DOCTYPE html>
-<html lang="id" class="h-full">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $profil->nama_aplikasi ?? 'Ambil Tiket Antrian' }} - {{ $profil->nama_instansi ?? 'Sistem Antrian' }}
-    </title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script>
-        // Auto-refresh halaman saat menerima event dari counter-manager
-        window.addEventListener('storage', function(e) {
-            if (e.key === 'counter_status_changed') {
-                console.log('Counter status changed, reloading page...');
-                location.reload(true);
-            }
-        });
-    </script>
-    @php
-        $faviconUrl = $profil && $profil->favicon ? asset('storage/' . $profil->favicon) : '/favicon.ico';
-    @endphp
-    <link rel="icon" href="{{ $faviconUrl }}" type="image/x-icon">
-    <link rel="shortcut icon" href="{{ $faviconUrl }}" type="image/x-icon">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #4f46e5;
-            --primary-dark: #4338ca;
-            --secondary: #7c3aed;
-            --accent: #8b5cf6;
-            --text: #1f2937;
-            --text-light: #6b7280;
-            --bg: #f9fafb;
-            --card-bg: rgba(255, 255, 255, 0.9);
-            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+@section('html_attributes', 'class="h-full"')
+
+@section('title', ($profil->nama_aplikasi ?? 'Ambil Tiket Antrian') . ' - ' . ($profil->nama_instansi ?? 'Sistem Antrian'))
+
+@section('scripts_head')
+<script>
+    // Auto-refresh halaman saat menerima event dari counter-manager
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'counter_status_changed') {
+            console.log('Counter status changed, reloading page...');
+            location.reload(true);
         }
+    });
+</script>
+@endsection
+
+@section('fonts')
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap"
+    rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+@endsection
+
+@section('styles')
+<style>
+    :root {
+        --primary: #4f46e5;
+        --primary-dark: #4338ca;
+        --secondary: #7c3aed;
+        --accent: #8b5cf6;
+        --text: #1f2937;
+        --text-light: #6b7280;
+        --bg: #f9fafb;
+        --card-bg: rgba(255, 255, 255, 0.9);
+        --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -319,14 +317,14 @@
                                     $isOpen = $counter->status === 'buka';
                                 @endphp
                                 <div
-                                    class="counter-item bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-200 border-l-4 border-{{ $isOpen ? 'green-500' : 'gray-200' }}">
+                                    class="counter-item bg-white rounded-xl p-5 shadow-lg hover:shadow-xl transition-all duration-300 border-l-4 border-{{ $isOpen ? 'green-500' : 'gray-200' }} transform hover:-translate-y-1">
                                     <div class="flex flex-col">
-                                        <div class="flex justify-between items-center mb-3">
-                                            <span class="text-lg font-semibold text-gray-800">
+                                        <div class="flex justify-between items-center mb-4">
+                                            <span class="text-xl font-bold text-gray-800">
                                                 Loket {{ $counter->name }}
                                             </span>
                                             <span
-                                                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $statusClass['bg'] }} {{ $statusClass['color'] }}">
+                                                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $statusClass['bg'] }} {{ $statusClass['color'] }} shadow">
                                                 <i class="fas {{ $statusClass['icon'] }} mr-1"></i>
                                                 {{ $statusClass['text'] }}
                                             </span>
@@ -337,7 +335,7 @@
                                             <input type="hidden" name="service_id" value="{{ $service->id }}">
                                             <input type="hidden" name="counter_id" value="{{ $counter->id }}">
                                             <button type="submit"
-                                                class="w-full py-4 px-6 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl text-lg font-semibold transition-all duration-200 transform hover:scale-[1.02] flex items-center justify-center space-x-3 {{ !$isOpen ? 'opacity-70 cursor-not-allowed' : '' }}"
+                                                class="w-full py-5 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl text-lg font-bold transition-all duration-300 transform hover:scale-[1.03] flex items-center justify-center space-x-3 shadow-lg {{ !$isOpen ? 'opacity-70 cursor-not-allowed' : '' }}"
                                                 {{ !$isOpen ? 'disabled' : '' }}>
                                                 <i class="fas fa-ticket-alt text-xl"></i>
                                                 <span>AMBIL TIKET</span>
@@ -510,6 +508,23 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize clock
             initializeClock();
+            
+            // Load last ticket number from localStorage if exists
+            const lastTicketNumber = localStorage.getItem('lastTicketNumber');
+            const lastServiceInfo = localStorage.getItem('lastServiceInfo');
+            
+            if (lastTicketNumber) {
+                const displayTicketNumber = document.getElementById('displayTicketNumber');
+                const displayServiceInfo = document.getElementById('displayServiceInfo');
+                
+                if (displayTicketNumber) {
+                    displayTicketNumber.textContent = lastTicketNumber;
+                }
+                
+                if (displayServiceInfo && lastServiceInfo) {
+                    displayServiceInfo.textContent = lastServiceInfo;
+                }
+            }
 
             const forms = document.querySelectorAll('.ticket-form');
 
@@ -572,12 +587,11 @@
                                 notificationServiceInfo.textContent = serviceInfo;
                             }
 
+                            // Store ticket info in localStorage
+                            localStorage.setItem('lastTicketNumber', data.ticket_number);
+                            localStorage.setItem('lastServiceInfo', `${data.service_name} - ${data.counter_name}`);
+                            
                             showNotification();
-
-                            // Auto refresh after 30 seconds if still on the page
-                            setTimeout(() => {
-                                location.reload();
-                            }, 30000);
 
                         } else if (!data.ticket_number) {
                             console.error('Missing ticket number in response:', data);
@@ -670,6 +684,7 @@
         updateTime();
         setInterval(updateTime, 1000);
     </script>
-</body>
+@endsection
 
-</html>
+@section('body_class', 'font-sans antialiased')
+@section('container_class', 'min-h-screen bg-gray-100 dark:bg-gray-900')
