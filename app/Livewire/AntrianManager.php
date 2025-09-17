@@ -487,4 +487,35 @@ class AntrianManager extends Component
     {
         // This method will trigger re-rendering for dashboard
     }
+
+    /**
+     * Reset semua antrian untuk hari ini atau tanggal tertentu
+     */
+    public function resetAntrian($date = null)
+    {
+        $date = $date ?? now()->format('Y-m-d');
+        
+        // Hapus semua antrian pada tanggal yang ditentukan
+        $count = Antrian::whereDate('created_at', $date)->delete();
+        
+        $this->dispatch('notify', [
+            'type' => 'success',
+            'message' => "Berhasil mereset $count antrian"
+        ]);
+        
+        $this->dispatch('refresh-dashboard');
+    }
+
+    /**
+     * Handler untuk event reset-antrian
+     */
+    #[\Livewire\Attributes\On('reset-antrian')]
+    public function handleResetAntrian($date = null)
+    {
+        try {
+            $this->resetAntrian($date);
+        } catch (\Exception $e) {
+            $this->dispatch('error', message: $e->getMessage());
+        }
+    }
 }

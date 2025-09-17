@@ -15,21 +15,21 @@ class ServiceSeeder extends Seeder
     {
         $services = [
             [
-                'name' => 'Poli Umum',
+                'name' => 'Penyakit Dalam',
                 'code' => 'PU',
                 'is_active' => true,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
             [
-                'name' => 'Poli Syaraf',
+                'name' => 'Syaraf',
                 'code' => 'PS',
                 'is_active' => true,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
             [
-                'name' => 'Poli Anak',
+                'name' => 'Anak',
                 'code' => 'PA',
                 'is_active' => true,
                 'created_at' => Carbon::now(),
