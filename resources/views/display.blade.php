@@ -126,13 +126,13 @@
             left: 0;
             right: 0;
             z-index: 100;
-            height: 60px;
+            height: 80px;
             box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.3);
         }
 
         .running-text-content {
             display: inline-block;
-            font-size: 2.2rem;
+            font-size: 2.8rem;
             /* Ukuran huruf diperbesar */
             font-weight: 600;
             padding-left: 100%;
@@ -141,7 +141,7 @@
             white-space: nowrap;
             color: #ffffff;
             text-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
-            line-height: 60px;
+            line-height: 80px;
         }
 
         .running-text-content span {
@@ -330,6 +330,12 @@
             border-bottom: 1px dashed var(--border-color);
             transition: background-color 0.3s ease;
             font-size: 1.4rem;
+            animation: blinkBg 3s ease-in-out infinite;
+        }
+        
+        @keyframes blinkBg {
+            0%, 100% { background-color: transparent; }
+            50% { background-color: rgba(59, 130, 246, 0.15); }
         }
 
         .history-number {
@@ -601,9 +607,9 @@
             </div>
         </main>
 
-        <footer class="footer" style="width: 100vw; margin: 0; padding: 0; left: 0; right: 0; position: fixed; bottom: 0; height: 60px; display: block; z-index: 1000;">
-            <div class="running-text-container" aria-label="Informasi Berjalan" style="display: block; height: 60px; line-height: 60px; visibility: visible; overflow: visible; width: 100%;">
-                <div class="running-text-content" id="running-text-content" style="visibility: visible; font-size: 24px;"></div>
+        <footer class="footer" style="width: 100vw; margin: 0; padding: 0; left: 0; right: 0; position: fixed; bottom: 0; height: 80px; display: block; z-index: 1000;">
+            <div class="running-text-container" aria-label="Informasi Berjalan" style="display: block; height: 80px; line-height: 80px; visibility: visible; overflow: visible; width: 100%;">
+                <div class="running-text-content" id="running-text-content" style="visibility: visible; font-size: 32px;"></div>
             </div>
         </footer>
 
@@ -846,6 +852,7 @@
                         <div class="history-item ${idx === 0 ? 'new-call-item' : ''}">
                             <span class="history-number" style="color:${itemColor}">${call.number}</span>
                             <span class="history-counter">${call.counter}${call.recall ? ' • <span style="color:#f59e0b;font-weight:600;">Panggilan Ulang</span>' : ''}</span>
+                            <span class="history-service-visible" style="display:none;">${code}</span>
                         </div>`;
                     }).join('');
 
