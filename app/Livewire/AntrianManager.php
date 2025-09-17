@@ -504,6 +504,9 @@ class AntrianManager extends Component
         ]);
         
         $this->dispatch('refresh-dashboard');
+        
+        // Broadcast event untuk reload halaman display
+        $this->dispatch('antrian-reset');
     }
 
     /**

@@ -749,13 +749,26 @@
             function updateDisplay(data) {
                 const currentCall = data.currentCalled && data.currentCalled.length > 0 ? data.currentCalled[0] : null;
 
-                // Load history from localStorage if it exists and callHistory is empty
+                // Load history from sessionStorage (jika ada setelah reset antrian) atau localStorage
                 if (callHistory.length === 0) {
                     try {
-                        const savedHistory = localStorage.getItem('callHistory');
-                        if (savedHistory) {
-                            callHistory = JSON.parse(savedHistory);
+                        // Cek apakah ada riwayat panggilan sementara dari reset antrian
+                        const tempHistory = sessionStorage.getItem('tempCallHistory');
+                        if (tempHistory) {
+                            // Gunakan riwayat dari sessionStorage (prioritas)
+                            callHistory = JSON.parse(tempHistory);
+                            // Hapus data sementara setelah digunakan
+                            sessionStorage.removeItem('tempCallHistory');
+                            // Simpan kembali ke localStorage untuk persistensi
+                            localStorage.setItem('callHistory', tempHistory);
                             renderHistory();
+                        } else {
+                            // Jika tidak ada data sementara, gunakan localStorage seperti biasa
+                            const savedHistory = localStorage.getItem('callHistory');
+                            if (savedHistory) {
+                                callHistory = JSON.parse(savedHistory);
+                                renderHistory();
+                            }
                         }
                     } catch (e) {
                         console.warn('Error loading call history from localStorage:', e);
@@ -1004,6 +1017,22 @@
                 document.addEventListener('fullscreenchange', updateIcon);
             }
 
+            // Fungsi untuk reload halaman
+            function reloadPage(resetHistory = false) {
+                // Jika resetHistory true, tidak perlu menyimpan riwayat panggilan
+                if (!resetHistory && callHistory && callHistory.length > 0) {
+                    // Simpan riwayat panggilan ke sessionStorage sementara (akan bertahan selama reload)
+                    sessionStorage.setItem('tempCallHistory', JSON.stringify(callHistory));
+                } else if (resetHistory) {
+                    // Hapus riwayat panggilan dari sessionStorage dan localStorage
+                    sessionStorage.removeItem('tempCallHistory');
+                    localStorage.removeItem('callHistory');
+                }
+                
+                // Reload halaman
+                window.location.reload();
+            }
+            
             // --- INITIALIZATION ---
             document.addEventListener('DOMContentLoaded', () => {
                 // Restore last called number/counter before any API calls
@@ -1019,6 +1048,14 @@
                 setInterval(fetchQueueData, 3000);
                 setInterval(loadVideo, 5 * 60 * 1000);
                 setInterval(loadRunningTeks, 5 * 60 * 1000);
+                
+                // Setup Livewire event listener untuk reset antrian
+                if (window.Livewire) {
+                    window.Livewire.on('antrian-reset', () => {
+                        console.log('Antrian telah direset, me-reload halaman display dan menghapus riwayat...');
+                        reloadPage(true); // Parameter true untuk menghapus riwayat
+                    });
+                }
             });
         </script>
     @endsection

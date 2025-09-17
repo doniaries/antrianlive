@@ -56,14 +56,7 @@
                         </svg>
                         Reset Antrian
                     </button>
-                    <!-- Test Audio Button -->
-                    <button onclick="testAudio()" 
-                        class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm">
-                        <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15.536a5 5 0 001.414 1.414">
-                        </svg>
-                        Test Audio
-                    </button>
+
                     <div class="text-right">
                         <p class="text-sm font-medium text-gray-900 dark:text-white">{{ auth()->user()->name }}</p>
                         <p class="text-xs text-gray-500 dark:text-gray-400">
@@ -80,17 +73,7 @@
                             @endif
                         </p>
                     </div>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit"
-                            class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
-                                </path>
-                            </svg>
-                        </button>
-                    </form>
+
                 </div>
             </div>
         </div>

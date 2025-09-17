@@ -439,11 +439,11 @@
         }
 
 
-        // Play success sound
+        // Play success sound (dinonaktifkan)
         function playSuccessSound() {
-            const audio = new Audio('{{ asset('sounds/bell.mp3') }}');
-            audio.volume = 0.5;
-            return audio.play().catch(e => console.log('Audio play failed:', e));
+            // Suara bell telah dihilangkan
+            console.log('Sound disabled');
+            return Promise.resolve();
         }
 
         // Global audio functions for consistency with antrian manager
