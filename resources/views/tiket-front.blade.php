@@ -148,7 +148,7 @@
             transform: none !important;
             box-shadow: none !important;
         }
-        
+
         .counter-item:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
@@ -283,19 +283,41 @@
                             @forelse($service->counters as $counter)
                                 @php
                                     $statusClass = [
-                                        'buka' => ['icon' => 'fa-check-circle', 'color' => 'text-green-500', 'bg' => 'bg-green-100', 'text' => 'Buka'],
-                                        'tutup' => ['icon' => 'fa-times-circle', 'color' => 'text-red-500', 'bg' => 'bg-red-100', 'text' => 'Tutup'],
-                                        'istirahat' => ['icon' => 'fa-coffee', 'color' => 'text-yellow-500', 'bg' => 'bg-yellow-100', 'text' => 'Istirahat']
-                                    ][$counter->status] ?? ['icon' => 'fa-question-circle', 'color' => 'text-gray-500', 'bg' => 'bg-gray-100', 'text' => 'Tidak Diketahui'];
+                                        'buka' => [
+                                            'icon' => 'fa-check-circle',
+                                            'color' => 'text-green-500',
+                                            'bg' => 'bg-green-100',
+                                            'text' => 'Buka',
+                                        ],
+                                        'tutup' => [
+                                            'icon' => 'fa-times-circle',
+                                            'color' => 'text-red-500',
+                                            'bg' => 'bg-red-100',
+                                            'text' => 'Tutup',
+                                        ],
+                                        'istirahat' => [
+                                            'icon' => 'fa-coffee',
+                                            'color' => 'text-yellow-500',
+                                            'bg' => 'bg-yellow-100',
+                                            'text' => 'Istirahat',
+                                        ],
+                                    ][$counter->status] ?? [
+                                        'icon' => 'fa-question-circle',
+                                        'color' => 'text-gray-500',
+                                        'bg' => 'bg-gray-100',
+                                        'text' => 'Tidak Diketahui',
+                                    ];
                                     $isOpen = $counter->status === 'buka';
                                 @endphp
-                                <div class="counter-item bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-200 border-l-4 border-{{ $isOpen ? 'green-500' : 'gray-200' }}">
+                                <div
+                                    class="counter-item bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-200 border-l-4 border-{{ $isOpen ? 'green-500' : 'gray-200' }}">
                                     <div class="flex flex-col">
                                         <div class="flex justify-between items-center mb-3">
                                             <span class="text-lg font-semibold text-gray-800">
                                                 Loket {{ $counter->name }}
                                             </span>
-                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $statusClass['bg'] }} {{ $statusClass['color'] }}">
+                                            <span
+                                                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $statusClass['bg'] }} {{ $statusClass['color'] }}">
                                                 <i class="fas {{ $statusClass['icon'] }} mr-1"></i>
                                                 {{ $statusClass['text'] }}
                                             </span>
@@ -305,7 +327,9 @@
                                             @csrf
                                             <input type="hidden" name="service_id" value="{{ $service->id }}">
                                             <input type="hidden" name="counter_id" value="{{ $counter->id }}">
-                                            <button type="submit" class="w-full py-4 px-6 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl text-lg font-semibold transition-all duration-200 transform hover:scale-[1.02] flex items-center justify-center space-x-3 {{ !$isOpen ? 'opacity-70 cursor-not-allowed' : '' }}" {{ !$isOpen ? 'disabled' : '' }}>
+                                            <button type="submit"
+                                                class="w-full py-4 px-6 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl text-lg font-semibold transition-all duration-200 transform hover:scale-[1.02] flex items-center justify-center space-x-3 {{ !$isOpen ? 'opacity-70 cursor-not-allowed' : '' }}"
+                                                {{ !$isOpen ? 'disabled' : '' }}>
                                                 <i class="fas fa-ticket-alt text-xl"></i>
                                                 <span>AMBIL TIKET</span>
                                             </button>

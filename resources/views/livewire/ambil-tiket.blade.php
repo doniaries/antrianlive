@@ -98,14 +98,34 @@
                             
                             <div class="space-y-3">
                                 @forelse($service->counters as $counter)
-                                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-600">
+                                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-600" 
+                                         data-counter-id="{{ $counter->id }}">
                                         <div class="flex items-center justify-between mb-3">
                                             <div class="flex items-center space-x-3">
-                                                <div class="w-10 h-10 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center">
+                                                <div class="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg">
                                                     <i class="fas fa-desktop text-indigo-600 dark:text-indigo-400"></i>
                                                 </div>
-                                                <div>
-                                                    <h3 class="font-semibold text-gray-900 dark:text-white">{{ $counter->name }}</h3>
+                                                <div class="flex-1">
+                                                    <div class="flex items-center justify-between">
+                                                        <h3 class="font-semibold text-gray-900 dark:text-white">{{ $counter->name }}</h3>
+                                                        @php
+                                                            $statusColors = [
+                                                                'buka' => 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+                                                                'tutup' => 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+                                                                'istirahat' => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                                                            ];
+                                                            $statusLabels = [
+                                                                'buka' => 'Buka',
+                                                                'tutup' => 'Tutup',
+                                                                'istirahat' => 'Istirahat'
+                                                            ];
+                                                            $statusClass = $statusColors[$counter->status] ?? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+                                                            $statusLabel = $statusLabels[$counter->status] ?? 'Tidak Diketahui';
+                                                        @endphp
+                                                        <span class="px-2 py-1 text-xs font-medium rounded-full counter-status {{ $statusClass }}">
+                                                            {{ $statusLabel }}
+                                                        </span>
+                                                    </div>
                                                     <p class="text-xs text-gray-500 dark:text-gray-400">Loket {{ $counter->name }}</p>
                                                 </div>
                                             </div>
@@ -265,6 +285,24 @@
             }
 
             // Handle form submission with AJAX
+            // Listen for counter status updates
+            window.addEventListener('counter-status-updated', function(event) {
+                const { counterId, status } = event.detail;
+                // Update the counter status in the UI
+                const counterElements = document.querySelectorAll(`[data-counter-id="${counterId}"]`);
+                counterElements.forEach(element => {
+                    const statusElement = element.querySelector('.counter-status');
+                    if (statusElement) {
+                        // Update status text and styling
+                        const statusText = status === 'buka' ? 'Buka' : 'Tutup';
+                        const statusClass = status === 'buka' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+                        
+                        statusElement.textContent = statusText;
+                        statusElement.className = `px-2 py-1 text-xs font-medium rounded-full counter-status ${statusClass}`;
+                    }
+                });
+            });
+
             document.addEventListener('DOMContentLoaded', function() {
                 // Initialize clock
                 initializeClock();

@@ -17,10 +17,10 @@
             <flux:navlist.group :heading="__('Platform')" class="grid">
                 <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')"
                     wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
-                <flux:navlist.item icon="ticket" :href="route('tiket.front')" target="_blank"
+                <flux:navlist.item icon="ticket" :href="route('tiket.front')" target="front_tiket"
                     :current="request()->routeIs('tiket.front')">{{ __('Ambil Tiket') }}
                 </flux:navlist.item>
-                <flux:navlist.item icon="ticket" :href="route('display')" target="_blank"
+                <flux:navlist.item icon="ticket" :href="route('display')" target="front_display"
                     :current="request()->routeIs('display')">{{ __('Display Antrian') }}
                 </flux:navlist.item>
             </flux:navlist.group>
@@ -84,6 +84,18 @@
                 target="_blank">
                 {{ __('Documentation') }}
             </flux:navlist.item> --}}
+
+            <!-- Refresh Button -->
+            <button x-on:click="window.location.reload()"
+                class="flex items-center w-full px-3 py-2 text-sm font-medium text-left text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200"
+                type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 4v6h6M20 20v-6h-6M20 8a8 8 0 10-4.9 7.45" />
+                </svg>
+                <span>Refresh Halaman</span>
+            </button>
 
             <!-- Dark Mode Toggle -->
             <button x-data="{ dark: $flux.dark }" x-on:click="$flux.dark = !$flux.dark; dark = $flux.dark"

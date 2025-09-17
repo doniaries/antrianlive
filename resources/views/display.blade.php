@@ -27,21 +27,16 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
 
         :root {
-            --bg-main: #eef2f6;
-            /* Blue Gray 100 */
-            --bg-panel: #ffffff;
-            --primary-blue: #0d47a1;
-            /* Deep Blue */
-            --primary-blue-light: #1976d2;
-            /* Lighter Blue */
-            --accent-yellow: #ffab00;
-            /* Amber */
-            --text-dark: #212121;
-            --text-light: #ffffff;
-            --border-color: #d1d9e2;
+            --bg-dark: #111827;
+            --bg-panel: rgba(31, 41, 55, 0.75);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --primary-accent: #38bdf8;
+            --secondary-accent: #f59e0b;
+            --text-light: #f9fafb;
+            --text-muted: #9ca3af;
             --header-height: 70px;
         }
 
@@ -52,9 +47,10 @@
         }
 
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: var(--bg-main);
-            color: var(--text-dark);
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-dark);
+            background-image: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+            color: var(--text-light);
             height: 100vh;
             overflow: hidden;
             display: flex;
@@ -64,19 +60,25 @@
         /* --- Header & Footer --- */
         .header,
         .footer {
-            background-color: var(--primary-blue);
-            color: var(--text-light);
+            background-color: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(10px);
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 2rem;
             flex-shrink: 0;
             width: 100%;
-            z-index: 10;
+            z-index: 20;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .header {
             height: var(--header-height);
+        }
+
+        .footer {
+            border-top: 1px solid var(--border-color);
+            border-bottom: none;
         }
 
         .logo {
@@ -86,7 +88,7 @@
         }
 
         .logo-text {
-            font-size: 1.75rem;
+            font-size: 1.5rem;
             font-weight: 700;
         }
 
@@ -97,25 +99,20 @@
         .time {
             font-size: 2rem;
             font-weight: 700;
-            letter-spacing: 1px;
+            color: var(--primary-accent);
         }
 
         .date {
             font-size: 1rem;
-            opacity: 0.8;
-        }
-
-        .footer {
-            overflow: hidden;
-            white-space: nowrap;
-            padding: 0.75rem 0;
+            color: var(--text-muted);
         }
 
         .running-text-content {
             display: inline-block;
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             padding-left: 100%;
             animation: marquee 30s linear infinite;
+            white-space: nowrap;
         }
 
         .running-text-content span {
@@ -136,117 +133,86 @@
         .main-container {
             flex-grow: 1;
             display: grid;
-            grid-template-columns: 2fr 1fr;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 60% 40%;
+            grid-template-areas:
+                "calling video"
+                "history history";
             gap: 1.5rem;
             padding: 1.5rem;
             overflow: hidden;
         }
 
-        .main-display {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        /* --- Panels --- */
+        /* --- Panel Styling --- */
         .panel {
-            background-color: var(--bg-panel);
-            border-radius: 0.5rem;
+            background: var(--bg-panel);
             border: 1px solid var(--border-color);
-            overflow: hidden;
+            border-radius: 1rem;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
 
         .panel-header {
-            background-color: var(--primary-blue-light);
-            color: var(--text-light);
             padding: 0.75rem 1.5rem;
-            font-size: 1.25rem;
-            font-weight: 700;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+            background-color: rgba(255, 255, 255, 0.05);
+            flex-shrink: 0;
         }
 
         .panel-body {
             padding: 1.5rem;
             flex-grow: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         /* --- Calling Panel --- */
         .calling-panel {
-            flex-grow: 1;
+            grid-area: calling;
+            height: 100%;
         }
 
         .calling-panel .panel-body {
-            display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
+            padding: 1rem; /* slightly tighter to fit content */
         }
 
         .label {
-            font-size: 2rem;
+            font-size: 1.25rem;
             font-weight: 500;
-            color: #555;
+            color: var(--text-muted);
         }
 
         #current-number {
-            font-size: clamp(10rem, 22vh, 18rem);
-            font-weight: 900;
-            color: var(--text-dark);
+            font-size: clamp(5rem, 16vh, 10rem);
+            font-weight: 800;
             line-height: 1;
-            margin: 1rem 0;
-            color: var(--accent-yellow);
-            -webkit-text-stroke: 4px var(--text-dark);
-            text-shadow: 6px 6px 0 var(--text-dark);
+            margin: 0.75rem 0;
+            color: var(--secondary-accent);
+            text-shadow: 0 0 30px rgba(245, 158, 11, 0.7);
         }
 
         #current-counter {
-            font-size: 4rem;
-            font-weight: 700;
-        }
-
-        /* --- Video Panel --- */
-        .video-panel .panel-body {
-            padding: 0;
-            margin-bottom: 1.5rem;
-        }
-
-        .video-container {
-            width: 100%;
-            height: 100%;
-            min-height: 280px;
-            max-height: 400px;
-            aspect-ratio: 16/9;
-            background: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto;
-        }
-
-        .video-container iframe,
-        .video-container video {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            border: none;
-        }
-
-        .video-placeholder {
-            color: #888;
-            text-align: center;
-        }
-
-        .video-placeholder i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
+            font-size: 2.25rem;
+            font-weight: 600;
+            color: var(--text-light);
         }
 
         /* --- History Panel --- */
         .history-panel {
-            display: flex;
-            flex-direction: column;
+            grid-area: history;
+        }
+
+        .history-panel .panel-body {
+            padding: 0;
         }
 
         #history-list {
@@ -254,49 +220,91 @@
             padding: 0;
             margin: 0;
             flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        #history-list::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        #history-list::-webkit-scrollbar-thumb {
+            background: var(--primary-accent);
+            border-radius: 5px;
         }
 
         .history-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1.25rem 1.5rem;
+            padding: 1rem 1.5rem;
             border-bottom: 1px solid var(--border-color);
-            transition: all 0.3s ease-in-out;
-        }
-
-        .history-item:last-child {
-            border-bottom: none;
-        }
-
-        .history-item:nth-child(odd) {
-            background-color: #f7f9fc;
+            transition: background-color 0.3s ease;
         }
 
         .history-number {
-            font-size: 2.25rem;
+            font-size: 1.75rem;
             font-weight: 700;
+            color: var(--primary-accent);
         }
 
         .history-counter {
-            font-size: 1.5rem;
+            font-size: 1.1rem;
             font-weight: 500;
-            color: #333;
         }
 
-        /* -- Animation for New Call -- */
+        /* --- Video Panel --- */
+        .video-panel {
+            grid-area: video;
+            height: 100%;
+            /* Takes the full height of its grid cell */
+        }
+
+        .video-panel .panel-body {
+            padding: 0;
+        }
+
+        .video-container {
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-container iframe,
+        .video-container video {
+            width: 100%;
+            height: 100%;
+            border: none;
+            object-fit: cover;
+        }
+
+        .video-placeholder {
+            text-align: center;
+            font-size: 1.25rem;
+            color: var(--text-muted);
+        }
+
+        .video-placeholder i {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        /* --- Animations --- */
         .new-call-main {
             animation: highlight-main 1s ease;
         }
 
         @keyframes highlight-main {
             0% {
-                transform: scale(0.8);
+                transform: scale(0.9);
                 opacity: 0.5;
             }
 
             50% {
-                transform: scale(1.1);
+                transform: scale(1.05);
             }
 
             100% {
@@ -306,87 +314,97 @@
         }
 
         .new-call-item {
-            background-color: var(--accent-yellow) !important;
-            color: var(--text-dark);
-            animation: highlight-item 2s ease forwards;
+            background-color: rgba(56, 189, 248, 0.3) !important;
+            animation: highlight-item 1.5s ease;
         }
 
         @keyframes highlight-item {
-            0% {
-                transform: translateX(-100%);
+            from {
+                transform: translateX(-20px);
                 opacity: 0;
             }
 
-            40% {
+            to {
                 transform: translateX(0);
                 opacity: 1;
-                background-color: var(--accent-yellow);
             }
+        }
 
-            100% {
-                background-color: var(--bg-panel);
+        /* --- Call Number Emphasis --- */
+        .call-highlight {
+            animation: pulse-glow 1.5s ease-out 2;
+        }
+
+        @keyframes pulse-glow {
+            0% {
+                transform: scale(1);
+                text-shadow: 0 0 10px rgba(245, 158, 11, 0.6), 0 0 0 rgba(245, 158, 11, 0);
+                filter: drop-shadow(0 0 0 rgba(245, 158, 11, 0));
             }
+            40% {
+                transform: scale(1.08);
+                text-shadow: 0 0 30px rgba(245, 158, 11, 0.9), 0 0 60px rgba(245, 158, 11, 0.6);
+                filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.6));
+            }
+            100% {
+                transform: scale(1);
+                text-shadow: 0 0 10px rgba(245, 158, 11, 0.6), 0 0 0 rgba(245, 158, 11, 0);
+                filter: drop-shadow(0 0 0 rgba(245, 158, 11, 0));
+            }
+        }
+
+        /* --- Fullscreen Button --- */
+        #fullscreen-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            background: var(--bg-panel);
+            color: var(--text-light);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        #fullscreen-btn:hover {
+            background: var(--primary-accent);
+            transform: scale(1.1);
         }
 
         /* --- Responsive --- */
         @media (max-width: 1024px) {
             .main-container {
                 grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto;
+                grid-template-areas:
+                    "calling"
+                    "video"
+                    "history";
                 overflow-y: auto;
             }
 
-            .main-display {
-                order: 1;
-            }
-
-            .history-panel {
-                order: 2;
+            .video-panel {
                 min-height: 300px;
             }
 
+            .calling-panel,
+            .history-panel {
+                height: auto;
+            }
+
             .calling-panel {
-                min-height: 400px;
+                min-height: 350px;
             }
 
-            #current-number {
-                font-size: 25vw;
-            }
-
-            #current-counter {
-                font-size: 8vw;
-            }
-        }
-
-        @media (max-width: 768px) {
-            :root {
-                --header-height: 60px;
-            }
-
-            .header,
-            .footer {
-                padding: 0 1rem;
-            }
-
-            .logo-text {
-                font-size: 1.25rem;
-            }
-
-            .time {
-                font-size: 1.5rem;
-            }
-
-            .main-container {
-                padding: 1rem;
-                gap: 1rem;
-            }
-
-            .panel-header {
-                font-size: 1.1rem;
-                padding: 0.5rem 1rem;
-            }
-
-            .panel-body {
-                padding: 1rem;
+            .history-panel {
+                min-height: 300px;
             }
         }
     </style>
@@ -405,40 +423,46 @@
     </header>
 
     <main class="main-container">
-        <div class="main-display">
-            <div class="panel calling-panel">
-                <div class="panel-header">NOMOR ANTRIAN</div>
-                <div class="panel-body">
-                    <div id="calling-content">
-                        <span class="label">Nomor</span>
-                        <div id="current-number">---</div>
-                        <span class="label">Silakan Menuju</span>
-                        <div id="current-counter">-</div>
-                    </div>
+        <div class="panel calling-panel">
+            <div class="panel-header">Panggilan Antrian</div>
+            <div class="panel-body">
+                <div id="calling-content">
+                    <span class="label">Nomor Antrian</span>
+                    <div id="current-number">---</div>
+                    <span class="label">Silakan Menuju</span>
+                    <div id="current-counter">-</div>
                 </div>
             </div>
-            <div class="panel video-panel">
-                <div class="panel-body">
-                    <div id="video-player" class="video-container">
-                        <div class="video-placeholder">
-                            <i class="fas fa-play-circle"></i>
-                            <div>Memuat video...</div>
-                        </div>
+        </div>
+
+        <div class="panel video-panel">
+            <div class="panel-header">Informasi Video</div>
+            <div class="panel-body">
+                <div id="video-container" class="video-container">
+                    <div class="video-placeholder">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <div>Memuat video...</div>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="panel history-panel">
-            <div class="panel-header">RIWAYAT PANGGILAN</div>
-            <ul id="history-list">
-            </ul>
+            <div class="panel-header">Riwayat Panggilan</div>
+            <div class="panel-body">
+                <ul id="history-list">
+                </ul>
+            </div>
         </div>
     </main>
 
     <footer class="footer">
         <div class="running-text-content" id="running-text-content"></div>
     </footer>
+
+    <button id="fullscreen-btn" title="Toggle Fullscreen">
+        <i class="fas fa-expand"></i>
+    </button>
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -447,13 +471,34 @@
         let lastCalledNumber = null;
         let callHistory = [];
         const MAX_HISTORY = 5;
+        let currentVideoId = null;
 
         // --- UTILITY FUNCTIONS ---
-        function safeGetElementById(id) {
-            return document.getElementById(id);
-        }
+        const safeGetElementById = (id) => document.getElementById(id);
 
         // --- CORE FUNCTIONS ---
+        function loadLastCalledFromStorage() {
+            try {
+                const num = localStorage.getItem('lastCalledNumber');
+                const counter = localStorage.getItem('lastCalledCounter');
+                if (num) {
+                    lastCalledNumber = num;
+                    const numberEl = safeGetElementById('current-number');
+                    const counterEl = safeGetElementById('current-counter');
+                    if (numberEl) numberEl.textContent = num;
+                    if (counterEl) counterEl.textContent = counter || 'Loket';
+                }
+            } catch (e) {
+                console.warn('localStorage unavailable');
+            }
+        }
+
+        function saveLastCalledToStorage(num, counter) {
+            try {
+                localStorage.setItem('lastCalledNumber', num);
+                if (counter) localStorage.setItem('lastCalledCounter', counter);
+            } catch (e) { }
+        }
         function updateDateTime() {
             const now = new Date();
             const timeEl = safeGetElementById('current-time');
@@ -487,28 +532,31 @@
             if (currentCall && currentCall.formatted_number !== lastCalledNumber) {
                 lastCalledNumber = currentCall.formatted_number;
 
-                // Update main display with animation
                 const callingContent = safeGetElementById('calling-content');
-                safeGetElementById('current-number').textContent = currentCall.formatted_number;
+                const numberEl = safeGetElementById('current-number');
+                numberEl.textContent = currentCall.formatted_number;
                 safeGetElementById('current-counter').textContent = currentCall.counter_name || 'Loket';
+
                 callingContent.classList.remove('new-call-main');
                 void callingContent.offsetWidth; // Trigger reflow
                 callingContent.classList.add('new-call-main');
 
-                // Update and render history
+                // Emphasize the current number with a pulse/glow effect
+                numberEl.classList.remove('call-highlight');
+                void numberEl.offsetWidth; // Trigger reflow for restarting animation
+                numberEl.classList.add('call-highlight');
+
+                // Persist to storage so it survives refresh
+                saveLastCalledToStorage(currentCall.formatted_number, currentCall.counter_name || 'Loket');
+
                 callHistory.unshift({
                     number: currentCall.formatted_number,
                     counter: currentCall.counter_name || 'Loket'
                 });
-                if (callHistory.length > MAX_HISTORY) {
-                    callHistory.pop();
-                }
+                if (callHistory.length > MAX_HISTORY) callHistory.pop();
                 renderHistory();
-            } else if (!currentCall && lastCalledNumber !== null) {
-                // Handle case when there are no calls
-                lastCalledNumber = null;
-                safeGetElementById('current-number').textContent = '---';
-                safeGetElementById('current-counter').textContent = '-';
+            } else if (!currentCall) {
+                // Do not clear the display; keep showing the last called number (from memory/storage)
             }
         }
 
@@ -523,26 +571,23 @@
                 </li>
             `).join('');
 
-            // Remove animation class after it finishes
             const newItem = historyListEl.querySelector('.new-call-item');
             if (newItem) {
-                setTimeout(() => {
-                    newItem.classList.remove('new-call-item');
-                }, 2000);
+                setTimeout(() => newItem.classList.remove('new-call-item'), 2000);
             }
         }
 
-        let currentVideoId = null;
         async function loadVideo() {
-            const videoPlayer = safeGetElementById('video-player');
+            const videoContainer = safeGetElementById('video-container');
+            if (!videoContainer) return;
             try {
                 const response = await fetch('/api/video');
-                if (!response.ok) return;
+                if (!response.ok) throw new Error('API request failed');
                 const data = await response.json();
 
-                if (!data?.success || !data?.video || !data.video.url) {
+                if (!data?.success || !data?.video?.url) {
                     if (currentVideoId !== null) {
-                        videoPlayer.innerHTML =
+                        videoContainer.innerHTML =
                             `<div class="video-placeholder"><i class="fas fa-video-slash"></i><div>Tidak ada video aktif</div></div>`;
                     }
                     currentVideoId = null;
@@ -552,36 +597,32 @@
                 currentVideoId = data.video.id;
 
                 if (data.video.type === 'youtube') {
-                    // Extract video ID from YouTube URL
-                    let videoId = '';
-                    const url = data.video.url || '';
                     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-                    const match = url.match(regExp);
-                    
-                    if (match && match[2].length === 11) {
-                        videoId = match[2];
-                        const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0`;
-                        videoPlayer.innerHTML = 
-                            `<iframe src="${embedUrl}" 
-                                    allow="autoplay; encrypted-media" 
-                                    allowfullscreen 
-                                    loading="lazy"
-                                    style="width: 100%; height: 100%; border: none;">
-                            </iframe>`;
+                    const match = data.video.url.match(regExp);
+                    const videoId = (match && match[2].length === 11) ? match[2] : null;
+                    if (videoId) {
+                        const embedUrl =
+                            `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&rel=0`;
+                        videoContainer.innerHTML =
+                            `<iframe src="${embedUrl}"
+                                title="YouTube video"
+                                frameborder="0"
+                                allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+                                referrerpolicy="strict-origin-when-cross-origin"
+                                loading="lazy"
+                                allowfullscreen></iframe>`;
                     } else {
-                        videoPlayer.innerHTML = 
-                            '<div class="video-placeholder"><i class="fas fa-exclamation-triangle"></i><div>Format URL YouTube tidak valid</div></div>';
+                        videoContainer.innerHTML =
+                            `<div class="video-placeholder"><i class="fas fa-exclamation-triangle"></i><div>URL YouTube tidak valid</div></div>`;
                     }
                 } else if (data.video.type === 'file') {
-                    videoPlayer.innerHTML = 
-                        `<video autoplay loop muted playsinline 
-                                style="width: 100%; height: 100%; object-fit: contain;">
-                            <source src="${data.video.url}" type="video/mp4">
-                            Browser Anda tidak mendukung pemutaran video.
-                        </video>`;
+                    videoContainer.innerHTML =
+                    `<video autoplay loop muted playsinline preload="auto" src="${data.video.url}"></video>`;
                 }
             } catch (error) {
                 console.error('Error loading video:', error);
+                videoContainer.innerHTML =
+                    `<div class="video-placeholder"><i class="fas fa-exclamation-triangle"></i><div>Gagal memuat video</div></div>`;
                 currentVideoId = null;
             }
         }
@@ -593,7 +634,7 @@
                 if (!response.ok) return;
                 const data = await response.json();
                 let texts = "<span>Selamat Datang di Layanan Kami</span>";
-                if (data.running_teks && data.running_teks.length > 0) {
+                if (data.running_teks?.length > 0) {
                     texts = data.running_teks.map(item => `<span>${item.text}</span>`).join('');
                 }
                 contentEl.innerHTML = texts + texts;
@@ -602,13 +643,33 @@
             }
         }
 
+        function setupFullscreen() {
+            const btn = safeGetElementById('fullscreen-btn');
+            const icon = btn.querySelector('i');
+
+            function updateIcon() {
+                icon.className = document.fullscreenElement ? 'fas fa-compress' : 'fas fa-expand';
+            }
+            btn.addEventListener('click', () => {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen();
+                } else {
+                    document.exitFullscreen();
+                }
+            });
+            document.addEventListener('fullscreenchange', updateIcon);
+        }
+
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
+            // Restore last called number/counter before any API calls
+            loadLastCalledFromStorage();
             updateDateTime();
             fetchQueueData();
             loadVideo();
             loadRunningTeks();
             renderHistory();
+            setupFullscreen();
 
             setInterval(updateDateTime, 1000);
             setInterval(fetchQueueData, 3000);
