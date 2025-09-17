@@ -165,7 +165,7 @@
                                             isActive: {{ $counter->status === 'buka' ? 'true' : 'false' }},
                                             isLoading: false
                                         }"
-                                            class="relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-200 cursor-pointer"
+                                            class="relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-300 cursor-pointer"
                                             :class="{
                                                 'bg-green-500': isActive,
                                                 'bg-gray-300 dark:bg-gray-600': !isActive,
@@ -174,6 +174,9 @@
                                             @click="
                                             if (!isLoading) {
                                                 isLoading = true;
+                                                const originalState = isActive;
+                                                // Perubahan visual segera untuk feedback pengguna
+                                                isActive = !isActive;
                                                 $wire.call('update', {{ $counter->id }})
                                                     .then((newStatus) => {
                                                         isActive = newStatus === 'buka';
@@ -201,23 +204,26 @@
                                                     })
                                                     .catch(error => {
                                                         console.error('Error updating counter status:', error);
-                                                        isActive = !isActive; // Revert on error
+                                                        isActive = originalState; // Revert to original state on error
                                                     })
                                                     .finally(() => {
                                                         isLoading = false;
                                                     });
-                                            }
-                                        "
+                                            }"
                                             x-tooltip="Klik untuk {{ $counter->status === 'buka' ? 'menonaktifkan' : 'mengaktifkan' }} loket">
                                             <input type="checkbox" class="absolute w-0 h-0 opacity-0"
                                                 :checked="isActive" :disabled="isLoading">
                                             <span
-                                                class="inline-block w-4 h-4 transform transition-transform duration-200 ease-in-out bg-white rounded-full shadow-md"
+                                                class="inline-block w-4 h-4 transform transition-transform duration-300 ease-in-out bg-white rounded-full shadow-md"
                                                 :class="{
                                                     'translate-x-6': isActive,
                                                     'translate-x-1': !isActive,
                                                     'animate-pulse': isLoading
-                                                }"></span>
+                                                }"
+                                                x-transition:enter="transition ease-out duration-300"
+                                                x-transition:enter-start="opacity-0 transform scale-90"
+                                                x-transition:enter-end="opacity-100 transform scale-100"
+                                                ></span>
                                             <span class="sr-only">
                                                 {{ $counter->status === 'buka' ? 'Nonaktifkan' : 'Aktifkan' }} Loket
                                             </span>
