@@ -110,22 +110,27 @@
         .running-text-container {
             width: 100%;
             overflow: hidden;
-            background-color: rgba(255, 255, 255, 0.06);
-            border: 1px solid var(--border-color);
-            border-radius: 0.75rem;
-            padding: 0.5rem 0.75rem;
+            background-color: #0a1a2f; /* Biru gelap */
+            border: none;
+            border-radius: 0;
+            padding: 0.75rem 0;
+            margin: 0;
+            position: relative;
+            left: 0;
+            right: 0;
         }
 
         .running-text-content {
             display: inline-block;
-            font-size: 1.4rem;
+            font-size: 1.8rem; /* Ukuran huruf diperbesar */
+            font-weight: 500;
             padding-left: 100%;
-            animation: marquee 30s linear infinite;
+            animation: marquee 60s linear infinite; /* Diperlambat dari 30s menjadi 60s */
             white-space: nowrap;
         }
 
         .running-text-content span {
-            margin: 0 2rem;
+            margin: 0 3rem;
         }
 
         @keyframes marquee {
@@ -196,13 +201,13 @@
         }
 
         .label {
-            font-size: 1.25rem;
+            font-size: 1rem;
             font-weight: 500;
             color: var(--text-muted);
         }
 
         #current-number {
-            font-size: clamp(5rem, 16vh, 10rem);
+            font-size: clamp(6rem, 18vh, 12rem);
             font-weight: 800;
             line-height: 1;
             margin: 0.75rem 0;
@@ -212,8 +217,8 @@
         }
 
         #current-counter {
-            font-size: 5rem;
-            font-weight: 600;
+            font-size: 5.5rem;
+            font-weight: 700;
             color: var(--text-light);
         }
 
@@ -580,7 +585,7 @@
         </div>
     </main>
 
-    <footer class="footer">
+    <footer class="footer" style="width: 100vw; margin: 0; padding: 0; left: 0; right: 0; position: relative;">
         <div class="running-text-container" aria-label="Informasi Berjalan">
             <div class="running-text-content" id="running-text-content"></div>
         </div>
@@ -596,7 +601,7 @@
         // --- State Management ---
         let lastCalledNumber = null;
         let callHistory = [];
-        const MAX_HISTORY = 5;
+const MAX_HISTORY = 30; // Jumlah maksimum riwayat yang disimpan (ditingkatkan)
         let currentVideoId = null;
         let lastEventSignature = null; // to detect recalls/updates even when number is the same
 
@@ -730,6 +735,7 @@
                 const shouldProcess = isNewNumber || isRecallFlag || isRecallBySignature;
 
                 if (shouldProcess) {
+                    // Hanya update lastCalledNumber jika nomor baru
                     if (isNewNumber) lastCalledNumber = currentCall.formatted_number;
                     if (newSignature) lastEventSignature = newSignature;
 
@@ -754,13 +760,14 @@
                     // Persist to storage so it survives refresh
                     saveLastCalledToStorage(currentCall.formatted_number, currentCall.counter_name || 'Loket');
 
+                    // Tambahkan ke riwayat dengan flag recall yang tepat
                     callHistory.unshift({
                         number: currentCall.formatted_number,
                         counter: currentCall.counter_name || 'Loket',
                         serviceCode: code,
                         serviceName: currentCall.service_name || (currentCall.service && currentCall.service.name) || code || 'Layanan',
                         color,
-                        recall: !isNewNumber // if it's the same number, treat as recall
+                        recall: isRecallFlag || isRecallBySignature // Tandai sebagai recall jika memang recall
                     });
                     if (callHistory.length > MAX_HISTORY) callHistory.pop();
                     renderHistory();
@@ -846,7 +853,7 @@
                     if (videoId) {
                         // Tambahkan controls=1 dan enablejsapi=1 untuk kontrol volume dan API
                         const embedUrl =
-                            `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=1&rel=0&enablejsapi=1`;
+                            `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&loop=1&playlist=${videoId}&controls=1&rel=0&enablejsapi=1`;
                         
                         // Tambahkan div container untuk kontrol volume tambahan
                         videoContainer.innerHTML = `
@@ -861,7 +868,7 @@
                                     allowfullscreen></iframe>
                                 <div class="video-controls">
                                     <button id="toggle-mute" class="control-btn">
-                                        <i class="fas fa-volume-mute"></i>
+                                        <i class="fas fa-volume-up"></i>
                                     </button>
                                 </div>
                             </div>`;
