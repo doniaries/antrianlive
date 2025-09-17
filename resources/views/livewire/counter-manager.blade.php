@@ -184,6 +184,20 @@
                                                                 status: newStatus 
                                                             } 
                                                         }));
+                                                        
+                                                        // Gunakan localStorage untuk memicu refresh pada halaman tiket
+                                                        try {
+                                                            // Set localStorage untuk memicu event storage di halaman tiket
+                                                            localStorage.setItem('counter_status_changed', Date.now());
+                                                            
+                                                            // Juga coba reload langsung jika window terbuka
+                                                            if (window.front_tiket) {
+                                                                console.log('Reloading tiket page directly...');
+                                                                window.front_tiket.location.reload(true);
+                                                            }
+                                                        } catch (e) {
+                                                            console.error('Error triggering tiket page reload:', e);
+                                                        }
                                                     })
                                                     .catch(error => {
                                                         console.error('Error updating counter status:', error);

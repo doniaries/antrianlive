@@ -15,6 +15,15 @@
     <title>{{ $profil->nama_aplikasi ?? 'Ambil Tiket Antrian' }} - {{ $profil->nama_instansi ?? 'Sistem Antrian' }}
     </title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script>
+        // Auto-refresh halaman saat menerima event dari counter-manager
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'counter_status_changed') {
+                console.log('Counter status changed, reloading page...');
+                location.reload(true);
+            }
+        });
+    </script>
     @php
         $faviconUrl = $profil && $profil->favicon ? asset('storage/' . $profil->favicon) : '/favicon.ico';
     @endphp
