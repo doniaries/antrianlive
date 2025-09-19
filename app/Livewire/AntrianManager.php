@@ -46,6 +46,19 @@ class AntrianManager extends Component
     {
         $this->filterDate = now()->format('Y-m-d');
         $this->currentDate = Carbon::today()->format('Y-m-d');
+        
+        // Cek apakah hari ini sudah membersihkan riwayat panggilan
+        $lastCleared = session('last_call_history_cleared');
+        $today = Carbon::today()->format('Y-m-d');
+        
+        // Jika belum pernah dibersihkan atau terakhir dibersihkan bukan hari ini
+        if (!$lastCleared || $lastCleared !== $today) {
+            // Bersihkan riwayat panggilan secara otomatis
+            $this->clearCallHistory(true);
+            
+            // Simpan tanggal terakhir dibersihkan
+            session(['last_call_history_cleared' => $today]);
+        }
     }
 
     public function openModal()
@@ -511,17 +524,31 @@ class AntrianManager extends Component
     
     /**
      * Membersihkan riwayat panggilan di display
+     * 
+     * @param bool $silent Jika true, tidak akan menampilkan notifikasi (untuk pembersihan otomatis)
      */
-    public function clearCallHistory()
+    public function clearCallHistory($silent = false)
     {
-        $this->dispatch('notify', [
-            'type' => 'success',
-            'message' => "Membersihkan riwayat panggilan"
-        ]);
+        if (!$silent) {
+            $this->dispatch('notify', [
+                'type' => 'success',
+                'message' => "Membersihkan riwayat panggilan"
+            ]);
+        }
         
         // Broadcast event khusus untuk membersihkan riwayat panggilan
         // Menggunakan nama event yang sama dengan yang didengarkan di display.blade.php
-        $this->dispatch('clear-call-history-event');
+        $this->dispatch('clear-call-history-event', [
+            'silent' => $silent
+        ]);
+
+        // Gunakan localStorage untuk memicu refresh pada halaman display dengan delay minimal
+        $this->js("
+            setTimeout(function() {
+                // Set localStorage untuk memicu event storage di halaman display
+                localStorage.setItem('counter_status_changed', Date.now());
+            }, 100);
+        ");
     }
 
     /**

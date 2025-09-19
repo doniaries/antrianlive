@@ -332,10 +332,17 @@
             font-size: 1.4rem;
             animation: blinkBg 3s ease-in-out infinite;
         }
-        
+
         @keyframes blinkBg {
-            0%, 100% { background-color: transparent; }
-            50% { background-color: rgba(59, 130, 246, 0.15); }
+
+            0%,
+            100% {
+                background-color: transparent;
+            }
+
+            50% {
+                background-color: rgba(59, 130, 246, 0.15);
+            }
         }
 
         .history-number {
@@ -607,9 +614,12 @@
             </div>
         </main>
 
-        <footer class="footer" style="width: 100vw; margin: 0; padding: 0; left: 0; right: 0; position: fixed; bottom: 0; height: 80px; display: block; z-index: 1000;">
-            <div class="running-text-container" aria-label="Informasi Berjalan" style="display: block; height: 80px; line-height: 80px; visibility: visible; overflow: visible; width: 100%;">
-                <div class="running-text-content" id="running-text-content" style="visibility: visible; font-size: 32px;"></div>
+        <footer class="footer"
+            style="width: 100vw; margin: 0; padding: 0; left: 0; right: 0; position: fixed; bottom: 0; height: 80px; display: block; z-index: 1000;">
+            <div class="running-text-container" aria-label="Informasi Berjalan"
+                style="display: block; height: 80px; line-height: 80px; visibility: visible; overflow: visible; width: 100%;">
+                <div class="running-text-content" id="running-text-content" style="visibility: visible; font-size: 32px;">
+                </div>
             </div>
         </footer>
 
@@ -626,6 +636,44 @@
             const MAX_HISTORY = 30; // Jumlah maksimum riwayat yang disimpan (ditingkatkan)
             let currentVideoId = null;
             let lastEventSignature = null; // to detect recalls/updates even when number is the same
+            let fetchController = null; // Controller untuk abort fetch request
+            let intervals = []; // Array untuk menyimpan interval IDs
+            let isPageUnloading = false; // Flag untuk mendeteksi page unload
+
+            // Auto-refresh halaman saat menerima event dari counter-manager
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'counter_status_changed') {
+                    console.log('Counter status changed, stopping intervals and reloading page...');
+                    isPageUnloading = true;
+                    
+                    // Hentikan semua interval sebelum reload
+                    intervals.forEach(intervalId => clearInterval(intervalId));
+                    
+                    // Abort ongoing fetch request
+                    if (fetchController) {
+                        fetchController.abort();
+                    }
+                    
+                    location.reload(true);
+                }
+            });
+
+            // Detect page unload to prevent unnecessary requests
+            window.addEventListener('beforeunload', function() {
+                isPageUnloading = true;
+                intervals.forEach(intervalId => clearInterval(intervalId));
+                if (fetchController) {
+                    fetchController.abort();
+                }
+            });
+
+            window.addEventListener('pagehide', function() {
+                isPageUnloading = true;
+                intervals.forEach(intervalId => clearInterval(intervalId));
+                if (fetchController) {
+                    fetchController.abort();
+                }
+            });
 
             // --- UTILITY FUNCTIONS ---
             const safeGetElementById = (id) => document.getElementById(id);
@@ -719,13 +767,67 @@
                 });
             }
 
-            async function fetchQueueData() {
+            async function fetchQueueData(retryCount = 0) {
+                // Don't make requests if page is unloading
+                if (isPageUnloading) {
+                    return;
+                }
+                
+                const maxRetries = 3;
+                const retryDelay = 1000; // 1 second
+                
                 try {
-                    const response = await fetch('/api/display-data?t=' + Date.now());
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    // Abort previous request if still running
+                    if (fetchController) {
+                        fetchController.abort();
+                    }
+                    
+                    // Create new abort controller
+                    fetchController = new AbortController();
+                    
+                    const response = await fetch('/api/display-data?t=' + Date.now(), {
+                        signal: fetchController.signal,
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        cache: 'no-cache',
+                        credentials: 'same-origin'
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+                    }
+                    
                     const data = await response.json();
                     updateDisplay(data);
+                    
+                    // Reset retry count on success
+                    if (retryCount > 0) {
+                        console.log('Queue data fetch recovered after', retryCount, 'retries');
+                    }
+                    
                 } catch (error) {
+                    // Ignore abort errors (normal when page reloads)
+                    if (error.name === 'AbortError') {
+                        return;
+                    }
+                    
+                    // Retry on network errors
+                    if (retryCount < maxRetries && (
+                        error.name === 'TypeError' || 
+                        error.message.includes('Failed to fetch') ||
+                        error.message.includes('NetworkError')
+                    )) {
+                        console.warn(`Fetch failed (attempt ${retryCount + 1}/${maxRetries + 1}), retrying in ${retryDelay}ms...`, error.message);
+                        setTimeout(() => fetchQueueData(retryCount + 1), retryDelay);
+                        return;
+                    }
+                    
+                    // Log other errors
                     console.error("Failed to fetch queue data:", error);
                 }
             }
@@ -810,6 +912,7 @@
 
                         // Persist to storage so it survives refresh
                         saveLastCalledToStorage(currentCall.formatted_number, currentCall.counter_name || 'Loket');
+                        lastCalledNumber = currentCall.formatted_number;
 
                         // Tambahkan ke riwayat dengan flag recall yang tepat
                         callHistory.unshift({
@@ -822,14 +925,14 @@
                             recall: isRecallFlag || isRecallBySignature // Tandai sebagai recall jika memang recall
                         });
                         if (callHistory.length > MAX_HISTORY) callHistory.pop();
-                        
+
                         // Save history to localStorage
                         try {
                             localStorage.setItem('callHistory', JSON.stringify(callHistory));
                         } catch (e) {
                             console.warn('Error saving call history to localStorage:', e);
                         }
-                        
+
                         renderHistory();
                     }
                 } else {
@@ -859,7 +962,7 @@
                     } = getServiceColor(code);
                     const badgeStyle = `color:${color}`;
                     const recallCount = group.items.filter(it => it.recall).length;
-                    const itemsHtml = group.items.slice(0, 5).map((call, idx) => {
+                    const itemsHtml = group.items.slice(0, 4).map((call, idx) => {
                         const itemColor = (call.color) ? call.color : getServiceColor(code).color;
                         return `
                         <div class="history-item ${idx === 0 ? 'new-call-item' : ''}">
@@ -954,7 +1057,7 @@
                                             if (isMuted) {
                                                 iframe.contentWindow.postMessage(
                                                     '{"event":"command","func":"unMute","args":""}', '*'
-                                                    );
+                                                );
                                                 icon.classList.remove('fa-volume-mute');
                                                 icon.classList.add('fa-volume-up');
                                             } else {
@@ -1022,15 +1125,15 @@
                 // Buat elemen notifikasi
                 const notification = document.createElement('div');
                 notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
-                    type === 'success' ? 'bg-green-500' : 
-                    type === 'error' ? 'bg-red-500' : 
+                    type === 'success' ? 'bg-green-500' :
+                    type === 'error' ? 'bg-red-500' :
                     type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
                 } text-white`;
                 notification.innerHTML = message;
-                
+
                 // Tambahkan ke body
                 document.body.appendChild(notification);
-                
+
                 // Hilangkan setelah 3 detik
                 setTimeout(() => {
                     notification.style.opacity = '0';
@@ -1040,29 +1143,9 @@
                     }, 500);
                 }, 3000);
             }
-            
-            // Fungsi untuk reload halaman
-            function reloadPage(resetHistory = false) {
-                // Jika resetHistory true, hapus semua riwayat panggilan
-                if (resetHistory) {
-                    console.log('Menghapus semua riwayat panggilan...');
-                    // Hapus riwayat panggilan dari sessionStorage dan localStorage
-                    sessionStorage.removeItem('tempCallHistory');
-                    localStorage.removeItem('callHistory');
-                    // Reset array callHistory
-                    callHistory = [];
-                    // Hapus juga data nomor terakhir yang dipanggil
-                    localStorage.removeItem('lastCalledNumber');
-                    localStorage.removeItem('lastCalledCounter');
-                } else if (callHistory && callHistory.length > 0) {
-                    // Simpan riwayat panggilan ke sessionStorage sementara (akan bertahan selama reload)
-                    sessionStorage.setItem('tempCallHistory', JSON.stringify(callHistory));
-                }
-                
-                // Reload halaman
-                window.location.reload();
-            }
-            
+
+
+
             // --- INITIALIZATION ---
             document.addEventListener('DOMContentLoaded', () => {
                 // Restore last called number/counter before any API calls
@@ -1074,54 +1157,116 @@
                 renderHistory();
                 setupFullscreen();
 
-                setInterval(updateDateTime, 1000);
-                setInterval(fetchQueueData, 3000);
-                setInterval(loadVideo, 5 * 60 * 1000);
-                setInterval(loadRunningTeks, 5 * 60 * 1000);
-                
+                // Setup intervals dan simpan ID-nya untuk cleanup
+                intervals.push(setInterval(updateDateTime, 1000));
+                intervals.push(setInterval(fetchQueueData, 3000));
+                intervals.push(setInterval(loadVideo, 5 * 60 * 1000));
+                intervals.push(setInterval(loadRunningTeks, 5 * 60 * 1000));
+
                 // Setup Livewire event listener untuk reset antrian
                 if (window.Livewire) {
                     window.Livewire.on('antrian-reset', () => {
                         console.log('Antrian telah direset, menghapus riwayat panggilan...');
-                        
+
                         // Hapus semua data riwayat dari localStorage dan sessionStorage
                         localStorage.clear(); // Hapus semua data localStorage
                         sessionStorage.clear(); // Hapus semua data sessionStorage
-                        
+
                         // Reset array callHistory
                         callHistory = [];
-                        
+
                         // Kosongkan tampilan riwayat
                         const historyContainer = document.getElementById('history-container');
                         if (historyContainer) {
                             historyContainer.innerHTML = '';
                         }
-                        
+
                         // Reload halaman untuk memastikan semua perubahan diterapkan
                         window.location.reload();
                     });
-                    
+
+                    // Event listener untuk panggilan antrian
+                    window.Livewire.on('antrian-called', function(data) {
+                        console.log('Antrian dipanggil:', data);
+                        // Refresh data antrian jika diperlukan
+                        if (typeof loadAntrian === 'function') {
+                            loadAntrian();
+                        }
+                    });
+
+                    // Event listener untuk panggilan queue
+                    window.Livewire.on('queue-called', function(data) {
+                        console.log('Queue dipanggil:', data);
+                        // Refresh data antrian jika diperlukan
+                        if (typeof loadAntrian === 'function') {
+                            loadAntrian();
+                        }
+                    });
+
                     // Event listener untuk membersihkan riwayat panggilan (Livewire event)
-                    window.Livewire.on('clear-call-history-event', function() {
-                        console.log('Membersihkan riwayat panggilan dengan Livewire event...');
+                    window.Livewire.on('clear-call-history-event', function(data) {
+                        console.log('Membersihkan riwayat panggilan dengan Livewire event...', data);
+
+                        // Hapus SEMUA data dari localStorage dan sessionStorage
+                        const keysToRemove = [
+                            'callHistory',
+                            'lastCalledNumber', 
+                            'lastCalledCounter',
+                            'tempCallHistory',
+                            'counter_status_changed'
+                        ];
                         
-                        // Hapus data riwayat dari localStorage dan sessionStorage
-                        localStorage.removeItem('callHistory');
-                        localStorage.removeItem('lastCalledNumber');
-                        localStorage.removeItem('lastCalledCounter');
-                        sessionStorage.removeItem('tempCallHistory');
-                        
-                        // Reset array callHistory
+                        keysToRemove.forEach(key => {
+                            localStorage.removeItem(key);
+                            sessionStorage.removeItem(key);
+                        });
+
+                        // Reset semua variabel state
                         callHistory = [];
-                        
+                        lastCalledNumber = null;
+                        lastEventSignature = null;
+
+                        // Reset tampilan nomor yang sedang dipanggil
+                        const currentNumberEl = safeGetElementById('current-number');
+                        if (currentNumberEl) {
+                            currentNumberEl.textContent = '---';
+                            currentNumberEl.style.color = '';
+                            currentNumberEl.style.removeProperty('--glow-color');
+                            currentNumberEl.classList.remove('call-highlight');
+                        }
+
+                        const currentCounterEl = safeGetElementById('current-counter');
+                        if (currentCounterEl) {
+                            currentCounterEl.textContent = '-';
+                        }
+
+                        // Reset tampilan nomor terakhir dipanggil (jika ada elemen terpisah)
+                        const lastCalledEl = safeGetElementById('last-called-number');
+                        if (lastCalledEl) {
+                            lastCalledEl.textContent = '-';
+                        }
+
+                        const lastCalledCounterEl = safeGetElementById('last-called-counter');
+                        if (lastCalledCounterEl) {
+                            lastCalledCounterEl.textContent = '-';
+                        }
+
                         // Kosongkan tampilan riwayat
-                        const historyContainer = document.getElementById('history-container');
-                        if (historyContainer) {
-                            historyContainer.innerHTML = '';
+                        const historyListEl = safeGetElementById('history-list');
+                        if (historyListEl) {
+                            historyListEl.innerHTML = '<div class="history-grid"></div>';
+                        }
+
+                        // Reset calling content animation
+                        const callingContent = safeGetElementById('calling-content');
+                        if (callingContent) {
+                            callingContent.classList.remove('new-call-main');
                         }
                         
-                        // Tampilkan notifikasi sukses
-                        showNotification('Riwayat panggilan berhasil dibersihkan', 'success');
+                        console.log('Riwayat berhasil dibersihkan sepenuhnya!');
+                        
+                        // Trigger localStorage event untuk memastikan sinkronisasi
+                        localStorage.setItem('counter_status_changed', Date.now());
                     });
                 }
             });
