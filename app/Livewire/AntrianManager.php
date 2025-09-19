@@ -46,16 +46,16 @@ class AntrianManager extends Component
     {
         $this->filterDate = now()->format('Y-m-d');
         $this->currentDate = Carbon::today()->format('Y-m-d');
-        
+
         // Cek apakah hari ini sudah membersihkan riwayat panggilan
         $lastCleared = session('last_call_history_cleared');
         $today = Carbon::today()->format('Y-m-d');
-        
+
         // Jika belum pernah dibersihkan atau terakhir dibersihkan bukan hari ini
         if (!$lastCleared || $lastCleared !== $today) {
             // Bersihkan riwayat panggilan secara otomatis
             $this->clearCallHistory(true);
-            
+
             // Simpan tanggal terakhir dibersihkan
             session(['last_call_history_cleared' => $today]);
         }
@@ -507,49 +507,44 @@ class AntrianManager extends Component
     public function resetAntrian($date = null)
     {
         $date = $date ?? now()->format('Y-m-d');
-        
+
         // Hapus semua antrian pada tanggal yang ditentukan
         $count = Antrian::whereDate('created_at', $date)->delete();
-        
+
         $this->dispatch('notify', [
             'type' => 'success',
             'message' => "Berhasil mereset $count antrian"
         ]);
-        
+
         $this->dispatch('refresh-dashboard');
-        
+
         // Broadcast event untuk reload halaman display
         $this->dispatch('antrian-reset');
     }
-    
+
     /**
      * Membersihkan riwayat panggilan di display
-     * 
+     *
      * @param bool $silent Jika true, tidak akan menampilkan notifikasi (untuk pembersihan otomatis)
      */
-    public function clearCallHistory($silent = false)
-    {
-        if (!$silent) {
-            $this->dispatch('notify', [
-                'type' => 'success',
-                'message' => "Membersihkan riwayat panggilan"
-            ]);
-        }
-        
-        // Broadcast event khusus untuk membersihkan riwayat panggilan
-        // Menggunakan nama event yang sama dengan yang didengarkan di display.blade.php
-        $this->dispatch('clear-call-history-event', [
-            'silent' => $silent
-        ]);
-
-        // Gunakan localStorage untuk memicu refresh pada halaman display dengan delay minimal
-        $this->js("
-            setTimeout(function() {
-                // Set localStorage untuk memicu event storage di halaman display
-                localStorage.setItem('counter_status_changed', Date.now());
-            }, 100);
-        ");
-    }
+     public function clearCallHistory($silent = false)
+     {
+         if (!$silent) {
+             $this->dispatch('notify', [
+                 'type' => 'success',
+                 'message' => "Membersihkan riwayat panggilan"
+             ]);
+         }
+     
+         // Broadcast event Livewire (untuk halaman yang berada di konteks yang sama)
+         $this->dispatch('clear-call-history-event', [
+             'silent' => $silent
+         ]);
+     
+         // Pastikan storage browser benar-benar dibersihkan dari halaman ini (berlaku lintas tab)
+         // Bungkus kode dalam IIFE agar valid sebagai ekspresi Alpine/Livewire ($this->js)
+         $this->js("(() => {\n    try {\n        const localKeys = ['callHistory','lastCalledNumber','lastCalledCounter','tempCallHistory'];\n        const sessionKeys = ['tempCallHistory'];\n\n        // Hapus kunci di localStorage\n        localKeys.forEach(k => {\n            try { localStorage.removeItem(k); } catch (e) { console.warn('removeItem localStorage gagal untuk', k, e); }\n        });\n\n        // Hapus kunci di sessionStorage\n        sessionKeys.forEach(k => {\n            try { sessionStorage.removeItem(k); } catch (e) { console.warn('removeItem sessionStorage gagal untuk', k, e); }\n        });\n\n        // Trigger storage event DISETEL SETELAH pembersihan\n        localStorage.setItem('counter_status_changed', Date.now());\n        console.log('Riwayat panggilan dibersihkan dari storage oleh AntrianManager');\n    } catch (e) {\n        console.error('Gagal membersihkan storage:', e);\n    }\n })();");
+     }
 
     /**
      * Handler untuk event reset-antrian

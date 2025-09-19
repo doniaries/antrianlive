@@ -865,10 +865,10 @@
                             localStorage.setItem('callHistory', tempHistory);
                             renderHistory();
                         } else {
-                            // Jika tidak ada data sementara, gunakan localStorage seperti biasa
-                            const savedHistory = localStorage.getItem('callHistory');
-                            if (savedHistory) {
-                                callHistory = JSON.parse(savedHistory);
+                            // Jika tidak ada data sementara, gunakan localStorage seperti biasa (dibaca dinamis)
+                            const savedHistoryNow = localStorage.getItem('callHistory');
+                            if (savedHistoryNow) {
+                                try { callHistory = JSON.parse(savedHistoryNow); } catch (e) { callHistory = []; }
                                 renderHistory();
                             }
                         }
@@ -1176,13 +1176,22 @@
                         callHistory = [];
 
                         // Kosongkan tampilan riwayat
-                        const historyContainer = document.getElementById('history-container');
-                        if (historyContainer) {
-                            historyContainer.innerHTML = '';
+                        const historyListEl = safeGetElementById('history-list');
+                        if (historyListEl) {
+                            historyListEl.innerHTML = '<div class="history-grid"></div>';
                         }
 
-                        // Reload halaman untuk memastikan semua perubahan diterapkan
-                        window.location.reload();
+                        // Reset calling content animation
+                        if (callingContent) {
+                            callingContent.classList.remove('new-call-main');
+                        }
+                        
+                        // Tambahkan pemanggilan renderHistory untuk memastikan tampilan benar-benar kosong
+                        renderHistory();
+                        
+                        console.log('Riwayat berhasil dibersihkan sepenuhnya!');
+                        // Trigger localStorage event untuk memastikan sinkronisasi
+                        localStorage.setItem('counter_status_changed', Date.now());
                     });
 
                     // Event listener untuk panggilan antrian
@@ -1215,17 +1224,17 @@
                             'tempCallHistory',
                             'counter_status_changed'
                         ];
-                        
+                        // Pastikan kunci dihapus dari kedua storage agar tidak re-populate lagi
                         keysToRemove.forEach(key => {
-                            localStorage.removeItem(key);
-                            sessionStorage.removeItem(key);
+                            try { localStorage.removeItem(key); } catch (e) { /* noop */ }
+                            try { sessionStorage.removeItem(key); } catch (e) { /* noop */ }
                         });
-
+                    
                         // Reset semua variabel state
                         callHistory = [];
                         lastCalledNumber = null;
                         lastEventSignature = null;
-
+                    
                         // Reset tampilan nomor yang sedang dipanggil
                         const currentNumberEl = safeGetElementById('current-number');
                         if (currentNumberEl) {
@@ -1234,39 +1243,42 @@
                             currentNumberEl.style.removeProperty('--glow-color');
                             currentNumberEl.classList.remove('call-highlight');
                         }
-
+                    
                         const currentCounterEl = safeGetElementById('current-counter');
                         if (currentCounterEl) {
                             currentCounterEl.textContent = '-';
                         }
-
+                    
                         // Reset tampilan nomor terakhir dipanggil (jika ada elemen terpisah)
                         const lastCalledEl = safeGetElementById('last-called-number');
                         if (lastCalledEl) {
                             lastCalledEl.textContent = '-';
                         }
-
+                    
                         const lastCalledCounterEl = safeGetElementById('last-called-counter');
                         if (lastCalledCounterEl) {
                             lastCalledCounterEl.textContent = '-';
                         }
-
+                    
                         // Kosongkan tampilan riwayat
                         const historyListEl = safeGetElementById('history-list');
                         if (historyListEl) {
                             historyListEl.innerHTML = '<div class="history-grid"></div>';
                         }
-
+                    
                         // Reset calling content animation
                         const callingContent = safeGetElementById('calling-content');
                         if (callingContent) {
                             callingContent.classList.remove('new-call-main');
                         }
                         
+                        // Tambahkan pemanggilan renderHistory untuk memastikan tampilan benar-benar kosong
+                        renderHistory();
+                        
                         console.log('Riwayat berhasil dibersihkan sepenuhnya!');
                         
                         // Trigger localStorage event untuk memastikan sinkronisasi
-                        localStorage.setItem('counter_status_changed', Date.now());
+                        try { localStorage.setItem('counter_status_changed', Date.now()); } catch (e) { /* noop */ }
                     });
                 });
             });
