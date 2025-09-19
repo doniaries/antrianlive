@@ -1163,9 +1163,9 @@
                 intervals.push(setInterval(loadVideo, 5 * 60 * 1000));
                 intervals.push(setInterval(loadRunningTeks, 5 * 60 * 1000));
 
-                // Setup Livewire event listener untuk reset antrian
-                if (window.Livewire) {
-                    window.Livewire.on('antrian-reset', () => {
+                // Setup Livewire event listeners (v3 compatible)
+                document.addEventListener('livewire:init', () => {
+                    Livewire.on('antrian-reset', () => {
                         console.log('Antrian telah direset, menghapus riwayat panggilan...');
 
                         // Hapus semua data riwayat dari localStorage dan sessionStorage
@@ -1186,7 +1186,7 @@
                     });
 
                     // Event listener untuk panggilan antrian
-                    window.Livewire.on('antrian-called', function(data) {
+                    Livewire.on('antrian-called', function(data) {
                         console.log('Antrian dipanggil:', data);
                         // Refresh data antrian jika diperlukan
                         if (typeof loadAntrian === 'function') {
@@ -1195,7 +1195,7 @@
                     });
 
                     // Event listener untuk panggilan queue
-                    window.Livewire.on('queue-called', function(data) {
+                    Livewire.on('queue-called', function(data) {
                         console.log('Queue dipanggil:', data);
                         // Refresh data antrian jika diperlukan
                         if (typeof loadAntrian === 'function') {
@@ -1203,8 +1203,8 @@
                         }
                     });
 
-                    // Event listener untuk membersihkan riwayat panggilan (Livewire event)
-                    window.Livewire.on('clear-call-history-event', function(data) {
+                    // Event listener untuk membersihkan riwayat panggilan
+                    Livewire.on('clear-call-history-event', (data) => {
                         console.log('Membersihkan riwayat panggilan dengan Livewire event...', data);
 
                         // Hapus SEMUA data dari localStorage dan sessionStorage
@@ -1268,7 +1268,7 @@
                         // Trigger localStorage event untuk memastikan sinkronisasi
                         localStorage.setItem('counter_status_changed', Date.now());
                     });
-                }
+                });
             });
         </script>
     @endsection
