@@ -5,27 +5,27 @@
 @section('title', config('app.name', 'Antrian Live'))
 
 @section('scripts_head')
-<script>
-    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia(
-            '(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.classList.add('dark');
-    } else {
-        document.documentElement.classList.remove('dark');
-    }
-</script>
+    <script>
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia(
+                '(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
 @endsection
 
 @section('favicon_extra')
-@php
-    $profil = \App\Models\Profil::first();
-    $faviconUrl = $profil && $profil->favicon ? asset('storage/' . $profil->favicon) : '/favicon.ico';
-@endphp
-<link rel="apple-touch-icon" href="{{ $faviconUrl }}">
-<link rel="icon" href="{{ $faviconUrl }}" sizes="any">
+    @php
+        $profil = \App\Models\Profil::first();
+        $faviconUrl = $profil && $profil->favicon ? asset('storage/' . $profil->favicon) : '/favicon.ico';
+    @endphp
+    <link rel="apple-touch-icon" href="{{ $faviconUrl }}">
+    <link rel="icon" href="{{ $faviconUrl }}" sizes="any">
 @endsection
 
 @section('fonts')
-<link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 @endsection
 
 @section('styles')
@@ -1840,98 +1840,99 @@
             initial-value: 100%
         }
     </style>
-</head>
+    </head>
 
-<body class="min-h-screen bg-gray-50 text-gray-900">
-    <!-- Navigation -->
-    <nav class="bg-indigo-700 text-white shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <div class="text-xl font-bold text-white">
-                        <span class="text-white">{{ config('app.name') }}</span>
+    <body class="min-h-screen bg-gray-50 text-gray-900">
+        <!-- Navigation -->
+        <nav class="bg-indigo-700 text-white shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex items-center">
+                        <div class="text-xl font-bold text-white">
+                            <span class="text-white">{{ config('app.name') }}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        @if (Route::has('login'))
+                            @auth
+                                <span class="text-sm font-medium text-white">{{ Auth::user()->name }}</span>
+                                <a href="{{ url('/dashboard') }}"
+                                    class="px-4 py-2 text-sm font-medium text-white hover:text-indigo-300">Dashboard</a>
+                            @else
+                                <a href="{{ route('login') }}"
+                                    class="px-4 py-2 text-sm font-medium text-white hover:text-indigo-300">Login</a>
+                                @if (Route::has('register'))
+                                    <a href="{{ route('register') }}"
+                                        class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700">Register</a>
+                                @endif
+                            @endauth
+                        @endif
                     </div>
                 </div>
-                <div class="flex items-center space-x-4">
-                    @if (Route::has('login'))
-                        @auth
-                            <span class="text-sm font-medium text-white">{{ Auth::user()->name }}</span>
-                            <a href="{{ url('/dashboard') }}"
-                                class="px-4 py-2 text-sm font-medium text-white hover:text-indigo-300">Dashboard</a>
-                        @else
-                            <a href="{{ route('login') }}"
-                                class="px-4 py-2 text-sm font-medium text-white hover:text-indigo-300">Login</a>
-                            @if (Route::has('register'))
-                                <a href="{{ route('register') }}"
-                                    class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700">Register</a>
-                            @endif
-                        @endauth
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <div class="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-white">
+            <div class="max-w-3xl text-center">
+
+                @php
+                    use App\Models\Profil;
+
+                    // Check if profil table exists
+                    try {
+                        $profil = Profil::first();
+                    } catch (\Exception $e) {
+                        $profil = null;
+                    }
+                @endphp
+
+                <div class="flex items-center justify-center mb-8">
+                    @if ($profil && $profil->logo)
+                        <img src="{{ asset('storage/' . $profil->logo) }}" alt="Logo Instansi" class="h-24 w-auto">
                     @endif
                 </div>
-            </div>
-        </div>
-    </nav>
 
-    <!-- Hero Section -->
-    <div class="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-white">
-        <div class="max-w-3xl text-center">
+                <div class="text-center mb-4">
+                    @if ($profil && $profil->nama_instansi)
+                        <h2 class="text-2xl font-bold text-gray-900">{{ $profil->nama_instansi }}</h2>
+                    @endif
+                </div>
+                <h1 class="text-4xl font-extrabold sm:text-5xl md:text-6xl">
+                    <span class="block text-gray-900 dark:text-white">Sistem Antrian Digital</span>
+                    <span class="block text-indigo-700 dark:text-indigo-400">{{ config('app.name') }}</span>
+                </h1>
+                <p class="mt-3 max-w-md mx-auto text-base text-gray-600 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
+                    Kelola antrian dengan mudah dan efisien. Dapatkan nomor antrian secara online dan pantau pergerakannya
+                    secara real-time.
+                </p>
+                <div class="mt-8 flex flex-wrap justify-center gap-4">
+                    <a href="{{ route('display') }}" target="_blank"
+                        class="inline-flex items-center px-6 py-3 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542 7z" />
+                        </svg>
+                        Lihat Display Antrian
+                    </a>
+                    <a href="{{ route('tiket.front') }}"
+                        class="inline-flex items-center px-6 py-3 text-base font-medium text-white bg-emerald-600 border border-transparent rounded-md shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                        </svg>
+                        Ambil Tiket
+                    </a>
+                </div>
+            @endsection
 
-            @php
-                use App\Models\Profil;
-
-                // Check if profil table exists
-                try {
-                    $profil = Profil::first();
-                } catch (\Exception $e) {
-                    $profil = null;
-                }
-            @endphp
-
-            <div class="flex items-center justify-center mb-8">
-                @if ($profil && $profil->logo)
-                    <img src="{{ asset('storage/' . $profil->logo) }}" alt="Logo Instansi" class="h-24 w-auto">
-                @endif
-            </div>
-
-            <div class="text-center mb-4">
-                @if ($profil && $profil->nama_instansi)
-                    <h2 class="text-2xl font-bold text-gray-900">{{ $profil->nama_instansi }}</h2>
-                @endif
-            </div>
-            <h1 class="text-4xl font-extrabold sm:text-5xl md:text-6xl">
-                <span class="block text-gray-900">Sistem Antrian Digital</span>
-                <span class="block text-indigo-700">{{ config('app.name') }}</span>
-            </h1>
-            <p class="mt-3 max-w-md mx-auto text-base text-gray-600 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
-                Kelola antrian dengan mudah dan efisien. Dapatkan nomor antrian secara online dan pantau pergerakannya
-                secara real-time.
-            </p>
-            <div class="mt-8 flex flex-wrap justify-center gap-4">
-                <a href="{{ route('display') }}" target="_blank"
-                    class="inline-flex items-center px-6 py-3 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542 7z" />
-                    </svg>
-                    Lihat Display Antrian
-                </a>
-                <a href="{{ route('tiket.front') }}"
-                    class="inline-flex items-center px-6 py-3 text-base font-medium text-white bg-emerald-600 border border-transparent rounded-md shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors duration-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                    </svg>
-                    Ambil Tiket
-                </a>
-            </div>
-@endsection
-
-@section('body_class', 'font-sans antialiased')
-@section('container_class', 'min-h-screen bg-gray-100 dark:bg-gray-900')
+            @section('body_class', 'font-sans antialiased')
+            @section('container_class', 'min-h-screen bg-gray-100 dark:bg-gray-900')
 
 </body>
+
 </html>

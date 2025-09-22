@@ -223,7 +223,7 @@
         }
 
         #current-number {
-            font-size: clamp(6rem, 18vh, 12rem);
+            font-size: clamp(3.5rem, 8vh, 6rem); /* Ukuran font dikurangi agar lebih proporsional */
             font-weight: 800;
             line-height: 1;
             margin: 0.75rem 0;
@@ -233,7 +233,7 @@
         }
 
         #current-counter {
-            font-size: 5.5rem;
+            font-size: 2.5rem; /* Ukuran font dikurangi agar lebih proporsional */
             font-weight: 700;
             color: var(--text-light);
         }
