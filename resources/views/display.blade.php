@@ -247,6 +247,10 @@
         .history-panel {
             grid-area: history;
             font-size: 1.2rem;
+            height: 70vh;
+            /* Tinggi 40% dari viewport height */
+            min-height: 300px;
+            /* Tinggi minimum untuk layar kecil */
         }
 
         .history-panel .panel-body {
@@ -260,6 +264,8 @@
             flex-grow: 1;
             overflow-y: auto;
             max-height: 100%;
+            height: calc(100% - 3rem);
+            /* Menyesuaikan tinggi dengan padding */
         }
 
         .history-grid {
