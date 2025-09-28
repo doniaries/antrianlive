@@ -215,8 +215,46 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 1rem;
-            /* slightly tighter to fit content */
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            min-height: 300px;
+        }
+        
+        #calling-content {
+            width: 100%;
+        }
+        
+        #calling-content .label {
+            font-size: 2.5rem;  /* Diperbesar dari 1.8rem */
+            font-weight: 700;   /* Lebih tebal */
+            margin-bottom: 1rem; /* Spasi lebih lebar */
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+            display: block;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        #current-number {
+            font-size: clamp(6rem, 18vh, 11rem);  /* Diperbesar dari sebelumnya */
+            font-weight: 900;
+            color: #ffffff;
+            margin: 1.5rem 0;  /* Spasi lebih lebar */
+            line-height: 1;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+            letter-spacing: -3px;  /* Lebih rapat */
+        }
+        
+        #current-counter {
+            font-size: 3.5rem;  /* Diperbesar dari 2.5rem */
+            font-weight: 800;   /* Lebih tebal */
+            color: #fbbf24;     /* Warna lebih terang */
+            margin: 1rem 0;     /* Spasi lebih lebar */
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+            padding: 0.5rem 2rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 50px;
+            display: inline-block;
         }
 
         .label {
@@ -225,16 +263,6 @@
             color: var(--text-muted);
         }
 
-        #current-number {
-            font-size: clamp(3.5rem, 8vh, 6rem);
-            /* Ukuran font dikurangi agar lebih proporsional */
-            font-weight: 800;
-            line-height: 1;
-            margin: 0.75rem 0;
-            color: var(--secondary-accent);
-            /* Glow mengikuti warna layanan via CSS variable */
-            text-shadow: 0 0 30px var(--glow-color, rgba(245, 158, 11, 0.8));
-        }
 
         #current-counter {
             font-size: 2.5rem;
@@ -567,7 +595,19 @@
             }
 
             .calling-panel {
-                min-height: 350px;
+                min-height: 400px;
+            }
+            
+            #calling-content .label {
+                font-size: 1.5rem;
+            }
+            
+            #current-number {
+                font-size: clamp(4rem, 12vh, 7rem);
+            }
+            
+            #current-counter {
+                font-size: 2rem;
             }
 
             .history-panel {
