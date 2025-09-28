@@ -365,25 +365,37 @@
         </footer>
     </div>
 
-    <!-- Notification Container -->
-    <div id="notification" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 hidden">
-        <div
-            class="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full mx-4 transform transition-all duration-300 scale-95 opacity-0">
-            <div class="text-center">
-                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-check-circle text-3xl text-green-500"></i>
+    <!-- Modern Notification Container -->
+    <div id="notification" class="fixed inset-0 hidden" style="z-index: 9999;">
+        <!-- Backdrop with blur effect -->
+        <div class="absolute inset-0 bg-black/20 backdrop-blur-md transition-opacity duration-300" style="backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);"></div>
+        
+        <!-- Notification Card -->
+        <div class="fixed inset-0 flex items-center justify-center z-[9999] p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden w-full max-w-md transform transition-all duration-300 ease-out" 
+                 id="notificationContent"
+                 style="opacity: 0; transform: translateY(20px) scale(0.95);">
+                
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-5 text-center">
+                    <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-ticket-alt text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white">Tiket Berhasil Diambil</h3>
                 </div>
-                <h3 class="text-xl font-bold text-gray-800 mb-2">Tiket Berhasil Diambil!</h3>
-                <p class="text-gray-600 mb-4">Nomor antrian Anda:</p>
-                <div class="text-5xl font-bold text-indigo-600 mb-4 font-mono" id="ticketNumber">-</div>
-                <div class="mt-4 p-3 bg-blue-50 rounded-lg mb-4">
-                    <p class="text-sm text-blue-700" id="notificationServiceInfo"></p>
+                
+                <!-- Content -->
+                <div class="p-6 text-center">
+                    <div class="text-6xl md:text-7xl font-bold text-indigo-600 dark:text-indigo-400 font-mono tracking-tighter mb-2" id="ticketNumber">-</div>
+                    <p class="text-gray-600 dark:text-gray-300 text-lg mb-6" id="notificationServiceInfo"></p>
+                    
+                    <!-- Progress Bar -->
+                    <div class="h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-6">
+                        <div id="progressBar" class="h-full bg-gradient-to-r from-green-400 to-blue-500 transition-all duration-100 ease-linear"></div>
+                    </div>
+                    
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Tutup otomatis dalam <span id="countdown">5</span> detik</p>
                 </div>
-                <p class="text-sm text-gray-500 mb-4">Silakan menunggu panggilan di loket yang tertera</p>
-                <button onclick="closeNotification()"
-                    class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors">
-                    Tutup
-                </button>
             </div>
         </div>
     </div>
@@ -394,47 +406,73 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <script src="{{ asset('js/app.js') }}"></script>
     <script>
-        // Show notification
+        // Show notification with modern animation
         function showNotification() {
             const notification = document.getElementById('notification');
-            if (!notification) return;
+            const notificationContent = document.getElementById('notificationContent');
+            const progressBar = document.getElementById('progressBar');
+            const countdownElement = document.getElementById('countdown');
+            
+            if (!notification || !notificationContent) return;
 
+            // Reset states
             notification.classList.remove('hidden');
-            notification.classList.add('flex');
-
-            // Trigger animation
+            progressBar.style.width = '100%';
+            
+            // Animate in
             setTimeout(() => {
-                const content = notification.querySelector('div');
-                if (content) {
-                    content.style.transform = 'scale(1)';
-                    content.style.opacity = '1';
-                }
+                notificationContent.style.opacity = '1';
+                notificationContent.style.transform = 'translateY(0) scale(1)';
             }, 10);
 
+            // Countdown timer
+            let seconds = 5;
+            countdownElement.textContent = seconds;
+            
+            const countdownInterval = setInterval(() => {
+                seconds--;
+                countdownElement.textContent = seconds;
+                
+                // Update progress bar
+                const progress = (seconds / 5) * 100;
+                progressBar.style.width = `${progress}%`;
+                
+                if (seconds <= 0) {
+                    clearInterval(countdownInterval);
+                    closeNotification();
+                }
+            }, 1000);
+            
+            // Store interval ID for cleanup
+            notification.dataset.countdownInterval = countdownInterval;
+            
             // Play success sound
             playSuccessSound();
         }
 
-        // Close notification
+        // Close notification with animation
         function closeNotification() {
             const notification = document.getElementById('notification');
-            if (!notification) return;
-
-            const content = notification.querySelector('div');
-            if (content) {
-                content.style.transform = 'scale(0.95)';
-                content.style.opacity = '0';
+            const notificationContent = document.getElementById('notificationContent');
+            
+            if (!notification || !notificationContent) return;
+            
+            // Clear any existing countdown
+            if (notification.dataset.countdownInterval) {
+                clearInterval(parseInt(notification.dataset.countdownInterval));
+                delete notification.dataset.countdownInterval;
             }
+
+            // Animate out
+            notificationContent.style.opacity = '0';
+            notificationContent.style.transform = 'translateY(20px) scale(0.95)';
 
             setTimeout(() => {
                 notification.classList.add('hidden');
-                notification.classList.remove('flex');
-
-                // Reset animation
-                if (content) {
-                    content.style.transform = 'scale(0.95)';
-                    content.style.opacity = '0';
-                }
+                // Reset for next time
+                notificationContent.style.opacity = '1';
+                notificationContent.style.transform = 'translateY(0) scale(1)';
+                document.getElementById('progressBar').style.width = '100%';
             }, 300);
         }
 
