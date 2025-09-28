@@ -1,4 +1,35 @@
 <div wire:poll.3s="refreshDashboard">
+    <!-- Greeting Card -->
+    <div class="bg-gradient-to-r from-blue-600 to-blue-800 dark:from-blue-900 dark:to-blue-700 rounded-xl shadow-lg mb-8 p-6 text-white">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+                @php
+                    $hour = now()->hour;
+                    $greeting = 'Selamat ';
+                    
+                    if ($hour < 10) {
+                        $greeting .= 'Pagi';
+                    } elseif ($hour < 15) {
+                        $greeting .= 'Siang';
+                    } elseif ($hour < 19) {
+                        $greeting .= 'Sore';
+                    } else {
+                        $greeting .= 'Malam';
+                    }
+                    
+                    $greeting .= ', ' . (auth()->user() ? auth()->user()->name : 'Admin');
+                @endphp
+                <h2 class="text-2xl md:text-3xl font-bold mb-2">{{ $greeting }}! 👋</h2>
+                <p class="text-blue-100">Semoga harimu menyenangkan!</p>
+            </div>
+            <div class="mt-4 md:mt-0 text-right">
+                <div class="text-2xl font-semibold" id="current-time">{{ now()->format('H:i:s') }}</div>
+                <div class="text-blue-100">{{ now()->translatedFormat('l, d F Y') }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <!-- Total Antrian Hari Ini -->
         <div
