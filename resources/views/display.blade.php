@@ -979,26 +979,38 @@
                         color
                     } = getServiceColor(code);
                     const badgeStyle = `color:${color}`;
-                    // Count all recalled items using the same recall check logic
-                    const recallCount = group.items.filter(it => {
-                        return it.recall || it.is_recall || it.recalled || 
-                               (it.recall_count && it.recall_count > 0) ||
-                               (it.recalled_at && it.recalled_at !== it.called_at);
-                    }).length;
-                    console.log('Group:', group.name, 'Items:', group.items); // Debug log
-                    const itemsHtml = group.items.slice(0, 4).map((call, idx) => {
-                        const itemColor = (call.color) ? call.color : getServiceColor(code).color;
-                        // Ensure recall status is properly checked from all possible properties
-                        const isRecalled = call.recall || call.is_recall || call.recalled || 
-                                        (call.recall_count && call.recall_count > 0) ||
-                                        (call.recalled_at && call.recalled_at !== call.called_at);
-                        console.log('Item:', call.number, 'Recall Status:', isRecalled, 'Raw:', call); // Debug log
+                    
+                    // Process items first to ensure all have proper recall status
+                    const processedItems = group.items.map(item => {
+                        // Ensure consistent recall status check
+                        const isRecalled = item.recall || item.is_recall || item.recalled || 
+                                        (item.recall_count && item.recall_count > 0) ||
+                                        (item.recalled_at && item.called_at && item.recalled_at > item.called_at);
+                        
+                        // Return a new object with the recall status explicitly set
+                        return {
+                            ...item,
+                            recall: isRecalled,
+                            is_recall: isRecalled,
+                            recalled: isRecalled
+                        };
+                    });
+                    
+                    // Count recalled items after processing
+                    const recallCount = processedItems.filter(item => item.recall).length;
+                    
+                    console.log('Group:', group.name, 'Processed Items:', processedItems); // Debug log
+                    
+                    // Generate HTML for items
+                    const itemsHtml = processedItems.slice(0, 4).map((call, idx) => {
+                        const itemColor = call.color || getServiceColor(code).color;
+                        console.log('Rendering item:', call.number, 'Recall:', call.recall, 'Counter:', call.counter); // Debug log
                         return `
                         <div class="history-item ${idx === 0 ? 'new-call-item' : ''}">
                             <span class="history-number" style="color:${itemColor}">${call.number}</span>
                             <span class="history-counter">
                                 ${call.counter}
-                                ${isRecalled ? ' • <span style="color:#f59e0b;font-weight:600;">Panggilan Ulang</span>' : ''}
+                                ${call.recall ? ' • <span style="color:#f59e0b;font-weight:600;">Panggilan Ulang</span>' : ''}
                             </span>
                             <span class="history-service-visible" style="display:none;">${code}</span>
                         </div>`;
@@ -1245,7 +1257,40 @@
                     // Event listener untuk panggilan queue
                     Livewire.on('queue-called', function(data) {
                         console.log('Queue dipanggil:', data);
-                        // Refresh data antrian jika diperlukan
+                        
+                        // Update the current call with recall status
+                        if (data.is_recall || data.recall || data.recalled) {
+                            console.log('Panggilan ulang terdeteksi, memperbarui tampilan...');
+                            
+                            // Add to call history with recall flag
+                            callHistory.unshift({
+                                number: data.number,
+                                counter: data.counter || 'Loket',
+                                service: data.service || 'Layanan',
+                                color: getServiceColor(data.service_code || '').color,
+                                recall: true,
+                                is_recall: true,
+                                recalled: true,
+                                recall_count: data.recall_count || 1
+                            });
+                            
+                            // Limit history size
+                            if (callHistory.length > MAX_HISTORY) {
+                                callHistory.pop();
+                            }
+                            
+                            // Save to localStorage
+                            try {
+                                localStorage.setItem('callHistory', JSON.stringify(callHistory));
+                            } catch (e) {
+                                console.error('Error saving call history:', e);
+                            }
+                            
+                            // Update the display
+                            updateHistoryDisplay(callHistory);
+                        }
+                        
+                        // Refresh data if needed
                         if (typeof loadAntrian === 'function') {
                             loadAntrian();
                         }

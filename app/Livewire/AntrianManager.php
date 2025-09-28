@@ -311,7 +311,17 @@ class AntrianManager extends Component
             'number' => $antrian->formatted_number,
             'service' => $service->name,
             'counter' => $counter?->name ?? 'Loket',
-            'id' => $antrian->id
+            'id' => $antrian->id,
+            'is_recall' => true,  // Menandai ini sebagai panggilan ulang
+            'recall' => true,     // Kompatibilitas dengan kode yang ada
+            'recalled' => true,   // Kompatibilitas dengan kode yang ada
+            'recall_count' => ($antrian->recall_count ?? 0) + 1  // Tingkatkan hitungan recall
+        ]);
+
+        // Update recall count di database
+        $antrian->update([
+            'recall_count' => ($antrian->recall_count ?? 0) + 1,
+            'recalled_at' => now()
         ]);
 
         // Kirim event khusus untuk panggilan ulang
