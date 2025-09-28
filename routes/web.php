@@ -11,13 +11,9 @@ Route::get('/', function () {
 })->name('welcome');
 
 // Route untuk ambil tiket (public access)
-Route::get('/ambil-tiket', \App\Livewire\AmbilTiket::class)->name('ambil.tiket');
+Route::get('/ambil-tiket', \App\Livewire\AmbilTiket::class)->name('ambil-tiket');
 
 Route::impersonate();
-
-
-// Route untuk ambil tiket (public access)
-Route::get('/ambil-tiket', \App\Livewire\AmbilTiket::class)->name('ambil.tiket');
 
 // Route untuk mengambil tiket antrian (POST)
 Route::post('/queue/ticket/take', function () {

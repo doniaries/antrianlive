@@ -5,47 +5,242 @@
     $services = Service::with('counters')->where('is_active', true)->get();
     $profil = Profil::first();
 @endphp
-<!DOCTYPE html>
-<html lang="id" class="h-full">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $profil->nama_instansi ?? 'Sistem Antrian' }} - Ambil Tiket</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @php
-        $faviconUrl = $profil && $profil->favicon ? asset('storage/' . $profil->favicon) : '/favicon.ico';
-    @endphp
-    <link rel="icon" href="{{ $faviconUrl }}" type="image/x-icon">
-    <link rel="shortcut icon" href="{{ $faviconUrl }}" type="image/x-icon">
+@section('html_attributes', 'class="h-full"')
+
+@section('title', ($profil->nama_aplikasi ?? 'Ambil Tiket Antrian') . ' - ' . ($profil->nama_instansi ?? 'Sistem
+    Antrian'))
+
+@section('scripts_head')
+    <script>
+        // Auto-refresh halaman saat menerima event dari counter-manager
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'counter_status_changed') {
+                console.log('Counter status changed, reloading page...');
+                location.reload(true);
+            }
+        });
+    </script>
+@endsection
+
+@section('fonts')
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>
-        // Dark mode detection and toggle
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia(
-                '(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
+@endsection
+
+@section('styles')
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #7c3aed;
+            --accent: #8b5cf6;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --bg: #f9fafb;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 
-        function toggleDarkMode() {
-            if (document.documentElement.classList.contains('dark')) {
-                document.documentElement.classList.remove('dark');
-                localStorage.theme = 'light';
-            } else {
-                document.documentElement.classList.add('dark');
-                localStorage.theme = 'dark';
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 2rem 1rem;
+            color: var(--text);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1rem;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0 0 0.1rem;
+            text-align: center;
+        }
+
+        /* App name styles moved to inline Tailwind classes */
+
+        /* Guide card styles removed - using Tailwind classes instead */
+
+        .subtitle {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .service-card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            border: 1px solid #e5e7eb;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .service-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .service-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+            text-align: center;
+            width: 100%;
+        }
+
+        .counters-list {
+            padding: 1.25rem;
+        }
+
+        .counter-item {
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease-in-out;
+        }
+
+        .counter-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .counter-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .ticket-form {
+            display: block;
+            width: 100%;
+        }
+
+        .ticket-form button:disabled {
+            background: #e5e7eb !important;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .counter-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .counter-name {
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-ticket {
+            display: block;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .btn-ticket:hover {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--accent) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-ticket:active {
+            transform: translateY(0);
+        }
+
+        .btn-ticket i {
+            margin-right: 0.5rem;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 4rem;
+            color: var(--text-light);
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .title {
+                font-size: 1.75rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
             }
         }
-    </script>
-</head>
 
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-300">
-    <div class="min-h-screen p-4 md:p-8">
+        /* Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+    </style>
+    </head>
+
+    <body>
         <div class="container">
             <header class="header">
                 <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
@@ -77,8 +272,7 @@
 
                 <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 mb-8">
                     <div class="text-center">
-                        <div class="text-4xl md:text-5xl font-bold text-indigo-600 mb-3" id="displayTicketNumber">-
-                        </div>
+                        <div class="text-4xl md:text-5xl font-bold text-indigo-600 mb-3" id="displayTicketNumber">-</div>
                         <div class="mt-3 p-3 bg-blue-50 rounded-lg">
                             <p class="text-sm text-blue-700" id="displayServiceInfo"></p>
                         </div>
@@ -87,79 +281,80 @@
             </header>
 
             <main>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="services-grid">
                     @forelse($services as $index => $service)
-                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 fade-in transition-all duration-300 hover:shadow-xl"
-                            style="animation-delay: {{ $index * 0.1 }}s">
-                            <div class="mb-4">
-                                <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">{{ $service->name }}</h2>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Pilih loket untuk layanan ini</p>
+                        <div class="service-card fade-in" style="animation-delay: {{ $index * 0.1 }}s">
+                            <div class="service-header">
+                                <h2 class="service-title">{{ $service->name }}</h2>
                             </div>
-                            
-                            <div class="space-y-3">
+                            <div class="counters-list space-y-4">
                                 @forelse($service->counters as $counter)
-                                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-600" 
-                                         data-counter-id="{{ $counter->id }}">
-                                        <div class="flex items-center justify-between mb-3">
-                                            <div class="flex items-center space-x-3">
-                                                <div class="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg">
-                                                    <i class="fas fa-desktop text-indigo-600 dark:text-indigo-400"></i>
-                                                </div>
-                                                <div class="flex-1">
-                                                    <div class="flex items-center justify-between">
-                                                        <h3 class="font-semibold text-gray-900 dark:text-white">{{ $counter->name }}</h3>
-                                                        @php
-                                                            $statusColors = [
-                                                                'buka' => 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-                                                                'tutup' => 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-                                                                'istirahat' => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                                                            ];
-                                                            $statusLabels = [
-                                                                'buka' => 'Buka',
-                                                                'tutup' => 'Tutup',
-                                                                'istirahat' => 'Istirahat'
-                                                            ];
-                                                            $statusClass = $statusColors[$counter->status] ?? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
-                                                            $statusLabel = $statusLabels[$counter->status] ?? 'Tidak Diketahui';
-                                                        @endphp
-                                                        <span class="px-2 py-1 text-xs font-medium rounded-full counter-status {{ $statusClass }}">
-                                                            {{ $statusLabel }}
-                                                        </span>
-                                                    </div>
-                                                    <p class="text-xs text-gray-500 dark:text-gray-400">Loket {{ $counter->name }}</p>
-                                                </div>
+                                    @php
+                                        $statusClass = [
+                                            'buka' => [
+                                                'icon' => 'fa-check-circle',
+                                                'color' => 'text-green-500',
+                                                'bg' => 'bg-green-100',
+                                                'text' => 'Buka',
+                                            ],
+                                            'tutup' => [
+                                                'icon' => 'fa-times-circle',
+                                                'color' => 'text-red-500',
+                                                'bg' => 'bg-red-100',
+                                                'text' => 'Tutup',
+                                            ],
+                                            'istirahat' => [
+                                                'icon' => 'fa-coffee',
+                                                'color' => 'text-yellow-500',
+                                                'bg' => 'bg-yellow-100',
+                                                'text' => 'Istirahat',
+                                            ],
+                                        ][$counter->status] ?? [
+                                            'icon' => 'fa-question-circle',
+                                            'color' => 'text-gray-500',
+                                            'bg' => 'bg-gray-100',
+                                            'text' => 'Tidak Diketahui',
+                                        ];
+                                        $isOpen = $counter->status === 'buka';
+                                    @endphp
+                                    <div
+                                        class="counter-item bg-white rounded-xl p-5 shadow-lg hover:shadow-xl transition-all duration-300 border-l-4 border-{{ $isOpen ? 'green-500' : 'gray-200' }} transform hover:-translate-y-1">
+                                        <div class="flex flex-col">
+                                            <div class="flex justify-between items-center mb-4">
+                                                <span class="text-xl font-bold text-gray-800">
+                                                    Loket {{ $counter->name }}
+                                                </span>
+                                                <span
+                                                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $statusClass['bg'] }} {{ $statusClass['color'] }} shadow">
+                                                    <i class="fas {{ $statusClass['icon'] }} mr-1"></i>
+                                                    {{ $statusClass['text'] }}
+                                                </span>
                                             </div>
+                                            <form id="ticketForm-{{ $service->id }}-{{ $counter->id }}" method="POST"
+                                                action="{{ route('queue.ticket.take') }}" class="ticket-form w-full">
+                                                @csrf
+                                                <input type="hidden" name="service_id" value="{{ $service->id }}">
+                                                <input type="hidden" name="counter_id" value="{{ $counter->id }}">
+                                                <button type="submit"
+                                                    class="w-full py-5 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl text-lg font-bold transition-all duration-300 transform hover:scale-[1.03] flex items-center justify-center space-x-3 shadow-lg {{ !$isOpen ? 'opacity-70 cursor-not-allowed' : '' }}"
+                                                    {{ !$isOpen ? 'disabled' : '' }}>
+                                                    <i class="fas fa-ticket-alt text-xl"></i>
+                                                    <span>AMBIL TIKET</span>
+                                                </button>
+                                            </form>
                                         </div>
-                                        
-                                        <form id="ticketForm-{{ $service->id }}-{{ $counter->id }}" method="POST"
-                                            action="{{ route('queue.ticket.take') }}" class="ticket-form">
-                                            @csrf
-                                            <input type="hidden" name="service_id" value="{{ $service->id }}">
-                                            <input type="hidden" name="counter_id" value="{{ $counter->id }}">
-                                            <button type="submit" 
-                                                class="w-full bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2">
-                                                <i class="fas fa-ticket-alt"></i>
-                                                <span>Ambil Tiket {{ $service->name }} - {{ $counter->name }}</span>
-                                            </button>
-                                        </form>
                                     </div>
                                 @empty
-                                    <div class="text-center py-6">
-                                        <div class="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3">
-                                            <i class="fas fa-info-circle text-gray-400 dark:text-gray-500"></i>
-                                        </div>
-                                        <p class="text-gray-500 dark:text-gray-400 text-sm">Tidak ada loket tersedia untuk layanan ini</p>
+                                    <div class="text-center py-4 text-gray-500">
+                                        <i class="fas fa-info-circle"></i> Tidak ada loket tersedia
                                     </div>
                                 @endforelse
                             </div>
                         </div>
                     @empty
-                        <div class="col-span-full text-center py-12">
-                            <div class="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <i class="fas fa-inbox text-2xl text-gray-400 dark:text-gray-500"></i>
-                            </div>
-                            <p class="text-gray-600 dark:text-gray-400 mb-2">Tidak ada layanan tersedia saat ini</p>
-                            <p class="text-sm text-gray-500 dark:text-gray-500">Silakan hubungi admin untuk mengaktifkan layanan</p>
+                        <div class="col-span-full text-center py-10">
+                            <i class="fas fa-inbox text-4xl text-gray-400 mb-3"></i>
+                            <p class="text-gray-600">Tidak ada layanan tersedia saat ini</p>
                         </div>
                     @endforelse
                 </div>
@@ -174,14 +369,14 @@
         <!-- Modern Notification Container -->
         <div id="notification" class="fixed inset-0 hidden" style="z-index: 9999;">
             <!-- Backdrop with blur effect -->
-            <div class="absolute inset-0 bg-black/20 backdrop-blur-md transition-opacity duration-300" style="backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);"></div>
-            
+            <div class="absolute inset-0 bg-black/20 backdrop-blur-md transition-opacity duration-300"
+                style="backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);"></div>
+
             <!-- Notification Card -->
             <div class="fixed inset-0 flex items-center justify-center z-[9999] p-4">
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden w-full max-w-md transform transition-all duration-300 ease-out" 
-                     id="notificationContent"
-                     style="opacity: 0; transform: translateY(20px) scale(0.95);">
-                    
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden w-full max-w-md transform transition-all duration-300 ease-out"
+                    id="notificationContent" style="opacity: 0; transform: translateY(20px) scale(0.95);">
+
                     <!-- Header -->
                     <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-5 text-center">
                         <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -189,18 +384,22 @@
                         </div>
                         <h3 class="text-xl font-bold text-white">Tiket Berhasil Diambil</h3>
                     </div>
-                    
+
                     <!-- Content -->
                     <div class="p-6 text-center">
-                        <div class="text-6xl md:text-7xl font-bold text-indigo-600 dark:text-indigo-400 font-mono tracking-tighter mb-2" id="ticketNumber">-</div>
+                        <div class="text-6xl md:text-7xl font-bold text-indigo-600 dark:text-indigo-400 font-mono tracking-tighter mb-2"
+                            id="ticketNumber">-</div>
                         <p class="text-gray-600 dark:text-gray-300 text-lg mb-6" id="notificationServiceInfo"></p>
-                        
+
                         <!-- Progress Bar -->
                         <div class="h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-6">
-                            <div id="progressBar" class="h-full bg-gradient-to-r from-green-400 to-blue-500 transition-all duration-100 ease-linear"></div>
+                            <div id="progressBar"
+                                class="h-full bg-gradient-to-r from-green-400 to-blue-500 transition-all duration-100 ease-linear">
+                            </div>
                         </div>
-                        
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Tutup otomatis dalam <span id="countdown">5</span> detik</p>
+
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Tutup otomatis dalam <span
+                                id="countdown">5</span> detik</p>
                     </div>
                 </div>
             </div>
@@ -210,7 +409,7 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
-        {{-- Hapus app.js jika sudah dimuat di layout utama --}}
+        <script src="{{ asset('js/app.js') }}"></script>
         <script>
             // Show notification with modern animation
             function showNotification() {
@@ -218,13 +417,13 @@
                 const notificationContent = document.getElementById('notificationContent');
                 const progressBar = document.getElementById('progressBar');
                 const countdownElement = document.getElementById('countdown');
-                
+
                 if (!notification || !notificationContent) return;
 
                 // Reset states
                 notification.classList.remove('hidden');
                 progressBar.style.width = '100%';
-                
+
                 // Animate in
                 setTimeout(() => {
                     notificationContent.style.opacity = '1';
@@ -234,32 +433,35 @@
                 // Countdown timer
                 let seconds = 5;
                 countdownElement.textContent = seconds;
-                
+
                 const countdownInterval = setInterval(() => {
                     seconds--;
                     countdownElement.textContent = seconds;
-                    
+
                     // Update progress bar
                     const progress = (seconds / 5) * 100;
                     progressBar.style.width = `${progress}%`;
-                    
+
                     if (seconds <= 0) {
                         clearInterval(countdownInterval);
                         closeNotification();
                     }
                 }, 1000);
-                
+
                 // Store interval ID for cleanup
                 notification.dataset.countdownInterval = countdownInterval;
+
+                // Play success sound
+                playSuccessSound();
             }
 
             // Close notification with animation
             function closeNotification() {
                 const notification = document.getElementById('notification');
                 const notificationContent = document.getElementById('notificationContent');
-                
+
                 if (!notification || !notificationContent) return;
-                
+
                 // Clear any existing countdown
                 if (notification.dataset.countdownInterval) {
                     clearInterval(parseInt(notification.dataset.countdownInterval));
@@ -278,6 +480,30 @@
                     document.getElementById('progressBar').style.width = '100%';
                 }, 300);
             }
+
+
+            // Play success sound (dinonaktifkan)
+            function playSuccessSound() {
+                // Suara bell telah dihilangkan
+                console.log('Sound disabled');
+                return Promise.resolve();
+            }
+
+            // Global audio functions for consistency with antrian manager
+            window.playCallSound = function() {
+                return playSuccessSound();
+            };
+
+            window.speakNumber = function(number) {
+                // Text-to-speech for consistency
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(number);
+                    utterance.lang = 'id-ID';
+                    utterance.rate = 0.8;
+                    utterance.pitch = 1;
+                    speechSynthesis.speak(utterance);
+                }
+            };
 
             // Confetti effect
             function triggerConfetti() {
@@ -322,27 +548,26 @@
             }
 
             // Handle form submission with AJAX
-            // Listen for counter status updates
-            window.addEventListener('counter-status-updated', function(event) {
-                const { counterId, status } = event.detail;
-                // Update the counter status in the UI
-                const counterElements = document.querySelectorAll(`[data-counter-id="${counterId}"]`);
-                counterElements.forEach(element => {
-                    const statusElement = element.querySelector('.counter-status');
-                    if (statusElement) {
-                        // Update status text and styling
-                        const statusText = status === 'buka' ? 'Buka' : 'Tutup';
-                        const statusClass = status === 'buka' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-                        
-                        statusElement.textContent = statusText;
-                        statusElement.className = `px-2 py-1 text-xs font-medium rounded-full counter-status ${statusClass}`;
-                    }
-                });
-            });
-
             document.addEventListener('DOMContentLoaded', function() {
                 // Initialize clock
                 initializeClock();
+
+                // Load last ticket number from localStorage if exists
+                const lastTicketNumber = localStorage.getItem('lastTicketNumber');
+                const lastServiceInfo = localStorage.getItem('lastServiceInfo');
+
+                if (lastTicketNumber) {
+                    const displayTicketNumber = document.getElementById('displayTicketNumber');
+                    const displayServiceInfo = document.getElementById('displayServiceInfo');
+
+                    if (displayTicketNumber) {
+                        displayTicketNumber.textContent = lastTicketNumber;
+                    }
+
+                    if (displayServiceInfo && lastServiceInfo) {
+                        displayServiceInfo.textContent = lastServiceInfo;
+                    }
+                }
 
                 const forms = document.querySelectorAll('.ticket-form');
 
@@ -374,12 +599,11 @@
 
                             if (data.success && data.ticket_number) {
                                 console.log('Ticket response:', data);
-
-                                // Use ticket_number from response
-                                const ticketNum = data.ticket_number;
-
-                                // Show success message with confetti (no sound)
-                                await triggerConfetti();
+                                // Play sound and show success message
+                                await Promise.all([
+                                    playSuccessSound(),
+                                    triggerConfetti()
+                                ]);
 
                                 // Show notification with ticket number and service info
                                 const displayTicketNumber = document.getElementById(
@@ -392,8 +616,8 @@
                                     'notificationServiceInfo');
 
                                 if (displayTicketNumber && ticketNumber) {
-                                    displayTicketNumber.textContent = ticketNum;
-                                    ticketNumber.textContent = ticketNum;
+                                    displayTicketNumber.textContent = data.ticket_number;
+                                    ticketNumber.textContent = data.ticket_number;
                                 } else {
                                     console.error('Ticket number elements not found');
                                 }
@@ -406,64 +630,27 @@
                                     notificationServiceInfo.textContent = serviceInfo;
                                 }
 
+                                // Store ticket info in localStorage
+                                localStorage.setItem('lastTicketNumber', data.ticket_number);
+                                localStorage.setItem('lastServiceInfo',
+                                    `${data.service_name} - ${data.counter_name}`);
+
                                 showNotification();
 
-                                // Trigger display update using localStorage event
-                                const eventData = {
-                                    ticket_number: ticketNum,
-                                    service_name: data.service_name,
-                                    counter_name: data.counter_name,
-                                    timestamp: new Date().toISOString()
-                                };
-
-                                // Try Livewire event first
-                                if (typeof Livewire !== 'undefined') {
-                                    Livewire.dispatch('ticket-created', eventData);
-                                }
-
-                                // Force immediate refresh via localStorage with unique key
-                                const uniqueKey = 'ticket-created-' + Date.now();
-                                localStorage.setItem(uniqueKey, JSON.stringify(eventData));
-
-                                // Also use the old key for backward compatibility
-                                localStorage.setItem('ticket-created', JSON.stringify(eventData));
-
-                                // Clean up after a short delay
-                                setTimeout(() => {
-                                    localStorage.removeItem(uniqueKey);
-                                }, 5000);
-
-                                // Force immediate refresh via fetch to ensure display updates
-                                fetch('/api/queue-data')
-                                    .then(response => response.json())
-                                    .then(queueData => {
-                                        console.log('Immediate refresh triggered:', queueData);
-                                    })
-                                    .catch(error => console.error('Immediate refresh failed:',
-                                        error));
-
-                                // Auto refresh after 30 seconds if still on the page
-                                setTimeout(() => {
-                                    location.reload();
-                                }, 30000);
-
-                            } else if (!data.success) {
-                                console.error('Server error:', data);
-                                throw new Error(data.message ||
-                                    'Terjadi kesalahan saat memproses tiket');
                             } else if (!data.ticket_number) {
                                 console.error('Missing ticket number in response:', data);
-                                console.error('Available fields:', Object.keys(data));
                                 throw new Error(
                                     'Nomor antrian tidak ditemukan dalam respons server');
+                            } else {
+                                console.error('Server error:', data);
+                                throw new Error(data.message || 'Terjadi kesalahan');
                             }
                         } catch (error) {
-                            console.error('Ticket generation error:', error);
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Gagal Mengambil Tiket',
+                                title: 'Oops...',
                                 text: error.message ||
-                                    'Terjadi kesalahan saat memproses tiket. Silakan coba lagi.',
+                                    'Terjadi kesalahan saat memproses tiket',
                                 confirmButtonColor: '#4f46e5',
                             });
                         } finally {
@@ -541,6 +728,7 @@
             updateTime();
             setInterval(updateTime, 1000);
         </script>
-</body>
+    @endsection
 
-</html>
+    @section('body_class', 'font-sans antialiased')
+    @section('container_class', 'min-h-screen bg-gray-100 dark:bg-gray-900')
