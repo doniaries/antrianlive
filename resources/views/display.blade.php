@@ -979,13 +979,27 @@
                         color
                     } = getServiceColor(code);
                     const badgeStyle = `color:${color}`;
-                    const recallCount = group.items.filter(it => it.recall).length;
+                    // Count all recalled items using the same recall check logic
+                    const recallCount = group.items.filter(it => {
+                        return it.recall || it.is_recall || it.recalled || 
+                               (it.recall_count && it.recall_count > 0) ||
+                               (it.recalled_at && it.recalled_at !== it.called_at);
+                    }).length;
+                    console.log('Group:', group.name, 'Items:', group.items); // Debug log
                     const itemsHtml = group.items.slice(0, 4).map((call, idx) => {
                         const itemColor = (call.color) ? call.color : getServiceColor(code).color;
+                        // Ensure recall status is properly checked from all possible properties
+                        const isRecalled = call.recall || call.is_recall || call.recalled || 
+                                        (call.recall_count && call.recall_count > 0) ||
+                                        (call.recalled_at && call.recalled_at !== call.called_at);
+                        console.log('Item:', call.number, 'Recall Status:', isRecalled, 'Raw:', call); // Debug log
                         return `
                         <div class="history-item ${idx === 0 ? 'new-call-item' : ''}">
                             <span class="history-number" style="color:${itemColor}">${call.number}</span>
-                            <span class="history-counter">${call.counter}${call.recall ? ' • <span style="color:#f59e0b;font-weight:600;">Panggilan Ulang</span>' : ''}</span>
+                            <span class="history-counter">
+                                ${call.counter}
+                                ${isRecalled ? ' • <span style="color:#f59e0b;font-weight:600;">Panggilan Ulang</span>' : ''}
+                            </span>
                             <span class="history-service-visible" style="display:none;">${code}</span>
                         </div>`;
                     }).join('');
