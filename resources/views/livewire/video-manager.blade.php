@@ -147,8 +147,13 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">Tidak ada
-                                data video</td>
+                            <td colspan="5" class="px-6 py-8 text-center">
+                                <div class="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
+                                    <i class="fas fa-video-slash text-4xl mb-3 text-gray-300 dark:text-gray-600"></i>
+                                    <p class="text-lg font-medium">Belum ada video yang tersedia</p>
+                                    <p class="text-sm mt-1">Klik tombol "Tambah Video" untuk menambahkan video baru</p>
+                                </div>
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>

@@ -14,7 +14,7 @@ class ProfilSeeder extends Seeder
     public function run(): void
     {
         DB::table('profils')->insert([
-            'nama_instansi' => 'Puskesmas',
+            'nama_instansi' => 'Puskesmas Sijunjung',
             'alamat' => 'Jl. Puskesmas No. 123, Kota Administrasi',
             'no_telepon' => '(021) 12345678',
             'email' => 'info@puskesmas.go.id',

@@ -1005,10 +1005,13 @@
                     const data = await response.json();
 
                     if (!data?.success || !data?.video?.url) {
-                        if (currentVideoId !== null) {
-                            videoContainer.innerHTML =
-                                '<div class="video-placeholder"><i class="fas fa-video-slash"></i><div>Tidak ada video aktif</div></div>';
-                        }
+                        videoContainer.innerHTML = `
+                            <div class="video-placeholder" style="height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem;">
+                                <i class="fas fa-video-slash" style="font-size: 4rem; margin-bottom: 1rem; color: rgba(255, 255, 255, 0.2);"></i>
+                                <div style="font-size: 1.5rem; font-weight: 500; margin-bottom: 0.5rem; color: rgba(255, 255, 255, 0.7);">Video Belum Tersedia</div>
+                                <div style="font-size: 1rem; color: rgba(255, 255, 255, 0.5); text-align: center;">Silakan tambahkan video melalui halaman admin untuk menampilkan konten di sini</div>
+                            </div>
+                        `;
                         currentVideoId = null;
                         return;
                     }
@@ -1082,7 +1085,11 @@
                 } catch (error) {
                     console.error('Error loading video:', error);
                     videoContainer.innerHTML =
-                        '<div class="video-placeholder"><i class="fas fa-exclamation-triangle"></i><div>Gagal memuat video</div></div>';
+                        '<div class="video-placeholder" style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; padding: 2rem;">' +
+                        '<i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ef4444; margin-bottom: 1rem;"></i>' +
+                        '<div style="font-size: 1.25rem; margin-bottom: 0.5rem; font-weight: 500;">Gagal Memuat Video</div>' +
+                        '<div style="text-align: center; color: rgba(255, 255, 255, 0.7);">Terjadi kesalahan saat memuat video. Silakan coba lagi nanti.</div>' +
+                        '</div>';
                     currentVideoId = null;
                 }
             }
