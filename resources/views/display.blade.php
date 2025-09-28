@@ -132,14 +132,19 @@
 
         .running-text-content {
             display: inline-block;
-            font-size: 2.8rem;
-            font-weight: 600;
+            font-size: 3.2rem;
+            /* Diperbesar dari 2.8rem */
+            font-weight: 700;
+            /* Lebih tebal */
             padding-left: 100%;
             animation: marquee 50s linear infinite;
             white-space: nowrap;
             color: #ffffff;
-            text-shadow: none; /* Menghapus efek glow */
-            line-height: 80px;
+            text-shadow: none;
+            line-height: 90px;
+            /* Disesuaikan dengan tinggi footer */
+            letter-spacing: 1px;
+            /* Sedikit jarak antar huruf */
         }
 
         .running-text-content span {
@@ -1243,11 +1248,13 @@
                             try {
                                 localStorage.removeItem(key);
                             } catch (e) {
-                                /* noop */ }
+                                /* noop */
+                            }
                             try {
                                 sessionStorage.removeItem(key);
                             } catch (e) {
-                                /* noop */ }
+                                /* noop */
+                            }
                         });
 
                         // Reset semua variabel state
@@ -1301,7 +1308,8 @@
                         try {
                             localStorage.setItem('counter_status_changed', Date.now());
                         } catch (e) {
-                            /* noop */ }
+                            /* noop */
+                        }
                     });
                 });
             });
