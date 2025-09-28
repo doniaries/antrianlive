@@ -133,14 +133,12 @@
         .running-text-content {
             display: inline-block;
             font-size: 2.8rem;
-            /* Ukuran huruf diperbesar */
             font-weight: 600;
             padding-left: 100%;
             animation: marquee 50s linear infinite;
-            /* Kecepatan dioptimalkan */
             white-space: nowrap;
             color: #ffffff;
-            text-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
+            text-shadow: none; /* Menghapus efek glow */
             line-height: 80px;
         }
 
@@ -223,7 +221,8 @@
         }
 
         #current-number {
-            font-size: clamp(3.5rem, 8vh, 6rem); /* Ukuran font dikurangi agar lebih proporsional */
+            font-size: clamp(3.5rem, 8vh, 6rem);
+            /* Ukuran font dikurangi agar lebih proporsional */
             font-weight: 800;
             line-height: 1;
             margin: 0.75rem 0;
@@ -233,7 +232,8 @@
         }
 
         #current-counter {
-            font-size: 2.5rem; /* Ukuran font dikurangi agar lebih proporsional */
+            font-size: 2.5rem;
+            /* Ukuran font dikurangi agar lebih proporsional */
             font-weight: 700;
             color: var(--text-light);
         }
@@ -645,15 +645,15 @@
                 if (e.key === 'counter_status_changed') {
                     console.log('Counter status changed, stopping intervals and reloading page...');
                     isPageUnloading = true;
-                    
+
                     // Hentikan semua interval sebelum reload
                     intervals.forEach(intervalId => clearInterval(intervalId));
-                    
+
                     // Abort ongoing fetch request
                     if (fetchController) {
                         fetchController.abort();
                     }
-                    
+
                     location.reload(true);
                 }
             });
@@ -772,61 +772,64 @@
                 if (isPageUnloading) {
                     return;
                 }
-                
+
                 const maxRetries = 3;
                 const retryDelay = 1000; // 1 second
-                
+
                 try {
                     // Abort previous request if still running
                     if (fetchController) {
                         fetchController.abort();
                     }
-                    
+
                     // Create new abort controller
                     fetchController = new AbortController();
-                    
+
                     const response = await fetch('/api/display-data?t=' + Date.now(), {
                         signal: fetchController.signal,
                         method: 'GET',
                         headers: {
                             'Accept': 'application/json',
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute(
+                                'content') || '',
                             'X-Requested-With': 'XMLHttpRequest'
                         },
                         cache: 'no-cache',
                         credentials: 'same-origin'
                     });
-                    
+
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
                     }
-                    
+
                     const data = await response.json();
                     updateDisplay(data);
-                    
+
                     // Reset retry count on success
                     if (retryCount > 0) {
                         console.log('Queue data fetch recovered after', retryCount, 'retries');
                     }
-                    
+
                 } catch (error) {
                     // Ignore abort errors (normal when page reloads)
                     if (error.name === 'AbortError') {
                         return;
                     }
-                    
+
                     // Retry on network errors
                     if (retryCount < maxRetries && (
-                        error.name === 'TypeError' || 
-                        error.message.includes('Failed to fetch') ||
-                        error.message.includes('NetworkError')
-                    )) {
-                        console.warn(`Fetch failed (attempt ${retryCount + 1}/${maxRetries + 1}), retrying in ${retryDelay}ms...`, error.message);
+                            error.name === 'TypeError' ||
+                            error.message.includes('Failed to fetch') ||
+                            error.message.includes('NetworkError')
+                        )) {
+                        console.warn(
+                            `Fetch failed (attempt ${retryCount + 1}/${maxRetries + 1}), retrying in ${retryDelay}ms...`,
+                            error.message);
                         setTimeout(() => fetchQueueData(retryCount + 1), retryDelay);
                         return;
                     }
-                    
+
                     // Log other errors
                     console.error("Failed to fetch queue data:", error);
                 }
@@ -868,7 +871,11 @@
                             // Jika tidak ada data sementara, gunakan localStorage seperti biasa (dibaca dinamis)
                             const savedHistoryNow = localStorage.getItem('callHistory');
                             if (savedHistoryNow) {
-                                try { callHistory = JSON.parse(savedHistoryNow); } catch (e) { callHistory = []; }
+                                try {
+                                    callHistory = JSON.parse(savedHistoryNow);
+                                } catch (e) {
+                                    callHistory = [];
+                                }
                                 renderHistory();
                             }
                         }
@@ -1192,10 +1199,10 @@
                         if (callingContent) {
                             callingContent.classList.remove('new-call-main');
                         }
-                        
+
                         // Tambahkan pemanggilan renderHistory untuk memastikan tampilan benar-benar kosong
                         renderHistory();
-                        
+
                         console.log('Riwayat berhasil dibersihkan sepenuhnya!');
                         // Trigger localStorage event untuk memastikan sinkronisasi
                         localStorage.setItem('counter_status_changed', Date.now());
@@ -1226,22 +1233,28 @@
                         // Hapus SEMUA data dari localStorage dan sessionStorage
                         const keysToRemove = [
                             'callHistory',
-                            'lastCalledNumber', 
+                            'lastCalledNumber',
                             'lastCalledCounter',
                             'tempCallHistory',
                             'counter_status_changed'
                         ];
                         // Pastikan kunci dihapus dari kedua storage agar tidak re-populate lagi
                         keysToRemove.forEach(key => {
-                            try { localStorage.removeItem(key); } catch (e) { /* noop */ }
-                            try { sessionStorage.removeItem(key); } catch (e) { /* noop */ }
+                            try {
+                                localStorage.removeItem(key);
+                            } catch (e) {
+                                /* noop */ }
+                            try {
+                                sessionStorage.removeItem(key);
+                            } catch (e) {
+                                /* noop */ }
                         });
-                    
+
                         // Reset semua variabel state
                         callHistory = [];
                         lastCalledNumber = null;
                         lastEventSignature = null;
-                    
+
                         // Reset tampilan nomor yang sedang dipanggil
                         const currentNumberEl = safeGetElementById('current-number');
                         if (currentNumberEl) {
@@ -1250,42 +1263,45 @@
                             currentNumberEl.style.removeProperty('--glow-color');
                             currentNumberEl.classList.remove('call-highlight');
                         }
-                    
+
                         const currentCounterEl = safeGetElementById('current-counter');
                         if (currentCounterEl) {
                             currentCounterEl.textContent = '-';
                         }
-                    
+
                         // Reset tampilan nomor terakhir dipanggil (jika ada elemen terpisah)
                         const lastCalledEl = safeGetElementById('last-called-number');
                         if (lastCalledEl) {
                             lastCalledEl.textContent = '-';
                         }
-                    
+
                         const lastCalledCounterEl = safeGetElementById('last-called-counter');
                         if (lastCalledCounterEl) {
                             lastCalledCounterEl.textContent = '-';
                         }
-                    
+
                         // Kosongkan tampilan riwayat
                         const historyListEl = safeGetElementById('history-list');
                         if (historyListEl) {
                             historyListEl.innerHTML = '<div class="history-grid"></div>';
                         }
-                    
+
                         // Reset calling content animation
                         const callingContent = safeGetElementById('calling-content');
                         if (callingContent) {
                             callingContent.classList.remove('new-call-main');
                         }
-                        
+
                         // Tambahkan pemanggilan renderHistory untuk memastikan tampilan benar-benar kosong
                         renderHistory();
-                        
+
                         console.log('Riwayat berhasil dibersihkan sepenuhnya!');
-                        
+
                         // Trigger localStorage event untuk memastikan sinkronisasi
-                        try { localStorage.setItem('counter_status_changed', Date.now()); } catch (e) { /* noop */ }
+                        try {
+                            localStorage.setItem('counter_status_changed', Date.now());
+                        } catch (e) {
+                            /* noop */ }
                     });
                 });
             });
