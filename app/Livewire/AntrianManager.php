@@ -521,9 +521,12 @@ class AntrianManager extends Component
         // Hapus semua antrian pada tanggal yang ditentukan
         $count = Antrian::whereDate('created_at', $date)->delete();
 
+        // Panggil method clearCallHistory dengan parameter silent=true
+        $this->clearCallHistory(true);
+
         $this->dispatch('notify', [
             'type' => 'success',
-            'message' => "Berhasil mereset $count antrian"
+            'message' => "Berhasil mereset $count antrian dan membersihkan riwayat panggilan"
         ]);
 
         $this->dispatch('refresh-dashboard');
