@@ -1907,16 +1907,14 @@
                     secara real-time.
                 </p>
                 <div class="mt-8 flex flex-wrap justify-center gap-4">
-                    <a href="{{ route('display') }}" target="_blank"
-                        class="inline-flex items-center px-6 py-3 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
+                    <a href="{{ route('patient.register') }}"
+                        class="inline-flex items-center px-6 py-3 text-base font-medium text-white bg-purple-600 border border-transparent rounded-md shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542 7z" />
+                                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                         </svg>
-                        Lihat Display Antrian
+                        Daftar Pasien
                     </a>
                     <a href="{{ route('tiket.front') }}"
                         class="inline-flex items-center px-6 py-3 text-base font-medium text-white bg-emerald-600 border border-transparent rounded-md shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors duration-200">
@@ -1927,12 +1925,13 @@
                         </svg>
                         Ambil Tiket
                     </a>
+
                 </div>
             @endsection
 
-            @section('body_class', 'font-sans antialiased')
-            @section('container_class', 'min-h-screen bg-gray-100 dark:bg-gray-900')
-
+        </div>
+    </div>
+    </div>
 </body>
 
 </html>
