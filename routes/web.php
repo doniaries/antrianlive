@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 // Route untuk welcome page - menampilkan welcome jika belum login, redirect ke dashboard jika sudah login
 Route::get('/', function () {
@@ -10,8 +11,10 @@ Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
 
-// Route untuk ambil tiket (public access)
-Route::get('/ambil-tiket', \App\Livewire\AmbilTiket::class)->name('ambil-tiket');
+// Route untuk ambil tiket (accessible by all authenticated users)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/ambil-tiket', \App\Livewire\AmbilTiket::class)->name('ambil-tiket');
+});
 
 Route::impersonate();
 
@@ -20,7 +23,21 @@ Route::post('/queue/ticket/take', function () {
     $validated = request()->validate([
         'service_id' => 'required|exists:services,id',
         'counter_id' => 'nullable|exists:counters,id',
+        'patient_id' => 'required|exists:patients,id', // Add patient_id to the request
     ]);
+
+    // Check if patient already has an active queue
+    $hasActiveQueue = \App\Models\Antrian::where('patient_id', $validated['patient_id'])
+        ->whereIn('status', ['waiting', 'processing'])
+        ->whereDate('created_at', now()->format('Y-m-d'))
+        ->exists();
+
+    if ($hasActiveQueue) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Anda sudah memiliki tiket antrian yang aktif. Silakan selesaikan antrian sebelumnya terlebih dahulu.',
+        ], 422);
+    }
 
     $service = \App\Models\Service::findOrFail($validated['service_id']);
     $counter = $validated['counter_id'] ? \App\Models\Counter::find($validated['counter_id']) : null;
@@ -38,12 +55,11 @@ Route::post('/queue/ticket/take', function () {
     $antrian = \App\Models\Antrian::create([
         'service_id' => $validated['service_id'],
         'counter_id' => $validated['counter_id'],
+        'patient_id' => $validated['patient_id'], // Add patient_id to the queue
         'queue_number' => $nextNumber,
         'formatted_number' => $formattedNumber,
         'status' => 'waiting',
     ]);
-
-
 
     return response()->json([
         'success' => true,
@@ -195,7 +211,7 @@ Route::get('/display', function () {
                 ->header('Expires', '0');
 
         } catch (\Exception $e) {
-            \Log::error('Error in video API: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Error in video API: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'error' => 'Gagal memuat video',

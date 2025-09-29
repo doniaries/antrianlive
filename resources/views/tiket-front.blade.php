@@ -2,8 +2,12 @@
     use App\Models\Service;
     use App\Models\Counter;
     use App\Models\Profil;
+    
     $services = Service::with('counters')->where('is_active', true)->get();
     $profil = Profil::first();
+    
+    // Check if user is authenticated and is a patient
+    $isPatient = auth()->check() && auth()->user()->role === 'pasien';
 @endphp
 @extends('layouts.app')
 

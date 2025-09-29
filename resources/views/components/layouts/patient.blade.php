@@ -31,12 +31,23 @@
 
                         <!-- Navigation Links -->
                         <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                            <x-nav-link :href="route('patient.dashboard')" :active="request()->routeIs('patient.dashboard')">
-                                {{ __('Dashboard') }}
-                            </x-nav-link>
-                            <x-nav-link :href="route('patient.ticket')" :active="request()->routeIs('patient.ticket')">
-                                {{ __('Ambil Tiket') }}
-                            </x-nav-link>
+                            @auth('patient')
+                                <x-nav-link :href="route('patient.dashboard')" :active="request()->routeIs('patient.dashboard')">
+                                    {{ __('Dashboard') }}
+                                </x-nav-link>
+                                <x-nav-link :href="route('patient.ticket')" :active="request()->routeIs('patient.ticket')">
+                                    {{ __('Ambil Tiket') }}
+                                </x-nav-link>
+                            @endauth
+                            
+                            @guest('patient')
+                                <x-nav-link :href="route('patient.login')" :active="request()->routeIs('patient.login')">
+                                    {{ __('Login') }}
+                                </x-nav-link>
+                                <x-nav-link :href="route('patient.register')" :active="request()->routeIs('patient.register')">
+                                    {{ __('Register') }}
+                                </x-nav-link>
+                            @endguest
                         </div>
                     </div>
 
@@ -84,40 +95,57 @@
             <!-- Responsive Navigation Menu -->
             <div :class="{'block': open, 'hidden': !open}" class="hidden sm:hidden">
                 <div class="pt-2 pb-3 space-y-1">
-                    <x-responsive-nav-link :href="route('patient.dashboard')" :active="request()->routeIs('patient.dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('patient.ticket')" :active="request()->routeIs('patient.ticket')">
-                        {{ __('Ambil Tiket') }}
-                    </x-responsive-nav-link>
-                </div>
-
-                <!-- Responsive Settings Options -->
-                <div class="pt-4 pb-1 border-t border-gray-200">
-                    <div class="px-4">
-                        <div class="font-medium text-base text-gray-800">{{ Auth::guard('patient')->user()->name }}</div>
-                        <div class="font-medium text-sm text-gray-500">{{ Auth::guard('patient')->user()->email }}</div>
-                    </div>
-
-                    <div class="mt-3 space-y-1">
-                        <x-responsive-nav-link :href="route('patient.logout')"
-                                onclick="event.preventDefault();
-                                            document.getElementById('logout-form').submit();">
-                            {{ __('Log Out') }}
+                    @auth('patient')
+                        <x-responsive-nav-link :href="route('patient.dashboard')" :active="request()->routeIs('patient.dashboard')">
+                            {{ __('Dashboard') }}
                         </x-responsive-nav-link>
-                    </div>
+                        <x-responsive-nav-link :href="route('patient.ticket')" :active="request()->routeIs('patient.ticket')">
+                            {{ __('Ambil Tiket') }}
+                        </x-responsive-nav-link>
+                    @endauth
+                    
+                    @guest('patient')
+                        <x-responsive-nav-link :href="route('patient.login')" :active="request()->routeIs('patient.login')">
+                            {{ __('Login') }}
+                        </x-responsive-nav-link>
+                        <x-responsive-nav-link :href="route('patient.register')" :active="request()->routeIs('patient.register')">
+                            {{ __('Register') }}
+                        </x-responsive-nav-link>
+                    @endguest
                 </div>
+
+                @auth('patient')
+                    <!-- Responsive Settings Options -->
+                    <div class="pt-4 pb-1 border-t border-gray-200">
+                        <div class="px-4">
+                            <div class="font-medium text-base text-gray-800">{{ Auth::guard('patient')->user()->name }}</div>
+                            <div class="font-medium text-sm text-gray-500">{{ Auth::guard('patient')->user()->email }}</div>
+                        </div>
+
+                        <div class="mt-3 space-y-1">
+                            <x-responsive-nav-link :href="route('patient.logout')"
+                                    onclick="event.preventDefault();
+                                                this.closest('form').submit();">
+                                {{ __('Log Out') }}
+                            </x-responsive-nav-link>
+
+                            <form method="POST" action="{{ route('patient.logout') }}">
+                                @csrf
+                            </form>
+                        </div>
+                    </div>
+                @endauth
             </div>
-        </nav>
 
-        <!-- Page Content -->
-        <main>
-            {{ $slot }}
-        </main>
-    </div>
+            <!-- Page Content -->
+            <main>
+                {{ $slot }}
+            </main>
+        </div>
 
-    @stack('modals')
+        @stack('modals')
 
-    @livewireScripts
+        @livewireScripts
+    </body>
 </body>
 </html>

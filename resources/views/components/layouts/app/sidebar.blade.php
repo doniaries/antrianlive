@@ -18,9 +18,13 @@
             <flux:navlist.group :heading="__('Platform')" class="grid">
                 <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')"
                     wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
-                <flux:navlist.item icon="ticket" :href="route('ambil-tiket')" target="front_tiket"
-                    :current="request()->routeIs('ambil-tiket')">{{ __('Ambil Tiket') }}
-                </flux:navlist.item>
+                
+                @auth
+                    <flux:navlist.item icon="ticket" :href="route('ambil-tiket')" target="front_tiket"
+                        :current="request()->routeIs('ambil-tiket')">{{ __('Ambil Tiket') }}
+                    </flux:navlist.item>
+                @endauth
+                
                 <flux:navlist.item icon="ticket" :href="route('tiket.front')" target="front_tiket"
                     :current="request()->routeIs('tiket.front')">{{ __('Tiket Front') }}
                 </flux:navlist.item>

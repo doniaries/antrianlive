@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
                 'UserSeeder',
                 'ServiceSeeder',
                 'CounterSeeder',
+                'CounterLayananSeeder',  // This needs to run after both ServiceSeeder and CounterSeeder
                 'PatientSeeder',
                 'RunningTextSeeder'
             ];

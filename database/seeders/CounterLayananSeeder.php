@@ -13,35 +13,62 @@ class CounterLayananSeeder extends Seeder
      */
     public function run(): void
     {
+        // Truncate the table to avoid duplicate entries
+        DB::table('counter_layanans')->truncate();
+        
         // Get all services and counters
         $services = DB::table('services')->get();
         $counters = DB::table('counters')->get();
-
-        // Create relationships between counters and services (1:1 mapping)
-        $counterLayanans = [
-            // Loket Poli Umum untuk layanan Penyakit Dalam
-            [
-                'counter_id' => 1, // Loket Poli Umum
-                'service_id' => 1, // Penyakit Dalam (PU)
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
-            // Loket Poli Syaraf untuk layanan Syaraf
-            [
-                'counter_id' => 2, // Loket Poli Syaraf
-                'service_id' => 2, // Syaraf (PS)
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
-            // Loket Poli Anak untuk layanan Anak
-            [
-                'counter_id' => 3, // Loket Poli Anak
-                'service_id' => 3, // Anak (PA)
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ],
+        
+        // Map service codes to counter IDs based on their descriptions
+        $serviceCodeToCounterId = [
+            'PU' => 1, // Klaster 1 - Poli Umum
+            'PS' => 2, // Klaster 2 - Poli Syaraf
+            'PA' => 3, // Klaster 3 - Poli Anak
         ];
+        
+        $counterLayanans = [];
+        
+        foreach ($services as $service) {
+            // Extract service code from the service name or code field
+            $serviceCode = strtoupper(substr($service->name, 0, 2));
+            
+            // If we have a mapping for this service code, create the relationship
+            if (isset($serviceCodeToCounterId[$serviceCode])) {
+                $counterLayanans[] = [
+                    'counter_id' => $serviceCodeToCounterId[$serviceCode],
+                    'service_id' => $service->id,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ];
+            }
+        }
+        
+        // If no relationships were created automatically, fall back to the original mapping
+        if (empty($counterLayanans)) {
+            $counterLayanans = [
+                [
+                    'counter_id' => 1, // Klaster 1
+                    'service_id' => 1, // Poli Umum (PU)
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ],
+                [
+                    'counter_id' => 2, // Klaster 2
+                    'service_id' => 2, // Poli Syaraf (PS)
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ],
+                [
+                    'counter_id' => 3, // Klaster 3
+                    'service_id' => 3, // Poli Anak (PA)
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ],
+            ];
+        }
 
+        // Insert the relationships
         DB::table('counter_layanans')->insert($counterLayanans);
     }
 }
