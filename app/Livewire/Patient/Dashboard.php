@@ -30,14 +30,16 @@ class Dashboard extends Component
         $today = Carbon::today();
         
         // Ambil antrian aktif
-        $this->antrianAktif = Antrian::where('pasien_id', $pasienId)
-            ->whereDate('tanggal', $today)
+        $this->antrianAktif = Antrian::where('patient_id', $pasienId)
+            ->whereDate('created_at', $today)
             ->whereIn('status', ['menunggu', 'dipanggil'])
             ->orderBy('created_at', 'desc')
+            ->with('layanan')
             ->first();
 
         // Ambil riwayat antrian (5 terbaru)
-        $this->riwayatAntrian = Antrian::where('pasien_id', $pasienId)
+        $this->riwayatAntrian = Antrian::where('patient_id', $pasienId)
+            ->with('layanan')
             ->orderBy('created_at', 'desc')
             ->take(5)
             ->get();

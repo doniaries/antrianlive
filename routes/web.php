@@ -311,7 +311,7 @@ Route::middleware([
 
     // Route untuk Manajemen Pasien
     Route::prefix('patients')->group(function () {
-        Route::get('/', [\App\Http\Controllers\PatientController::class, 'index'])->name('patients.index');
+        Route::get('/', \App\Livewire\Patient\Index::class)->name('patients.index');
         Route::get('/create', [\App\Http\Controllers\PatientController::class, 'create'])->name('patients.create');
         Route::post('/', [\App\Http\Controllers\PatientController::class, 'store'])->name('patients.store');
         Route::get('/{patient}/edit', [\App\Http\Controllers\PatientController::class, 'edit'])->name('patients.edit');
