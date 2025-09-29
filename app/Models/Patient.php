@@ -6,19 +6,35 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Patient extends Model
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+
+class Patient extends Authenticatable
 {
-    use HasFactory;
+    use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
-        'medical_record_number',
         'name',
+        'email',
+        'password',
         'nik',
         'date_of_birth',
         'gender',
         'phone',
         'address',
         'bpjs_number',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'date_of_birth' => 'date',
     ];
 
     protected $dates = [
@@ -42,7 +58,8 @@ class Patient extends Model
             $query->where(function ($query) use ($search) {
                 $query->where('name', 'like', '%' . $search . '%')
                     ->orWhere('nik', 'like', '%' . $search . '%')
-                    ->orWhere('medical_record_number', 'like', '%' . $search . '%');
+                    ->orWhere('email', 'like', '%' . $search . '%')
+                    ->orWhere('bpjs_number', 'like', '%' . $search . '%');
             });
         });
     }

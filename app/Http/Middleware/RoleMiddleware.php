@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class RoleMiddleware
@@ -13,16 +14,24 @@ class RoleMiddleware
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next, string $role): Response
+    public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        if (!auth()->check()) {
+        if (!Auth::check()) {
             abort(403, 'Unauthorized');
         }
 
-        if (auth()->user()->role !== $role) {
-            abort(403, 'This action is unauthorized.');
+        // Jika tidak ada role yang ditentukan, lanjutkan
+        if (empty($roles)) {
+            return $next($request);
         }
 
-        return $next($request);
+        // Cek apakah user memiliki salah satu role yang diizinkan
+        foreach ($roles as $role) {
+            if (Auth::user()->role === $role) {
+                return $next($request);
+            }
+        }
+
+        abort(403, 'This action is unauthorized.');
     }
 }

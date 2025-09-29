@@ -24,6 +24,10 @@
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
+    <!-- Preline JS -->
+    <script src="https://cdn.jsdelivr.net/npm/preline@2.0.4/dist/preline.min.js"></script>
+    
     @yield('scripts_head')
 
     <!-- Styles -->

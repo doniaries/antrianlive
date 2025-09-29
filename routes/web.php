@@ -3,8 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
-// Test route for checking relationships - can be removed in production
-require __DIR__.'/test-relationships.php';
+
 
 // Route untuk welcome page - menampilkan welcome jika belum login, redirect ke dashboard jika sudah login
 Route::get('/', function () {
@@ -20,6 +19,11 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::impersonate();
+
+// Route untuk manajemen pasien
+Route::middleware(['auth', 'roles:superadmin,petugas'])->group(function () {
+    Route::resource('patients', \App\Http\Controllers\PatientController::class);
+});
 
 // Route untuk mengambil tiket antrian (POST)
 Route::post('/queue/ticket/take', function () {
@@ -79,150 +83,149 @@ Route::get('/display', function () {
 })->name('display');
 
 // API endpoint untuk data display (optimized)
-    Route::get('/api/display-data', function () {
-        $today = now()->format('Y-m-d');
-        
-        // Get all active services with single query
-        $services = \App\Models\Service::where('is_active', true)
-            ->orderBy('name')
-            ->get(['id', 'name', 'code']);
-        
-        // Get current called queues - only active calls (not finished)
-        $currentCalled = \App\Models\Antrian::with(['service:id,name', 'counter:id,name'])
-            ->whereDate('created_at', $today)
-            ->where('status', 'called')
-            ->whereNull('finished_at') // Pastikan antrian belum selesai
-            ->where('called_at', '>=', now()->subMinutes(3)) // Hanya tampilkan yang baru dipanggil
-            ->orderBy('called_at', 'desc')
-            ->limit(1) // Hanya ambil 1 antrian yang sedang aktif dipanggil
-            ->get(['id', 'service_id', 'counter_id', 'formatted_number', 'called_at'])
-            ->map(function ($antrian) {
-                return [
-                    'id' => $antrian->id,
-                    'service_id' => $antrian->service_id,
-                    'formatted_number' => $antrian->formatted_number,
-                    'service_name' => $antrian->service->name,
-                    'counter_name' => $antrian->counter?->name,
-                    'called_at' => $antrian->called_at,
-                ];
-            });
+Route::get('/api/display-data', function () {
+    $today = now()->format('Y-m-d');
 
-        // Get next queues efficiently
-        $nextQueues = collect();
-        $serviceIds = $services->pluck('id');
-        
-        foreach ($serviceIds as $serviceId) {
-            $nextQueue = \App\Models\Antrian::where('service_id', $serviceId)
-                ->whereDate('created_at', $today)
-                ->where('status', 'waiting')
-                ->orderBy('queue_number')
-                ->first(['id', 'service_id', 'formatted_number', 'queue_number']);
-                
-            if ($nextQueue) {
-                $service = $services->firstWhere('id', $serviceId);
-                $nextQueues->push([
-                    'id' => $nextQueue->id,
-                    'service_id' => $serviceId,
-                    'service_name' => $service->name,
-                    'formatted_number' => $nextQueue->formatted_number,
-                    'queue_number' => $nextQueue->queue_number,
-                ]);
-            }
-        }
+    // Get all active services with single query
+    $services = \App\Models\Service::where('is_active', true)
+        ->orderBy('name')
+        ->get(['id', 'name', 'code']);
 
-        // Format services data efficiently
-        $servicesData = $services->map(function ($service) use ($today) {
-            // Get range with single query per service
-            $queues = \App\Models\Antrian::where('service_id', $service->id)
-                ->whereDate('created_at', $today)
-                ->orderBy('queue_number')
-                ->get(['queue_number']);
-                
-            $range = '';
-            if ($queues->count() > 0) {
-                $first = $queues->first()->queue_number;
-                $last = $queues->last()->queue_number;
-                $range = $service->code . str_pad($first, 3, '0', STR_PAD_LEFT) . ' - ' . 
-                         $service->code . str_pad($last, 3, '0', STR_PAD_LEFT);
-            }
-
+    // Get current called queues - only active calls (not finished)
+    $currentCalled = \App\Models\Antrian::with(['service:id,name', 'counter:id,name'])
+        ->whereDate('created_at', $today)
+        ->where('status', 'called')
+        ->whereNull('finished_at') // Pastikan antrian belum selesai
+        ->where('called_at', '>=', now()->subMinutes(3)) // Hanya tampilkan yang baru dipanggil
+        ->orderBy('called_at', 'desc')
+        ->limit(1) // Hanya ambil 1 antrian yang sedang aktif dipanggil
+        ->get(['id', 'service_id', 'counter_id', 'formatted_number', 'called_at'])
+        ->map(function ($antrian) {
             return [
-                'id' => $service->id,
-                'name' => $service->name,
-                'code' => $service->code,
-                'range' => $range,
+                'id' => $antrian->id,
+                'service_id' => $antrian->service_id,
+                'formatted_number' => $antrian->formatted_number,
+                'service_name' => $antrian->service->name,
+                'counter_name' => $antrian->counter?->name,
+                'called_at' => $antrian->called_at,
             ];
         });
 
-        return response()->json([
-            'currentCalled' => $currentCalled,
-            'nextQueues' => $nextQueues,
-            'services' => $servicesData,
-            'timestamp' => now()->toDateTimeString(),
-        ])->header('Cache-Control', 'no-cache, no-store, must-revalidate')
-           ->header('Pragma', 'no-cache')
-           ->header('Expires', '0')
-           ->header('Content-Type', 'application/json');
-    })->name('api.display-data');
+    // Get next queues efficiently
+    $nextQueues = collect();
+    $serviceIds = $services->pluck('id');
 
-    // API endpoint untuk running teks
-    Route::get('/api/running-teks', function () {
-        $runningTeks = \App\Models\RunningTeks::orderBy('id', 'asc')
-            ->get(['id', 'text']);
+    foreach ($serviceIds as $serviceId) {
+        $nextQueue = \App\Models\Antrian::where('service_id', $serviceId)
+            ->whereDate('created_at', $today)
+            ->where('status', 'waiting')
+            ->orderBy('queue_number')
+            ->first(['id', 'service_id', 'formatted_number', 'queue_number']);
 
-        return response()->json([
-            'running_teks' => $runningTeks,
-            'timestamp' => now()->toDateTimeString(),
-        ])->header('Cache-Control', 'no-cache, no-store, must-revalidate')
-           ->header('Pragma', 'no-cache')
-           ->header('Expires', '0');
-    })->name('api.running-teks');
-
-    // API endpoint untuk video
-    Route::get('/api/video', function () {
-        try {
-            $video = \App\Models\Video::where('is_active', true)
-                ->orderBy('updated_at', 'desc')
-                ->first();
-
-            if (!$video) {
-                return response()->json([
-                    'success' => true,
-                    'video' => null,
-                    'message' => 'Tidak ada video aktif yang ditemukan',
-                    'timestamp' => now()->toDateTimeString(),
-                ], 200);
-            }
-
-            $response = [
-                'success' => true,
-                'video' => [
-                    'id' => $video->id,
-                    'url' => $video->type === 'file' ? asset('storage/' . $video->url) : $video->url,
-                    'type' => $video->type,
-                    'is_active' => (bool)$video->is_active,
-                    'created_at' => $video->created_at->toDateTimeString(),
-                    'updated_at' => $video->updated_at->toDateTimeString(),
-                ],
-                'timestamp' => now()->toDateTimeString(),
-            ];
-
-            return response()
-                ->json($response)
-                ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
-                ->header('Pragma', 'no-cache')
-                ->header('Expires', '0');
-
-        } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Error in video API: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'error' => 'Gagal memuat video',
-                'message' => 'Terjadi kesalahan saat memuat video. Silakan coba lagi nanti.',
-                'timestamp' => now()->toDateTimeString(),
-            ], 500);
+        if ($nextQueue) {
+            $service = $services->firstWhere('id', $serviceId);
+            $nextQueues->push([
+                'id' => $nextQueue->id,
+                'service_id' => $serviceId,
+                'service_name' => $service->name,
+                'formatted_number' => $nextQueue->formatted_number,
+                'queue_number' => $nextQueue->queue_number,
+            ]);
         }
-    })->name('api.video');
+    }
+
+    // Format services data efficiently
+    $servicesData = $services->map(function ($service) use ($today) {
+        // Get range with single query per service
+        $queues = \App\Models\Antrian::where('service_id', $service->id)
+            ->whereDate('created_at', $today)
+            ->orderBy('queue_number')
+            ->get(['queue_number']);
+
+        $range = '';
+        if ($queues->count() > 0) {
+            $first = $queues->first()->queue_number;
+            $last = $queues->last()->queue_number;
+            $range = $service->code . str_pad($first, 3, '0', STR_PAD_LEFT) . ' - ' .
+                $service->code . str_pad($last, 3, '0', STR_PAD_LEFT);
+        }
+
+        return [
+            'id' => $service->id,
+            'name' => $service->name,
+            'code' => $service->code,
+            'range' => $range,
+        ];
+    });
+
+    return response()->json([
+        'currentCalled' => $currentCalled,
+        'nextQueues' => $nextQueues,
+        'services' => $servicesData,
+        'timestamp' => now()->toDateTimeString(),
+    ])->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+        ->header('Pragma', 'no-cache')
+        ->header('Expires', '0')
+        ->header('Content-Type', 'application/json');
+})->name('api.display-data');
+
+// API endpoint untuk running teks
+Route::get('/api/running-teks', function () {
+    $runningTeks = \App\Models\RunningTeks::orderBy('id', 'asc')
+        ->get(['id', 'text']);
+
+    return response()->json([
+        'running_teks' => $runningTeks,
+        'timestamp' => now()->toDateTimeString(),
+    ])->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+        ->header('Pragma', 'no-cache')
+        ->header('Expires', '0');
+})->name('api.running-teks');
+
+// API endpoint untuk video
+Route::get('/api/video', function () {
+    try {
+        $video = \App\Models\Video::where('is_active', true)
+            ->orderBy('updated_at', 'desc')
+            ->first();
+
+        if (!$video) {
+            return response()->json([
+                'success' => true,
+                'video' => null,
+                'message' => 'Tidak ada video aktif yang ditemukan',
+                'timestamp' => now()->toDateTimeString(),
+            ], 200);
+        }
+
+        $response = [
+            'success' => true,
+            'video' => [
+                'id' => $video->id,
+                'url' => $video->type === 'file' ? asset('storage/' . $video->url) : $video->url,
+                'type' => $video->type,
+                'is_active' => (bool)$video->is_active,
+                'created_at' => $video->created_at->toDateTimeString(),
+                'updated_at' => $video->updated_at->toDateTimeString(),
+            ],
+            'timestamp' => now()->toDateTimeString(),
+        ];
+
+        return response()
+            ->json($response)
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
+    } catch (\Exception $e) {
+        \Illuminate\Support\Facades\Log::error('Error in video API: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'error' => 'Gagal memuat video',
+            'message' => 'Terjadi kesalahan saat memuat video. Silakan coba lagi nanti.',
+            'timestamp' => now()->toDateTimeString(),
+        ], 500);
+    }
+})->name('api.video');
 
 // Route untuk tiket front (alternatif tampilan ambil tiket)
 Route::get('/tiket-front', function () {
@@ -242,7 +245,7 @@ Route::middleware(['web'])->group(function () {
     Route::middleware(['auth:patient'])->group(function () {
         Route::get('patient/dashboard', \App\Livewire\Patient\Dashboard::class)->name('patient.dashboard');
         Route::get('patient/ticket', \App\Livewire\Patient\Ticket::class)->name('patient.ticket');
-        
+
         Route::post('patient/logout', function () {
             auth()->guard('patient')->logout();
             return redirect('/');
