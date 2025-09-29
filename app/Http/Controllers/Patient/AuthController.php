@@ -18,18 +18,27 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
+        $request->validate([
+            'login' => 'required|string',
+            'password' => 'required|string',
         ]);
 
-        if (Auth::guard('patient')->attempt($credentials, $request->filled('remember'))) {
+        $login = $request->input('login');
+        $password = $request->input('password');
+        $remember = $request->filled('remember');
+
+        // Determine if the login is an email or BPJS number
+        $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'bpjs_number';
+
+        // Attempt to authenticate the user
+        if (Auth::guard('patient')->attempt([$field => $login, 'password' => $password], $remember)) {
             $request->session()->regenerate();
             return redirect()->intended(route('patient.dashboard'));
         }
 
+        // If authentication failed
         throw ValidationException::withMessages([
-            'email' => __('auth.failed'),
+            'login' => __('auth.failed'),
         ]);
     }
 

@@ -8,21 +8,27 @@
     <form method="POST" action="{{ route('patient.login') }}" class="flex flex-col gap-6">
         @csrf
         
-        <!-- Email -->
-        <flux:input
-            id="email"
-            name="email"
-            :label="__('Alamat Email')"
-            type="email"
-            required
-            autofocus
-            autocomplete="email"
-            placeholder="email@example.com"
-            :value="old('email')"
-        />
-        @error('email')
-            <p class="text-sm text-red-600">{{ $message }}</p>
-        @enderror
+        <!-- Email or BPJS Number -->
+        <div class="space-y-2">
+            <div>
+                <flux:input
+                    id="login"
+                    name="login"
+                    :label="__('Email atau Nomor BPJS')"
+                    type="text"
+                    required
+                    autofocus
+                    :value="old('login')"
+                    placeholder="Email atau Nomor BPJS"
+                />
+                @error('login')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+            <p class="text-xs text-gray-500">
+                {{ __('Gunakan email atau nomor BPJS yang terdaftar') }}
+            </p>
+        </div>
 
         <!-- Password -->
         <div class="relative">
