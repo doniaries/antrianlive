@@ -1,11 +1,13 @@
+@props(['title' => 'Sistem Antrian'])
+
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title ?? 'Sistem Antrian' }}</title>
+    <title>{{ $title }}</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -14,6 +16,7 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
+    @stack('styles')
 </head>
 <body class="font-sans antialiased bg-gray-100">
     <div class="min-h-screen bg-gray-100">
@@ -136,17 +139,16 @@
                         <a href="{{ route('patient.register') }}" class="block px-4 py-2 text-base font-medium {{ request()->routeIs('patient.register') ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
                             {{ __('Register') }}
                         </a>
-                    @endauth
                 </div>
             </div>
         </nav>
 
         <!-- Page Content -->
-        <main>
+        <main class="py-6 px-4 sm:px-6 lg:px-8">
             @if(isset($slot) && trim($slot) !== '')
                 {{ $slot }}
-            @else
-                @yield('content')
+            @elseif(isset($content))
+                {{ $content }}
             @endif
         </main>
     </div>
@@ -161,5 +163,6 @@
             window.HSStaticMethods.autoInit();
         });
     </script>
+    @stack('scripts')
 </body>
 </html>

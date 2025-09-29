@@ -1,12 +1,15 @@
-@extends('components.layouts.patient', ['title' => 'Tambah Pasien Baru'])
+@extends('components.layouts.app', ['title' => 'Tambah Pasien Baru'])
 
 @section('content')
-    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="p-6 bg-white dark:bg-gray-800">
-                <div class="space-y-6">
-                    <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">{{ __('Tambah Pasien Baru') }}</h2>
-                    
+    <div class="p-4 sm:p-6">
+        <div class="space-y-6">
+            <div class="flex justify-between items-center">
+                <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">{{ __('Tambah Pasien Baru') }}</h2>
+            </div>
+
+            <!-- Card -->
+            <div class="bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-gray-800 dark:border-gray-700">
+                <div class="p-4 sm:p-7">
                     <form action="{{ route('patients.store') }}" method="POST" class="space-y-6">
                         @csrf
                         
@@ -127,11 +130,20 @@
                             </div>
                         </div>
 
-                        <div class="flex items-center justify-end space-x-3">
+                        <div class="flex items-center justify-end space-x-3 pt-4">
                             <a href="{{ route('patients.index') }}" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600">
+                                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M5 12h14"/>
+                                    <path d="M5 12l6-6m-6 6 6 6"/>
+                                </svg>
                                 Batal
                             </a>
                             <button type="submit" class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none">
+                                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                    <polyline points="17 21 17 13 7 13 7 21"/>
+                                    <polyline points="7 3 7 8 15 8"/>
+                                </svg>
                                 Simpan
                             </button>
                         </div>
@@ -141,4 +153,3 @@
         </div>
     </div>
 @endsection
-

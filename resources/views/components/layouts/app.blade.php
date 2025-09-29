@@ -1,5 +1,11 @@
-<x-layouts.app.sidebar :title="$title ?? null">
+@props(['title' => null])
+
+<x-layouts.app.sidebar :title="$title">
     <flux:main>
-        {{ $slot }}
+        @if(isset($slot))
+            {{ $slot }}
+        @else
+            {{ $content ?? '' }}
+        @endif
     </flux:main>
 </x-layouts.app.sidebar>
