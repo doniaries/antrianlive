@@ -13,9 +13,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-            'role.auth' => \App\Http\Middleware\RoleAuthorization::class,
             'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'role.authorization' => \App\Http\Middleware\RoleAuthorization::class,
             'patient' => \App\Http\Middleware\PatientMiddleware::class,
+            'patient.guest' => \App\Http\Middleware\RedirectIfPatient::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

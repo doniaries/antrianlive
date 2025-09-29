@@ -3,15 +3,14 @@
 namespace App\Livewire\Auth\Patient;
 
 use Livewire\Component;
-use App\Livewire\WithLayout;
+use Livewire\Attributes\Layout;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Patient;
-use App\Providers\RouteServiceProvider;
+use Illuminate\Validation\ValidationException;
 
+#[Layout('patient-auth')]
 class Login extends Component
 {
-    use WithLayout;
-
     public $email = '';
     public $password = '';
     public $remember = false;
@@ -24,25 +23,18 @@ class Login extends Component
 
     public function login()
     {
-        $this->validate();
+        $credentials = $this->validate();
 
-        $credentials = [
+        if (Auth::guard('patient')->attempt([
             'email' => $this->email,
-            'password' => $this->password,
-        ];
-
-        if (Auth::guard('patient')->attempt($credentials, $this->remember)) {
-            session()->regenerate();
+            'password' => $this->password
+        ], $this->remember)) {
             return redirect()->intended(route('patient.dashboard'));
         }
 
-        $this->addError('email', 'Email atau password salah.');
-    }
-
-    public function mount()
-    {
-        $this->layout = 'components.layouts.guest';
-        $this->title = 'Masuk Sebagai Pasien';
+        throw ValidationException::withMessages([
+            'email' => __('auth.failed'),
+        ]);
     }
 
     public function render()

@@ -25,6 +25,11 @@ class DatabaseSeeder extends Seeder
         // Create sample patients
         $this->call([
             PatientSeeder::class,
+            UserSeeder::class,
+            ServiceSeeder::class,
+            CounterSeeder::class,
+
+
         ]);
     }
 }

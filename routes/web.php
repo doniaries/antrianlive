@@ -211,21 +211,24 @@ Route::get('/tiket-front', function () {
     return view('tiket-front', compact('profil'));
 })->name('tiket.front');
 
-// Routes untuk pasien yang belum login
-Route::middleware('guest:patient')->group(function () {
-    Route::get('patient/login', \App\Livewire\Auth\Patient\Login::class)->name('patient.login');
-    Route::get('patient/register', \App\Livewire\Auth\Patient\Register::class)->name('patient.register');
-});
+// Public patient routes (accessible without authentication)
+Route::middleware(['web'])->group(function () {
+    // Only allow guest patients to access login/register
+    Route::middleware(['guest:patient'])->group(function () {
+        Route::view('patient/login', 'patient.login')->name('patient.login');
+        Route::view('patient/register', 'patient.register')->name('patient.register');
+    });
 
-// Routes untuk pasien yang sudah login
-Route::middleware('patient')->group(function () {
-    Route::get('patient/dashboard', \App\Livewire\Patient\Dashboard::class)->name('patient.dashboard');
-    Route::get('patient/ticket', \App\Livewire\Patient\Ticket::class)->name('patient.ticket');
-    
-    Route::post('patient/logout', function () {
-        auth()->guard('patient')->logout();
-        return redirect('/');
-    })->name('patient.logout');
+    // Routes that require patient authentication
+    Route::middleware(['auth:patient'])->group(function () {
+        Route::get('patient/dashboard', \App\Livewire\Patient\Dashboard::class)->name('patient.dashboard');
+        Route::get('patient/ticket', \App\Livewire\Patient\Ticket::class)->name('patient.ticket');
+        
+        Route::post('patient/logout', function () {
+            auth()->guard('patient')->logout();
+            return redirect('/');
+        })->name('patient.logout');
+    });
 });
 
 require __DIR__ . '/auth.php';

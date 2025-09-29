@@ -3,15 +3,15 @@
 namespace App\Livewire\Auth\Patient;
 
 use Livewire\Component;
+use Livewire\Attributes\Layout;
 use App\Models\Patient;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
-use App\Livewire\WithLayout;
+use Illuminate\Validation\Rules\Password;
 
+#[Layout('patient-auth')]
 class Register extends Component
 {
-    use WithLayout;
-    
     public $name = '';
     public $email = '';
     public $phone = '';
@@ -27,12 +27,6 @@ class Register extends Component
         'bpjs_number' => 'required|string|max:20|unique:patients,bpjs_number',
         'password' => 'required|string|min:8|confirmed',
     ];
-    
-    public function mount()
-    {
-        $this->layout = 'components.layouts.guest';
-        $this->title = 'Daftar Akun Pasien';
-    }
     
     public function register()
     {
