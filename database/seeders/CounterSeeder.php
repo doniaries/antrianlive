@@ -16,24 +16,35 @@ class CounterSeeder extends Seeder
         $counters = [
             [
                 'name' => 'Klaster 1',
-                'description' => 'Loket untuk layanan Poli Umum (PU)',
+                'description' => 'Melayani: Poli Umum (PU)',
+                'status' => 'buka', // buka, tutup, istirahat
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
             [
                 'name' => 'Klaster 2',
-                'description' => 'Loket untuk layanan Poli Syaraf (PS)',
+                'description' => 'Melayani: Poli Syaraf (PS)',
+                'status' => 'buka',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
             [
                 'name' => 'Klaster 3',
-                'description' => 'Loket untuk layanan Poli Anak (PA)',
+                'description' => 'Melayani: Poli Anak (PA)',
+                'status' => 'buka',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
         ];
 
-        DB::table('counters')->insert($counters);
+        // Insert counters if they don't exist
+        foreach ($counters as $counter) {
+            DB::table('counters')->updateOrInsert(
+                ['name' => $counter['name']],
+                $counter
+            );
+        }
+        
+        $this->command->info('Counters seeded successfully');
     }
 }

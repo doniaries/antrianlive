@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
+// Test route for checking relationships - can be removed in production
+require __DIR__.'/test-relationships.php';
+
 // Route untuk welcome page - menampilkan welcome jika belum login, redirect ke dashboard jika sudah login
 Route::get('/', function () {
     if (Auth::check()) {
@@ -301,5 +304,15 @@ Route::middleware([
     // Route untuk User Management (hanya untuk superadmin)
     Route::middleware(['role:superadmin'])->group(function () {
         Route::get('/users', \App\Livewire\UserManager::class)->name('users.index');
+    });
+
+    // Route untuk Manajemen Pasien
+    Route::prefix('patients')->group(function () {
+        Route::get('/', [\App\Http\Controllers\PatientController::class, 'index'])->name('patients.index');
+        Route::get('/create', [\App\Http\Controllers\PatientController::class, 'create'])->name('patients.create');
+        Route::post('/', [\App\Http\Controllers\PatientController::class, 'store'])->name('patients.store');
+        Route::get('/{patient}/edit', [\App\Http\Controllers\PatientController::class, 'edit'])->name('patients.edit');
+        Route::put('/{patient}', [\App\Http\Controllers\PatientController::class, 'update'])->name('patients.update');
+        Route::delete('/{patient}', [\App\Http\Controllers\PatientController::class, 'destroy'])->name('patients.destroy');
     });
 });

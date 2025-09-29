@@ -43,7 +43,9 @@
                 <flux:navlist.item icon="queue-list" :href="route('antrians.index')"
                     :current="request()->routeIs('antrians.index')" wire:navigate>{{ __('Antrian') }}
                 </flux:navlist.item>
-
+                <flux:navlist.item icon="user-group" :href="route('patients.index')"
+                    :current="request()->routeIs('patients.*')" wire:navigate>{{ __('Data Pasien') }}
+                </flux:navlist.item>
             </flux:navlist.group>
 
             <flux:navlist.group :heading="__('Konten Display')" class="grid">

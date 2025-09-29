@@ -11,8 +11,12 @@
         }
         
         $services = Service::with(['counters' => function($query) {
-            $query->where('status', '!=', 'tutup');
-        }])->where('is_active', true)->get();
+            $query->where('status', '!=', 'tutup')
+                  ->orderBy('name');
+        }])
+        ->where('is_active', true)
+        ->orderBy('name')
+        ->get();
         
         $profil = Profil::first();
         $pageTitle = ($profil->nama_aplikasi ?? 'Ambil Tiket Antrian') . ' - ' . ($profil->nama_instansi ?? 'Sistem Antrian');

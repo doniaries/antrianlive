@@ -3,30 +3,47 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Patient extends Authenticatable
+class Patient extends Model
 {
-    use HasApiTokens, HasFactory, Notifiable;
-
-    protected $guard = 'patient';
+    use HasFactory;
 
     protected $fillable = [
+        'medical_record_number',
         'name',
-        'email',
+        'nik',
+        'date_of_birth',
+        'gender',
         'phone',
+        'address',
         'bpjs_number',
-        'password',
     ];
 
-    protected $hidden = [
-        'password',
-        'remember_token',
+    protected $dates = [
+        'date_of_birth',
     ];
 
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
+    /**
+     * Get the antrians for the patient.
+     */
+    public function antrians(): HasMany
+    {
+        return $this->hasMany(Antrian::class);
+    }
+
+    /**
+     * Scope a query to only include patients that match the search term.
+     */
+    public function scopeFilter($query, array $filters)
+    {
+        $query->when($filters['search'] ?? null, function ($query, $search) {
+            $query->where(function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('nik', 'like', '%' . $search . '%')
+                    ->orWhere('medical_record_number', 'like', '%' . $search . '%');
+            });
+        });
+    }
 }

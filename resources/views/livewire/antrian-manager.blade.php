@@ -214,34 +214,112 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div>
                                         <div class="font-medium text-sm">{{ $antrian->service->name }}</div>
-                                        <div
-                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                            @php
-$serviceCode = $antrian->service->code;
-                                                $colorMap = [
-                                                    'PU' => 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
-                                                    'PS' => 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-                                                    'PA' => 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-                                                ];
+                                        @php
+                                            $serviceCode = $antrian->service->code;
+                                            $colorMap = [
+                                                'PU' => [
+                                                    'bg' => 'bg-red-100',
+                                                    'text' => 'text-red-800',
+                                                    'dark' => [
+                                                        'bg' => 'dark:bg-red-900',
+                                                        'text' => 'dark:text-red-300'
+                                                    ]
+                                                ],
+                                                'PS' => [
+                                                    'bg' => 'bg-blue-100',
+                                                    'text' => 'text-blue-800',
+                                                    'dark' => [
+                                                        'bg' => 'dark:bg-blue-900',
+                                                        'text' => 'dark:text-blue-300'
+                                                    ]
+                                                ],
+                                                'PA' => [
+                                                    'bg' => 'bg-green-100',
+                                                    'text' => 'text-green-800',
+                                                    'dark' => [
+                                                        'bg' => 'dark:bg-green-900',
+                                                        'text' => 'dark:text-green-300'
+                                                    ]
+                                                ]
+                                            ];
 
-                                                if (isset($colorMap[$serviceCode])) {
-                                                    $colorClass = $colorMap[$serviceCode];
-                                                } else {
-                                                    $hash = crc32($serviceCode);
-                                                    $colors = [
-                                                        'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
-                                                        'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-                                                        'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-300',
-                                                        'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300',
-                                                        'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300',
-                                                        'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-300',
-                                                        'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-300',
-                                                        'bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-300',
-                                                    ];
-                                                    $colorClass = $colors[abs($hash) % count($colors)];
-                                                } @endphp
-                                            {{ $colorClass }}
-                                        ">
+                                            $defaultColors = [
+                                                [
+                                                    'bg' => 'bg-purple-100',
+                                                    'text' => 'text-purple-800',
+                                                    'dark' => [
+                                                        'bg' => 'dark:bg-purple-900',
+                                                        'text' => 'dark:text-purple-300'
+                                                    ]
+                                                ],
+                                                [
+                                                    'bg' => 'bg-yellow-100',
+                                                    'text' => 'text-yellow-800',
+                                                    'dark' => [
+                                                        'bg' => 'dark:bg-yellow-900',
+                                                        'text' => 'dark:text-yellow-300'
+                                                    ]
+                                                ],
+                                                [
+                                                    'bg' => 'bg-pink-100',
+                                                    'text' => 'text-pink-800',
+                                                    'dark' => [
+                                                        'bg' => 'dark:bg-pink-900',
+                                                        'text' => 'dark:text-pink-300'
+                                                    ]
+                                                ],
+                                                [
+                                                    'bg' => 'bg-indigo-100',
+                                                    'text' => 'text-indigo-800',
+                                                    'dark' => [
+                                                        'bg' => 'dark:bg-indigo-900',
+                                                        'text' => 'dark:text-indigo-300'
+                                                    ]
+                                                ],
+                                                [
+                                                    'bg' => 'bg-orange-100',
+                                                    'text' => 'text-orange-800',
+                                                    'dark' => [
+                                                        'bg' => 'dark:bg-orange-900',
+                                                        'text' => 'dark:text-orange-300'
+                                                    ]
+                                                ],
+                                                [
+                                                    'bg' => 'bg-teal-100',
+                                                    'text' => 'text-teal-800',
+                                                    'dark' => [
+                                                        'bg' => 'dark:bg-teal-900',
+                                                        'text' => 'dark:text-teal-300'
+                                                    ]
+                                                ],
+                                                [
+                                                    'bg' => 'bg-cyan-100',
+                                                    'text' => 'text-cyan-800',
+                                                    'dark' => [
+                                                        'bg' => 'dark:bg-cyan-900',
+                                                        'text' => 'dark:text-cyan-300'
+                                                    ]
+                                                ],
+                                                [
+                                                    'bg' => 'bg-rose-100',
+                                                    'text' => 'text-rose-800',
+                                                    'dark' => [
+                                                        'bg' => 'dark:bg-rose-900',
+                                                        'text' => 'dark:text-rose-300'
+                                                    ]
+                                                ]
+                                            ];
+
+                                            if (isset($colorMap[$serviceCode])) {
+                                                $colorSet = $colorMap[$serviceCode];
+                                            } else {
+                                                $hash = crc32($serviceCode);
+                                                $colorSet = $defaultColors[abs($hash) % count($defaultColors)];
+                                            }
+                                        @endphp
+                                        <div class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                            {{ $colorSet['bg'] }} {{ $colorSet['text'] }} 
+                                            {{ $colorSet['dark']['bg'] }} {{ $colorSet['dark']['text'] }}">
                                             {{ $antrian->service->code }}</div>
                                     </div>
                                 </td>
