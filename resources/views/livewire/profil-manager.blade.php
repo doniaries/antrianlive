@@ -1,5 +1,5 @@
 <div class="min-h-screen bg-zinc-50 dark:bg-zinc-900">
-    <div class="bg-white dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 px-4 py-4 sm:px-6">
+    <div class="bg-white dark:bg-zinc-800 border-b border-gray-200 dark:border-zinc-700 px-4 py-4 sm:px-6 shadow-sm">
         <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Pengaturan Profil Instansi</h1>
         <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">Kelola informasi profil instansi Anda</p>
     </div>
@@ -8,13 +8,13 @@
         <form wire:submit.prevent="save" class="space-y-6" enctype="multipart/form-data">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Kolom Kiri - Informasi Utama -->
-                <div class="lg:col-span-2 bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6 shadow-sm">
+                <div class="lg:col-span-2 bg-white dark:bg-zinc-800 rounded-lg border border-gray-200 dark:border-zinc-700 p-6 shadow-sm">
                     <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 mb-4">Informasi Utama</h2>
                     <div class="space-y-4">
                         <div>
                             <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Nama Instansi</label>
                             <input type="text" wire:model="nama_instansi" placeholder="Masukkan nama instansi" required
-                                class="w-full rounded-md border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 focus:border-indigo-500 focus:ring-indigo-500">
+                                class="w-full rounded-md border border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-gray-900 dark:text-zinc-100 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-500/50 transition duration-150 ease-in-out">
                             @error('nama_instansi')
                                 <p class="text-sm text-red-600 dark:text-red-400 mt-1">{{ $message }}</p>
                             @enderror
@@ -23,7 +23,7 @@
                         <div>
                             <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Alamat</label>
                             <textarea wire:model="alamat" placeholder="Masukkan alamat lengkap" rows="4" required
-                                class="w-full rounded-md border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 focus:border-indigo-500 focus:ring-indigo-500"></textarea>
+                                class="w-full rounded-md border border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-gray-900 dark:text-zinc-100 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-500/50 transition duration-150 ease-in-out"></textarea>
                             @error('alamat')
                                 <p class="text-sm text-red-600 dark:text-red-400 mt-1">{{ $message }}</p>
                             @enderror
@@ -33,7 +33,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Nomor Telepon</label>
                                 <input type="text" wire:model="no_telepon" placeholder="Masukkan nomor telepon" required
-                                    class="w-full rounded-md border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 focus:border-indigo-500 focus:ring-indigo-500">
+                                    class="w-full rounded-md border border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-gray-900 dark:text-zinc-100 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-500/50 transition duration-150 ease-in-out">
                                 @error('no_telepon')
                                     <p class="text-sm text-red-600 dark:text-red-400 mt-1">{{ $message }}</p>
                                 @enderror
@@ -42,7 +42,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Email</label>
                                 <input type="email" wire:model="email" placeholder="Masukkan email" required
-                                    class="w-full rounded-md border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 focus:border-indigo-500 focus:ring-indigo-500">
+                                    class="w-full rounded-md border border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-gray-900 dark:text-zinc-100 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-500/50 transition duration-150 ease-in-out">
                                 @error('email')
                                     <p class="text-sm text-red-600 dark:text-red-400 mt-1">{{ $message }}</p>
                                 @enderror
@@ -52,14 +52,14 @@
                 </div>
 
                 <!-- Kolom Kanan - Logo -->
-                <div class="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-4 shadow-sm">
+                <div class="bg-white dark:bg-zinc-800 rounded-lg border border-gray-200 dark:border-zinc-700 p-6 shadow-sm">
                     <h2 class="text-md font-semibold text-zinc-900 dark:text-zinc-100 mb-3">Logo Instansi</h2>
                     <div class="space-y-3">
                         <div>
                             <div class="mt-1 space-y-2">
                                 @if ($existing_logo && !$logo)
                                     <div class="relative">
-                                        <img src="{{ asset('storage/' . $existing_logo) }}" alt="Logo" class="h-20 w-auto rounded border border-zinc-200 dark:border-zinc-600 mx-auto">
+                                        <img src="{{ asset('storage/' . $existing_logo) }}" alt="Logo" class="h-20 w-auto rounded border border-gray-300 dark:border-zinc-600 mx-auto bg-white dark:bg-zinc-800 p-1">
                                         <p class="text-xs text-center text-zinc-500 dark:text-zinc-400 mt-1">Logo saat ini</p>
                                     </div>
                                     
@@ -73,12 +73,12 @@
                                 
                                 @if ($logo)
                                     <div class="relative">
-                                        <img src="{{ $logo->temporaryUrl() }}" alt="Logo Preview" class="h-20 w-auto rounded border border-zinc-200 dark:border-zinc-600 mx-auto">
+                                        <img src="{{ $logo->temporaryUrl() }}" alt="Logo Preview" class="h-20 w-auto rounded border border-gray-300 dark:border-zinc-600 mx-auto bg-white dark:bg-zinc-800 p-1">
                                         <p class="text-xs text-center text-zinc-500 dark:text-zinc-400 mt-1">Preview logo baru</p>
                                         
                                         <div class="mt-4">
                                             <p class="text-xs text-center text-zinc-500 dark:text-zinc-400 mb-1">Favicon akan dibuat otomatis dari logo ini</p>
-                                            <div class="h-12 w-12 rounded border border-zinc-200 dark:border-zinc-600 mx-auto flex items-center justify-center bg-gray-100 dark:bg-gray-700">
+                                            <div class="h-12 w-12 rounded border border-gray-300 dark:border-zinc-600 mx-auto flex items-center justify-center bg-white dark:bg-zinc-800">
                                                 <span class="text-xs text-gray-500">Favicon</span>
                                             </div>
                                         </div>
