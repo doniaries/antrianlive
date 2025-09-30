@@ -111,7 +111,7 @@
         </form>
 
         <div x-data="{ showSuccess: false, showError: false, message: '' }" 
-             @profile-saved.window="showSuccess = true; message = $event.detail.message; setTimeout(() => { showSuccess = false; window.location.reload(); }, 1500)"
+             @profile-saved.window="showSuccess = true; message = $event.detail.message; setTimeout(() => { showSuccess = false; window.location.reload(); }, 5000)"
              @profile-error.window="showError = true; message = $event.detail.message; setTimeout(() => showError = false, 5000)">
             
             <div x-show="showSuccess" x-transition:enter="transition ease-out duration-300" 
