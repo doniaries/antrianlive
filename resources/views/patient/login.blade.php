@@ -1,3 +1,7 @@
+@php
+use Illuminate\Support\Facades\Cookie;
+@endphp
+
 <x-layouts.patient-auth :title="'Masuk - Pasien'">
 <div class="flex flex-col gap-6">
     <x-auth-header :title="__('Masuk ke Akun Pasien')" :description="__('Masukkan email dan password Anda untuk masuk')" />
@@ -18,7 +22,7 @@
                     type="text"
                     required
                     autofocus
-                    :value="old('login')"
+                    :value="old('login', Cookie::get('patient_login_remember'))"
                     placeholder="Email atau Nomor BPJS"
                 />
                 @error('login')
@@ -53,7 +57,12 @@
         @enderror
 
         <!-- Remember Me -->
-        <flux:checkbox name="remember" :label="__('Ingat Saya')" />
+        <div class="flex items-center justify-between">
+            <label class="inline-flex items-center">
+                <input type="checkbox" name="remember" id="remember" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500" {{ old('remember') ? 'checked' : '' }}>
+                <span class="ms-2 text-sm text-gray-600 dark:text-gray-300">{{ __('Ingat Saya') }}</span>
+            </label>
+        </div>
 
         <div class="flex items-center justify-end">
             <flux:button variant="primary" type="submit" class="w-full">{{ __('Masuk') }}</flux:button>

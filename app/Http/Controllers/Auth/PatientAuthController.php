@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Patient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
@@ -31,6 +32,14 @@ class PatientAuthController extends Controller
 
         // Determine if the login is an email or BPJS number
         $fieldType = filter_var($request->login, FILTER_VALIDATE_EMAIL) ? 'email' : 'bpjs_number';
+        
+        // Store login in cookie if remember me is checked
+        if ($request->has('remember')) {
+            $minutes = 60 * 24 * 30; // 30 days
+            cookie()->queue('patient_login_remember', $request->login, $minutes);
+        } else {
+            cookie()->queue(cookie()->forget('patient_login_remember'));
+        }
         
         // Attempt to authenticate the patient
         if (Auth::guard('patient')->attempt(

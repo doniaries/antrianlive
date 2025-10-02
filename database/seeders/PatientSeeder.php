@@ -8,6 +8,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class PatientSeeder extends Seeder
 {
@@ -20,7 +21,7 @@ class PatientSeeder extends Seeder
             [
                 'name' => 'Budi Santoso',
                 'email' => 'budi.santoso@example.com',
-                'password' => bcrypt('password123'),
+                'password' => Hash::make('password123'),
                 'nik' => '1234560101010001',
                 'date_of_birth' => '1990-01-01',
                 'gender' => 'L',
@@ -29,11 +30,13 @@ class PatientSeeder extends Seeder
                 'address' => 'Jl. Mawar No. 10, Jakarta Selatan',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'email_verified_at' => now(),
+                'remember_token' => Str::random(10),
             ],
             [
                 'name' => 'Siti Rahayu',
                 'email' => 'siti.rahayu@example.com',
-                'password' => bcrypt('password123'),
+                'password' => Hash::make('password123'),
                 'nik' => '1234560202020002',
                 'date_of_birth' => '1992-02-02',
                 'gender' => 'P',
@@ -42,11 +45,13 @@ class PatientSeeder extends Seeder
                 'address' => 'Jl. Melati No. 15, Jakarta Pusat',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'email_verified_at' => now(),
+                'remember_token' => Str::random(10),
             ],
             [
                 'name' => 'Agus Setiawan',
                 'email' => 'agus.setiawan@example.com',
-                'password' => bcrypt('password123'),
+                'password' => Hash::make('password123'),
                 'nik' => '1234560303030003',
                 'date_of_birth' => '1988-03-03',
                 'gender' => 'L',
@@ -55,11 +60,13 @@ class PatientSeeder extends Seeder
                 'address' => 'Jl. Anggrek No. 20, Jakarta Barat',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'email_verified_at' => now(),
+                'remember_token' => Str::random(10),
             ],
             [
                 'name' => 'Dewi Lestari',
                 'email' => 'dewi.lestari@example.com',
-                'password' => bcrypt('password123'),
+                'password' => Hash::make('password123'),
                 'nik' => '1234560404040004',
                 'date_of_birth' => '1995-04-04',
                 'gender' => 'P',
@@ -68,11 +75,13 @@ class PatientSeeder extends Seeder
                 'address' => 'Jl. Kamboja No. 25, Jakarta Utara',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'email_verified_at' => now(),
+                'remember_token' => Str::random(10),
             ],
             [
                 'name' => 'Joko Widodo',
                 'email' => 'joko.widodo@example.com',
-                'password' => bcrypt('password123'),
+                'password' => Hash::make('password123'),
                 'nik' => '1234560505050005',
                 'date_of_birth' => '1961-06-21',
                 'gender' => 'L',
@@ -81,6 +90,8 @@ class PatientSeeder extends Seeder
                 'address' => 'Jl. Kenanga No. 30, Jakarta Timur',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'email_verified_at' => now(),
+                'remember_token' => Str::random(10),
             ]
         ];
 
