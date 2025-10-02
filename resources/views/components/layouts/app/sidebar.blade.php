@@ -113,7 +113,7 @@
         @auth
             <!-- Desktop User Menu -->
             <flux:dropdown class="hidden lg:block" position="bottom" align="start">
-                <flux:profile :name="auth()->user()->name" :initials="auth()->user()->initials()"
+                <flux:profile :name="auth()->user()->name" :initials="auth()->user()->initials"
                     icon:trailing="chevrons-up-down" />
 
                 <flux:menu class="w-[220px]">
@@ -123,7 +123,7 @@
                                 <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg">
                                     <span
                                         class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
-                                        {{ auth()->user()->initials() }}
+                                        {{ auth()->user()->initials }}
                                     </span>
                                 </span>
 
@@ -174,7 +174,7 @@
 
         @auth
             <flux:dropdown position="top" align="end">
-                <flux:profile :initials="auth()->user()->initials()" icon-trailing="chevron-down" />
+                <flux:profile :initials="auth()->user()->initials" icon-trailing="chevron-down" />
 
                 <flux:menu>
                     <flux:menu.radio.group>
@@ -182,7 +182,7 @@
                             <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
                                 <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg">
                                     <span class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
-                                        {{ auth()->user()->initials() }}
+                                        {{ auth()->user()->initials }}
                                     </span>
                                 </span>
 

@@ -237,7 +237,8 @@ Route::get('/tiket-front', function () {
 Route::middleware(['web'])->group(function () {
     // Only allow guest patients to access login/register
     Route::middleware(['guest:patient'])->group(function () {
-        Route::view('patient/login', 'patient.login')->name('patient.login');
+        Route::get('patient/login', [\App\Http\Controllers\Auth\PatientAuthController::class, 'showLoginForm'])->name('patient.login');
+        Route::post('patient/login', [\App\Http\Controllers\Auth\PatientAuthController::class, 'login'])->name('patient.login.submit');
         Route::view('patient/register', 'patient.register')->name('patient.register');
     });
 
@@ -246,10 +247,7 @@ Route::middleware(['web'])->group(function () {
         Route::get('patient/dashboard', \App\Livewire\Patient\Dashboard::class)->name('patient.dashboard');
         Route::get('patient/ticket', \App\Livewire\Patient\Ticket::class)->name('patient.ticket');
 
-        Route::post('patient/logout', function () {
-            auth()->guard('patient')->logout();
-            return redirect('/');
-        })->name('patient.logout');
+        Route::post('patient/logout', [\App\Http\Controllers\Auth\PatientAuthController::class, 'logout'])->name('patient.logout');
     });
 });
 

@@ -50,6 +50,31 @@ class Patient extends Authenticatable
     }
 
     /**
+     * Get the user's initials.
+     *
+     * @return string
+     */
+    public function getInitialsAttribute(): string
+    {
+        $name = $this->name;
+        $initials = '';
+        
+        $words = explode(' ', $name);
+        
+        // Get the first letter of each word
+        foreach ($words as $word) {
+            $initials .= strtoupper(substr($word, 0, 1));
+            
+            // Limit to 2 characters for initials
+            if (strlen($initials) >= 2) {
+                break;
+            }
+        }
+        
+        return $initials;
+    }
+
+    /**
      * Scope a query to only include patients that match the search term.
      */
     public function scopeFilter($query, array $filters)
