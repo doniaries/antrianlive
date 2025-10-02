@@ -15,60 +15,69 @@
         </a>
 
         <flux:navlist variant="outline">
-            <flux:navlist.group :heading="__('Platform')" class="grid">
-                <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')"
-                    wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
-                
-                @auth
-                    <flux:navlist.item icon="ticket" :href="route('ambil-tiket')" target="front_tiket"
-                        :current="request()->routeIs('ambil-tiket')">{{ __('Ambil Tiket') }}
+            @if(auth()->guard('patient')->check())
+                <!-- Menu for Patients -->
+                <flux:navlist.group :heading="__('Menu Pasien')" class="grid">
+                    <flux:navlist.item icon="home" :href="route('patient.dashboard')" :current="request()->routeIs('patient.dashboard')"
+                        wire:navigate>{{ __('Dashboard') }}
                     </flux:navlist.item>
-                @endauth
-                
-                <flux:navlist.item icon="ticket" :href="route('tiket.front')" target="front_tiket"
-                    :current="request()->routeIs('tiket.front')">{{ __('Tiket Front') }}
-                </flux:navlist.item>
-                <flux:navlist.item icon="ticket" :href="route('display')" target="front_display"
-                    :current="request()->routeIs('display')">{{ __('Display Antrian') }}
-                </flux:navlist.item>
-            </flux:navlist.group>
+                    <flux:navlist.item icon="ticket" :href="route('patient.ticket')" 
+                        :current="request()->routeIs('patient.ticket')">{{ __('Ambil Tiket') }}
+                    </flux:navlist.item>
+                </flux:navlist.group>
+            @else
+                <!-- Menu for Admin/Staff -->
+                <flux:navlist.group :heading="__('Platform')" class="grid">
+                    <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')"
+                        wire:navigate>{{ __('Dashboard') }}
+                    </flux:navlist.item>
+                    <flux:navlist.item icon="ticket" :href="route('tiket.front')" target="front_tiket"
+                        :current="request()->routeIs('tiket.front')">{{ __('Tiket Front') }}
+                    </flux:navlist.item>
+                    <flux:navlist.item icon="ticket" :href="route('display')" target="front_display"
+                        :current="request()->routeIs('display')">{{ __('Display Antrian') }}
+                    </flux:navlist.item>
+                </flux:navlist.group>
 
-            <flux:navlist.group :heading="__('Manajemen Antrian')" class="grid">
-                <flux:navlist.item icon="clipboard-document-list" :href="route('services.index')"
-                    :current="request()->routeIs('services.index')" wire:navigate>{{ __('Layanan') }}
-                </flux:navlist.item>
-                <flux:navlist.item icon="building-storefront" :href="route('counters.index')"
-                    :current="request()->routeIs('counters.index')" wire:navigate>{{ __('Loket') }}
-                </flux:navlist.item>
-                <flux:navlist.item icon="queue-list" :href="route('antrians.index')"
-                    :current="request()->routeIs('antrians.index')" wire:navigate>{{ __('Antrian') }}
-                </flux:navlist.item>
+                <flux:navlist.group :heading="__('Manajemen Antrian')" class="grid">
+                    <flux:navlist.item icon="clipboard-document-list" :href="route('services.index')"
+                        :current="request()->routeIs('services.index')" wire:navigate>{{ __('Layanan') }}
+                    </flux:navlist.item>
+                    <flux:navlist.item icon="building-storefront" :href="route('counters.index')"
+                        :current="request()->routeIs('counters.index')" wire:navigate>{{ __('Loket') }}
+                    </flux:navlist.item>
+                    <flux:navlist.item icon="queue-list" :href="route('antrians.index')"
+                        :current="request()->routeIs('antrians.index')" wire:navigate>{{ __('Antrian') }}
+                    </flux:navlist.item>
+                    @if(in_array(auth()->user()->role ?? '', ['superadmin', 'petugas']))
+                        <flux:navlist.item icon="user-group" :href="route('patients.index')"
+                            :current="request()->routeIs('patients.*')" wire:navigate>{{ __('Data Pasien') }}
+                        </flux:navlist.item>
+                    @endif
+                </flux:navlist.group>
+
+                <flux:navlist.group :heading="__('Konten Display')" class="grid">
+                    <flux:navlist.item icon="chat-bubble-left-right" :href="route('running-teks.index')"
+                        :current="request()->routeIs('running-teks.*')" wire:navigate>{{ __('Running Teks') }}
+                    </flux:navlist.item>
+                    <flux:navlist.item icon="video-camera" :href="route('video.index')"
+                        :current="request()->routeIs('video.*')" wire:navigate>{{ __('Video') }}
+                    </flux:navlist.item>
+                </flux:navlist.group>
+
                 @if(auth()->check() && in_array(auth()->user()->role, ['superadmin', 'petugas']))
-                <flux:navlist.item icon="user-group" :href="route('patients.index')"
-                    :current="request()->routeIs('patients.*')" wire:navigate>{{ __('Data Pasien') }}
-                </flux:navlist.item>
+                    <flux:navlist.group :heading="__('Pengaturan')" class="grid">
+                        <flux:navlist.item icon="cog" :href="route('profil.index')"
+                            :current="request()->routeIs('profil.*')" wire:navigate>{{ __('Profil Instansi') }}
+                        </flux:navlist.item>
+                        @if(auth()->user()->role === 'superadmin')
+                            <flux:navlist.item icon="users" :href="route('users.index')"
+                                :current="request()->routeIs('users.*')" wire:navigate>{{ __('Manajemen user') }}
+                            </flux:navlist.item>
+                        @endif
+                    </flux:navlist.group>
                 @endif
-            </flux:navlist.group>
-
-            <flux:navlist.group :heading="__('Konten Display')" class="grid">
-                <flux:navlist.item icon="chat-bubble-left-right" :href="route('running-teks.index')"
-                    :current="request()->routeIs('running-teks.*')" wire:navigate>{{ __('Running Teks') }}
-                </flux:navlist.item>
-                <flux:navlist.item icon="video-camera" :href="route('video.index')"
-                    :current="request()->routeIs('video.*')" wire:navigate>{{ __('Video') }}
-                </flux:navlist.item>
-            </flux:navlist.group>
-
-            <flux:navlist.group :heading="__('Pengaturan')" class="grid">
-                <flux:navlist.item icon="cog" :href="route('profil.index')"
-                    :current="request()->routeIs('profil.*')" wire:navigate>{{ __('Profil Instansi') }}
-                </flux:navlist.item>
-                @if (auth()->check() && auth()->user()->role === 'superadmin')
-                    <flux:navlist.item icon="users" :href="route('users.index')"
-                        :current="request()->routeIs('users.*')" wire:navigate>{{ __('Manajemen user') }}
-                    </flux:navlist.item>
-                @endif
-            </flux:navlist.group>
+            @endif
 
         </flux:navlist>
 
